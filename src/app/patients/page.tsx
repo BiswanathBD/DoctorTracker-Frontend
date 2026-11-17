@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
@@ -26,7 +27,8 @@ import {
   HeartPulse,
   RefreshCw,
   AlertCircle,
-  Eye
+  Eye,
+  Camera
 } from 'lucide-react';
 
 function PatientsContent() {
@@ -71,11 +73,14 @@ function PatientsContent() {
     doctorId: '',
     admissionDate: new Date().toISOString().split('T')[0],
   });
+  const [patientAvatarFile, setPatientAvatarFile] = useState<File | null>(null);
+  const avatarInputRef = React.useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
 
   // open create modal
   const handleOpenCreateModal = useCallback(() => {
     setEditingPatient(null);
+    setPatientAvatarFile(null);
     setPatientForm({
       name: '',
       age: '',
@@ -178,6 +183,7 @@ function PatientsContent() {
   // open edit modal
   const handleOpenEditModal = (patient: Patient) => {
     setEditingPatient(patient);
+    setPatientAvatarFile(null);
     const assignedDocId =
       typeof patient.doctorId === 'object' && patient.doctorId !== null
         ? patient.doctorId._id
@@ -217,9 +223,15 @@ function PatientsContent() {
 
       if (editingPatient) {
         await PatientService.updatePatient(editingPatient._id, payload);
+        if (patientAvatarFile) {
+          await PatientService.updateAvatar(editingPatient._id, patientAvatarFile);
+        }
         toast.success('Patient Updated', `${patientForm.name}'s record has been updated.`);
       } else {
-        await PatientService.createPatient(payload);
+        const created = await PatientService.createPatient(payload);
+        if (patientAvatarFile) {
+          await PatientService.updateAvatar(created._id, patientAvatarFile);
+        }
         toast.success('Patient Registered', `${patientForm.name} has been admitted and assigned.`);
       }
 
@@ -268,24 +280,22 @@ function PatientsContent() {
     <div className="w-full flex gap-6 items-start">
       <div className="flex-1 min-w-0 space-y-7">
       {/* header */}
-      <MotionWrapper direction="up">
-        <PageHeader
-          icon={<Users size={42} strokeWidth={1.2} />}
-          title="Patient Management"
-          subtitle="Track patient admissions, manage medical conditions, and assign specialized doctors."
-          actions={
-            <Button
-              onClick={handleOpenCreateModal}
-              variant="secondary"
-              size="md"
-              leftIcon={<Plus className="w-4 h-4" />}
-              className="shadow-lg shadow-secondary/25 cursor-pointer"
-            >
-              Register Patient
-            </Button>
-          }
-        />
-      </MotionWrapper>
+      <PageHeader
+        icon={<Users size={42} strokeWidth={1.2} />}
+        title="Patient Management"
+        subtitle="Track patient admissions, manage medical conditions, and assign specialized doctors."
+        actions={
+          <Button
+            onClick={handleOpenCreateModal}
+            variant="secondary"
+            size="md"
+            leftIcon={<Plus className="w-4 h-4" />}
+            className="cursor-pointer"
+          >
+            Register Patient
+          </Button>
+        }
+      />
 
       {/* filter toolbar */}
       <MotionWrapper delay={0.1} direction="up">
@@ -441,11 +451,21 @@ function PatientsContent() {
                 </p>
               </div>
               {hasActiveFilters ? (
-                <Button variant="outline" size="sm" onClick={handleResetFilters}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleResetFilters}
+                  leftIcon={<X className="w-3.5 h-3.5" />}
+                >
                   Clear Filters
                 </Button>
               ) : (
-                <Button variant="secondary" size="sm" onClick={handleOpenCreateModal}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleOpenCreateModal}
+                  leftIcon={<Plus className="w-3.5 h-3.5" />}
+                >
                   Register First Patient
                 </Button>
               )}
@@ -473,8 +493,18 @@ function PatientsContent() {
                         {/* patient name */}
                         <td className="py-4 px-5">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center font-bold text-sm flex-shrink-0 group-hover:bg-secondary group-hover:text-secondary-foreground transition-all">
-                              <Users className="w-4 h-4" />
+                            <div className="relative w-9 h-9 rounded-2xl bg-secondary/10 text-secondary overflow-hidden flex items-center justify-center font-bold text-sm shrink-0 border border-secondary/20 shadow-xs">
+                              {patient.avatar?.url ? (
+                                <Image
+                                  src={patient.avatar.url}
+                                  alt={patient.name}
+                                  fill
+                                  sizes="36px"
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <Users className="w-4 h-4" />
+                              )}
                             </div>
                             <div className="min-w-0">
                               <p className="font-bold text-foreground group-hover:text-secondary transition-colors text-sm">
@@ -503,14 +533,27 @@ function PatientsContent() {
                         {/* assigned doctor */}
                         <td className="py-4 px-4">
                           {docObj ? (
-                            <div className="space-y-0.5">
-                              <p className="font-bold text-foreground text-xs flex items-center gap-1.5">
-                                <Stethoscope className="w-3.5 h-3.5 text-primary" />
-                                {docObj.name}
-                              </p>
-                              <p className="text-[10px] text-muted-foreground">
-                                {docObj.specialization} • {docObj.hospital}
-                              </p>
+                            <div className="flex items-center gap-2">
+                              {docObj.avatar?.url ? (
+                                <div className="relative w-7 h-7 rounded-xl overflow-hidden border border-primary/20 shrink-0">
+                                  <Image
+                                    src={docObj.avatar.url}
+                                    alt={docObj.name}
+                                    fill
+                                    sizes="28px"
+                                    className="object-cover"
+                                  />
+                                </div>
+                              ) : null}
+                              <div className="space-y-0.5 min-w-0">
+                                <p className="font-bold text-foreground text-xs flex items-center gap-1.5 truncate">
+                                  {!docObj.avatar?.url && <Stethoscope className="w-3.5 h-3.5 text-primary shrink-0" />}
+                                  <span className="truncate">{docObj.name}</span>
+                                </p>
+                                <p className="text-[10px] text-muted-foreground truncate">
+                                  {docObj.specialization} • {docObj.hospital}
+                                </p>
+                              </div>
                             </div>
                           ) : (
                             <span className="text-muted-foreground italic text-xs">Unassigned</span>
@@ -622,6 +665,12 @@ function PatientsContent() {
         patient={selectedPatient}
         isOpen={isDetailCardOpen}
         onClose={() => setIsDetailCardOpen(false)}
+        onAvatarUpdated={(updatedPat) => {
+          setSelectedPatient(updatedPat);
+          setPatients((prev) =>
+            prev.map((p) => (p._id === updatedPat._id ? { ...p, avatar: updatedPat.avatar } : p))
+          );
+        }}
         onEdit={(p) => {
           setIsDetailCardOpen(false);
           handleOpenEditModal(p);
@@ -737,6 +786,45 @@ function PatientsContent() {
             />
           </div>
 
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-foreground">Patient Photo (Optional)</label>
+            <div className="flex items-center gap-3">
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                onChange={(e) => setPatientAvatarFile(e.target.files?.[0] || null)}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => avatarInputRef.current?.click()}
+                leftIcon={<Camera className="w-3.5 h-3.5 text-secondary" />}
+                className="text-xs font-semibold cursor-pointer"
+              >
+                {patientAvatarFile
+                  ? patientAvatarFile.name
+                  : editingPatient?.avatar?.url
+                  ? 'Change Photo'
+                  : 'Choose Photo'}
+              </Button>
+              {patientAvatarFile && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPatientAvatarFile(null);
+                    if (avatarInputRef.current) avatarInputRef.current.value = '';
+                  }}
+                  className="text-xs text-destructive hover:underline cursor-pointer"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          </div>
+
           <div className="pt-3 border-t border-border flex items-center justify-end gap-2.5">
             <Button
               type="button"
@@ -780,6 +868,7 @@ function PatientsContent() {
               variant="destructive"
               size="sm"
               onClick={handleDeletePatient}
+              leftIcon={<Trash2 className="w-3.5 h-3.5" />}
             >
               Confirm Delete
             </Button>

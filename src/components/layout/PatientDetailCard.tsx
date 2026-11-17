@@ -1,11 +1,11 @@
 'use client';
 
-import React from 'react';
-import { type Patient } from '@/server/patient.service';
-import { Button, Badge, SideSheet } from '@/components/ui';
+import React, { useRef, useState } from 'react';
+import Image from 'next/image';
+import { PatientService, type Patient } from '@/server/patient.service';
+import { Button, Badge, SideSheet, toast } from '@/components/ui';
 import {
   HeartPulse,
-  User,
   Stethoscope,
   Phone,
   Mail,
@@ -14,7 +14,8 @@ import {
   Edit2,
   Trash2,
   Building2,
-  Activity
+  Activity,
+  Camera
 } from 'lucide-react';
 
 interface PatientDetailCardProps {
@@ -23,6 +24,7 @@ interface PatientDetailCardProps {
   onClose: () => void;
   onEdit: (patient: Patient) => void;
   onDelete: (patient: Patient) => void;
+  onAvatarUpdated?: (patient: Patient) => void;
 }
 
 export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
@@ -31,13 +33,41 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
   onClose,
   onEdit,
   onDelete,
+  onAvatarUpdated,
 }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
   if (!patient) return null;
 
   const attendingDoctor =
     patient.doctorId && typeof patient.doctorId === 'object'
       ? patient.doctorId
       : null;
+
+  // upload patient avatar
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Invalid file', 'Please select an image file (PNG, JPG, WEBP).');
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const updated = await PatientService.updateAvatar(patient._id, file);
+      toast.success('Avatar Updated', `Avatar updated for ${patient.name}.`);
+      onAvatarUpdated?.(updated);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'failed to upload avatar';
+      toast.error('Upload Failed', msg);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   return (
     <SideSheet isOpen={isOpen} onClose={onClose} width="lg">
@@ -58,18 +88,50 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
               type="button"
               onClick={onClose}
               className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/70 cursor-pointer transition-colors"
-              aria-label="Close patient details"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* patient info */}
+        {/* patient info & avatar */}
         <div className="flex items-center gap-3.5">
-          <div className="w-14 h-14 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center font-bold text-lg shrink-0">
-            <User className="w-7 h-7" />
+          <div className="relative group shrink-0">
+            {patient.avatar?.url ? (
+              <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-secondary/25 shadow-md">
+                <Image
+                  src={patient.avatar.url}
+                  alt={patient.name}
+                  fill
+                  sizes="64px"
+                  className="object-cover"
+                />
+              </div>
+            ) : (
+              <div className="w-16 h-16 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center font-black text-xl uppercase border border-secondary/20 shadow-xs">
+                {patient.name?.charAt(0) || 'P'}
+              </div>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="absolute inset-0 rounded-2xl bg-black/60 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer disabled:opacity-50"
+            >
+              <Camera className="w-4 h-4 mb-0.5" />
+              <span className="text-[9px] font-bold">
+                {isUploading ? '...' : 'Photo'}
+              </span>
+            </button>
           </div>
+
           <div className="min-w-0 flex-1">
             <h3 className="font-extrabold text-foreground text-base tracking-tight truncate">
               {patient.name}
@@ -117,13 +179,30 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
           {attendingDoctor ? (
             <div className="p-3.5 rounded-2xl bg-primary/5 border border-primary/20 space-y-2">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-black text-foreground">{attendingDoctor.name}</p>
-                  <p className="text-[11px] text-primary font-semibold">
-                    {attendingDoctor.specialization}
-                  </p>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  {attendingDoctor.avatar?.url ? (
+                    <div className="relative w-9 h-9 rounded-xl overflow-hidden border border-primary/20 shrink-0">
+                      <Image
+                        src={attendingDoctor.avatar.url}
+                        alt={attendingDoctor.name}
+                        fill
+                        sizes="36px"
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">
+                      {attendingDoctor.name ? attendingDoctor.name.replace(/^dr\.?\s+/i, '').charAt(0) : 'D'}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-xs font-black text-foreground truncate">{attendingDoctor.name}</p>
+                    <p className="text-[11px] text-primary font-semibold truncate">
+                      {attendingDoctor.specialization}
+                    </p>
+                  </div>
                 </div>
-                <Badge variant="success" className="text-[10px]">
+                <Badge variant="success" className="text-[10px] shrink-0">
                   Assigned
                 </Badge>
               </div>
@@ -168,16 +247,16 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
           size="sm"
           onClick={() => onEdit(patient)}
           leftIcon={<Edit2 className="w-3.5 h-3.5" />}
-          className="flex-1 rounded-2xl text-xs font-bold cursor-pointer"
+          className="flex-1 text-xs font-bold cursor-pointer"
         >
           Edit Record
         </Button>
         <Button
-          variant="outline"
+          variant="destructive"
           size="sm"
           onClick={() => onDelete(patient)}
           leftIcon={<Trash2 className="w-3.5 h-3.5" />}
-          className="flex-1 rounded-2xl text-xs font-bold text-destructive border-destructive/20 hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
+          className="flex-1 text-xs font-bold cursor-pointer"
         >
           Delete Record
         </Button>

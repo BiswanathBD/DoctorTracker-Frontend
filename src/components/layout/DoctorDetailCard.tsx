@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
-import { type Doctor, type DoctorPatient } from '@/server/doctor.service';
-import { Button, Badge, SideSheet } from '@/components/ui';
+import React, { useRef, useState } from 'react';
+import Image from 'next/image';
+import { DoctorService, type Doctor, type DoctorPatient } from '@/server/doctor.service';
+import { Button, Badge, SideSheet, toast } from '@/components/ui';
 import {
   Stethoscope,
   Building2,
@@ -13,7 +14,8 @@ import {
   UserPlus,
   Trash2,
   X,
-  Edit2
+  Edit2,
+  Camera
 } from 'lucide-react';
 
 interface DoctorDetailCardProps {
@@ -23,6 +25,7 @@ interface DoctorDetailCardProps {
   onEdit: (doctor: Doctor) => void;
   onAddPatient: () => void;
   onRemovePatient: (patientId: string, patientName: string) => void;
+  onAvatarUpdated?: (doctor: Doctor) => void;
 }
 
 export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
@@ -32,10 +35,38 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
   onEdit,
   onAddPatient,
   onRemovePatient,
+  onAvatarUpdated,
 }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
   if (!doctor) return null;
 
   const assignedPatients: DoctorPatient[] = doctor.assignedPatients || doctor.patients || [];
+
+  // upload doctor avatar
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Invalid file', 'Please select an image file (PNG, JPG, WEBP).');
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const updated = await DoctorService.updateAvatar(doctor._id, file);
+      toast.success('Avatar Updated', `Avatar updated for Dr. ${doctor.name}.`);
+      onAvatarUpdated?.(updated);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'failed to upload avatar';
+      toast.error('Upload Failed', msg);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   return (
     <SideSheet isOpen={isOpen} onClose={onClose} width="lg">
@@ -56,22 +87,59 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
               type="button"
               onClick={onClose}
               className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/70 cursor-pointer transition-colors"
-              aria-label="Close doctor details"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* doctor basic info */}
-        <div className="space-y-1">
-          <h3 className="font-extrabold text-foreground text-lg tracking-tight">
-            {doctor.name}
-          </h3>
-          <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-            <Building2 className="w-3.5 h-3.5 text-primary shrink-0" />
-            <span>{doctor.hospital}</span>
-          </p>
+        {/* doctor basic info & avatar */}
+        <div className="flex items-center gap-3.5">
+          <div className="relative group shrink-0">
+            {doctor.avatar?.url ? (
+              <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-primary/20 shadow-md">
+                <Image
+                  src={doctor.avatar.url}
+                  alt={doctor.name}
+                  fill
+                  sizes="64px"
+                  className="object-cover"
+                />
+              </div>
+            ) : (
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-black text-xl uppercase border border-primary/20 shadow-xs">
+                {doctor.name ? doctor.name.replace(/^dr\.?\s+/i, '').charAt(0) : 'D'}
+              </div>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="absolute inset-0 rounded-2xl bg-black/60 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer disabled:opacity-50"
+            >
+              <Camera className="w-4 h-4 mb-0.5" />
+              <span className="text-[9px] font-bold">
+                {isUploading ? '...' : 'Photo'}
+              </span>
+            </button>
+          </div>
+
+          <div className="min-w-0 flex-1 space-y-1">
+            <h3 className="font-extrabold text-foreground text-lg tracking-tight truncate">
+              {doctor.name}
+            </h3>
+            <p className="text-xs text-muted-foreground flex items-center gap-1.5 truncate">
+              <Building2 className="w-3.5 h-3.5 text-primary shrink-0" />
+              <span className="truncate">{doctor.hospital}</span>
+            </p>
+          </div>
         </div>
 
         {/* contacts */}
@@ -169,16 +237,16 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
           size="sm"
           onClick={() => onEdit(doctor)}
           leftIcon={<Edit2 className="w-3.5 h-3.5" />}
-          className="flex-1 rounded-2xl text-xs font-bold cursor-pointer"
+          className="flex-1 text-xs font-bold cursor-pointer"
         >
           Edit Profile
         </Button>
         <Button
-          variant="primary"
+          variant="secondary"
           size="sm"
           onClick={onAddPatient}
           leftIcon={<UserPlus className="w-3.5 h-3.5" />}
-          className="flex-1 rounded-2xl text-xs font-bold shadow-md shadow-primary/20 cursor-pointer"
+          className="flex-1 text-xs font-bold cursor-pointer"
         >
           Add Patient
         </Button>

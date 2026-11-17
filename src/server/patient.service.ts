@@ -10,6 +10,10 @@ export interface Patient {
   phone: string;
   email?: string;
   condition: string;
+  avatar?: {
+    url: string;
+    key: string;
+  };
   doctorId: {
     _id: string;
     name: string;
@@ -17,6 +21,10 @@ export interface Patient {
     hospital: string;
     email: string;
     phone: string;
+    avatar?: {
+      url: string;
+      key: string;
+    };
   } | string;
   admissionDate: string;
   createdAt: string;
@@ -122,6 +130,25 @@ export const PatientService = {
 
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'failed to update patient');
+    return data.data;
+  },
+
+  // update patient avatar
+  async updateAvatar(patientId: string, file: File): Promise<Patient> {
+    const token = AuthService.getToken();
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const res = await fetch(`${API_URL}/patients/${patientId}/avatar`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'failed to update patient avatar');
     return data.data;
   },
 

@@ -101,7 +101,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, admin }) => {
           <button
             onClick={onClose}
             className="p-1.5 rounded-xl text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/15 cursor-pointer transition-colors"
-            aria-label="Close sidebar"
           >
             <X className="w-5 h-5" />
           </button>
@@ -265,7 +264,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, admin }) => {
                 type="button"
                 onClick={() => AuthService.logout()}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-all font-bold text-xs shadow-md shadow-destructive/25 cursor-pointer active:scale-95"
-                aria-label="Sign Out"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Sign Out</span>

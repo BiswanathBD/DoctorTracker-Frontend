@@ -83,7 +83,6 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             type="button"
             onClick={onMenuToggle}
             className="p-2 rounded-2xl text-muted-foreground hover:text-foreground hover:bg-muted/80 lg:hidden cursor-pointer transition-colors"
-            aria-label="Open navigation menu"
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -116,7 +115,6 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             type="button"
             onClick={handleThemeToggle}
             className="p-2 rounded-full border border-primary-foreground/25 bg-primary-foreground/15 hover:bg-primary-foreground/25 backdrop-blur-md text-primary-foreground transition-all cursor-pointer shadow-xs active:scale-95"
-            aria-label="Toggle Light / Dark mode"
           >
             {isDark ? (
               <Sun className="w-5 h-5 text-warning" strokeWidth={1.5} />

@@ -40,26 +40,24 @@ export default function PatientConditionsPage() {
   return (
     <div className="w-full space-y-7">
       {/* header */}
-      <MotionWrapper direction="up">
-        <PageHeader
-          backHref="/patients"
-          icon={<HeartPulse size={42} strokeWidth={1.2} />}
-          title="Patient Conditions Breakdown"
-          subtitle="Clinical diagnosis analytics, category clustering, and patient medical distribution."
-          actions={
-            <Link href="/patients?action=create">
-              <Button
-                variant="secondary"
-                size="sm"
-                leftIcon={<PlusCircle className="w-4 h-4" />}
-                className="shadow-md shadow-secondary/20 cursor-pointer"
-              >
-                Admit Patient
-              </Button>
-            </Link>
-          }
-        />
-      </MotionWrapper>
+      <PageHeader
+        backHref="/patients"
+        icon={<HeartPulse size={42} strokeWidth={1.2} />}
+        title="Patient Conditions Breakdown"
+        subtitle="Clinical diagnosis analytics, category clustering, and patient medical distribution."
+        actions={
+          <Link href="/patients?action=create">
+            <Button
+              variant="secondary"
+              size="sm"
+              leftIcon={<PlusCircle className="w-4 h-4" />}
+              className="cursor-pointer"
+            >
+              Admit Patient
+            </Button>
+          </Link>
+        }
+      />
 
       {/* condition cards grid */}
       <MotionWrapper delay={0.1} direction="up">

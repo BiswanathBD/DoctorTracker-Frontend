@@ -34,29 +34,29 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     // capsule theme styles
     const capsuleTheme = {
       primary: {
-        container: 'bg-primary/10 hover:bg-primary/20 text-primary shadow-xl',
-        iconBg: 'bg-primary text-primary-foreground',
-        bodyText: 'text-foreground font-bold',
+        container: 'bg-primary-foreground text-primary shadow-xl',
+        bodyText: 'bg-primary text-primary-foreground font-bold',
+        iconBg: 'text-primary',
       },
       secondary: {
-        container: 'bg-secondary/10 hover:bg-secondary/20 text-secondary shadow-xl',
-        iconBg: 'bg-secondary text-secondary-foreground',
-        bodyText: 'text-foreground font-bold',
+        container: 'bg-secondary-foreground text-secondary shadow-xl',
+        bodyText: 'bg-secondary text-secondary-foreground font-bold',
+        iconBg: 'text-secondary',
       },
       outline: {
-        container: 'bg-card hover:bg-muted text-foreground shadow-xl',
-        iconBg: 'bg-muted text-muted-foreground',
-        bodyText: 'text-foreground font-semibold',
+        container: 'bg-muted text-foreground shadow-xl',
+        bodyText: 'bg-card text-card-foreground font-bold',
+        iconBg: 'text-muted-foreground',
       },
       ghost: {
-        container: 'bg-muted/50 hover:bg-muted text-foreground shadow-xl',
-        iconBg: 'bg-muted text-foreground',
-        bodyText: 'text-foreground font-medium',
+        container: 'bg-muted/40 text-muted-foreground shadow-xl',
+        bodyText: 'bg-muted text-foreground font-medium',
+        iconBg: 'text-foreground',
       },
       destructive: {
-        container: 'bg-destructive/10 hover:bg-destructive/20 text-destructive shadow-xl',
-        iconBg: 'bg-destructive text-destructive-foreground',
-        bodyText: 'text-destructive font-bold',
+        container: 'bg-destructive-foreground text-destructive shadow-xl',
+        bodyText: 'bg-destructive text-destructive-foreground font-bold',
+        iconBg: 'text-destructive',
       },
     }[variant];
 

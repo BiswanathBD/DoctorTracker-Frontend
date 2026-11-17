@@ -42,26 +42,24 @@ export default function DoctorWorkloadPage() {
   return (
     <div className="w-full space-y-7">
       {/* header */}
-      <MotionWrapper direction="up">
-        <PageHeader
-          backHref="/doctors"
-          icon={<Stethoscope size={42} strokeWidth={1.2} />}
-          title="Doctor Workload Distribution"
-          subtitle="Real-time patient load analysis, capacity monitoring, and clinical assignments."
-          actions={
-            <Link href="/doctors?action=create">
-              <Button
-                variant="primary"
-                size="sm"
-                leftIcon={<PlusCircle className="w-4 h-4" />}
-                className="shadow-md shadow-primary/20 cursor-pointer"
-              >
-                Add Specialist
-              </Button>
-            </Link>
-          }
-        />
-      </MotionWrapper>
+      <PageHeader
+        backHref="/doctors"
+        icon={<Stethoscope size={42} strokeWidth={1.2} />}
+        title="Doctor Workload Distribution"
+        subtitle="Real-time patient load analysis, capacity monitoring, and clinical assignments."
+        actions={
+          <Link href="/doctors?action=create">
+            <Button
+              variant="primary"
+              size="sm"
+              leftIcon={<PlusCircle className="w-4 h-4" />}
+              className="cursor-pointer"
+            >
+              Add Specialist
+            </Button>
+          </Link>
+        }
+      />
 
       {/* KPI summary */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">

@@ -69,7 +69,6 @@ export const ToastCard: React.FC<ToastCardProps> = ({ id, type, title, descripti
       <button
         onClick={() => sonnerToast.dismiss(id)}
         className="relative z-10 p-1.5 text-muted-foreground hover:text-card-foreground hover:bg-muted/80 rounded-xl transition-colors cursor-pointer"
-        aria-label="Close"
       >
         <X className="w-4 h-4" />
       </button>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
@@ -27,7 +28,8 @@ import {
   UserPlus,
   HeartPulse,
   RefreshCw,
-  AlertCircle
+  AlertCircle,
+  Camera
 } from 'lucide-react';
 
 function DoctorsContent() {
@@ -72,6 +74,8 @@ function DoctorsContent() {
     phone: '',
     email: '',
   });
+  const [doctorAvatarFile, setDoctorAvatarFile] = useState<File | null>(null);
+  const avatarInputRef = React.useRef<HTMLInputElement>(null);
   const [formSubmitting, setFormSubmitting] = useState(false);
 
   // nested patient form states
@@ -88,6 +92,7 @@ function DoctorsContent() {
   // open create modal
   const handleOpenCreateModal = useCallback(() => {
     setEditingDoctor(null);
+    setDoctorAvatarFile(null);
     setDoctorForm({
       name: '',
       specialization: '',
@@ -181,6 +186,7 @@ function DoctorsContent() {
   // open edit modal
   const handleOpenEditModal = (doctor: Doctor) => {
     setEditingDoctor(doctor);
+    setDoctorAvatarFile(null);
     setDoctorForm({
       name: doctor.name,
       specialization: doctor.specialization,
@@ -215,9 +221,15 @@ function DoctorsContent() {
       setFormSubmitting(true);
       if (editingDoctor) {
         await DoctorService.updateDoctor(editingDoctor._id, doctorForm);
+        if (doctorAvatarFile) {
+          await DoctorService.updateAvatar(editingDoctor._id, doctorAvatarFile);
+        }
         toast.success('Doctor Updated', `${doctorForm.name}'s profile was updated.`);
       } else {
-        await DoctorService.createDoctor(doctorForm);
+        const created = await DoctorService.createDoctor(doctorForm);
+        if (doctorAvatarFile) {
+          await DoctorService.updateAvatar(created._id, doctorAvatarFile);
+        }
         toast.success('Doctor Created', `${doctorForm.name} was added to the directory.`);
       }
 
@@ -322,317 +334,337 @@ function DoctorsContent() {
   return (
     <div className="w-full flex gap-6 items-start">
       <div className="flex-1 min-w-0 space-y-7">
-      {/* header */}
-      <MotionWrapper direction="up">
-        <PageHeader
-          icon={<Stethoscope size={42} strokeWidth={1.2} />}
-          title="Doctor Management"
-          subtitle="Register medical specialists, filter hospital directories, and manage patient assignments."
-          actions={
-            <Button
-              onClick={handleOpenCreateModal}
-              variant="primary"
-              size="md"
-              leftIcon={<Plus className="w-4 h-4" />}
-              className="shadow-lg shadow-primary/25 cursor-pointer"
-            >
-              Add New Doctor
-            </Button>
-          }
-        />
-      </MotionWrapper>
-
-      {/* filter & search toolbar */}
-      <MotionWrapper delay={0.1} direction="up">
-        <Card className="p-4 sm:p-5 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
-            {/* search input */}
-            <div className="lg:col-span-2 relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setPage(1);
-                }}
-                placeholder="Search by name, specialization, email..."
-                className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-input bg-card text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-ring/15 outline-none transition-all"
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-
-            {/* specialization select */}
-            <div>
-              <select
-                value={specialization}
-                onChange={(e) => {
-                  setSpecialization(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full px-3 py-2.5 text-xs rounded-xl border border-input bg-card text-foreground focus:border-primary focus:ring-4 focus:ring-ring/15 outline-none transition-all cursor-pointer"
+        {/* header */}
+        <MotionWrapper direction="up">
+          <PageHeader
+            icon={<Stethoscope size={42} strokeWidth={1.2} />}
+            title="Doctor Management"
+            subtitle="Register medical specialists, filter hospital directories, and manage patient assignments."
+            actions={
+              <Button
+                onClick={handleOpenCreateModal}
+                variant="primary"
+                size="md"
+                leftIcon={<Plus className="w-4 h-4" />}
+                className="shadow-lg shadow-primary/25 cursor-pointer"
               >
-                <option value="">All Specializations</option>
-                {specializationsList.map((spec) => (
-                  <option key={spec} value={spec}>
-                    {spec}
-                  </option>
-                ))}
-              </select>
-            </div>
+                Add New Doctor
+              </Button>
+            }
+          />
+        </MotionWrapper>
 
-            {/* hospital select */}
-            <div>
-              <select
-                value={hospital}
-                onChange={(e) => {
-                  setHospital(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full px-3 py-2.5 text-xs rounded-xl border border-input bg-card text-foreground focus:border-primary focus:ring-4 focus:ring-ring/15 outline-none transition-all cursor-pointer"
-              >
-                <option value="">All Hospitals</option>
-                {hospitalsList.map((hosp) => (
-                  <option key={hosp} value={hosp}>
-                    {hosp}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* date range start & end */}
-            <div className="flex items-center gap-2">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                  setPage(1);
-                }}
-                className="w-1/2 px-2.5 py-2 text-xs rounded-xl border border-input bg-card text-foreground outline-none focus:border-primary"
-              />
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                  setPage(1);
-                }}
-                className="w-1/2 px-2.5 py-2 text-xs rounded-xl border border-input bg-card text-foreground outline-none focus:border-primary"
-              />
-            </div>
-          </div>
-
-          {/* active filter pills & reset button */}
-          {hasActiveFilters && (
-            <div className="pt-2 border-t border-border flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2 text-muted-foreground flex-wrap">
-                <Filter className="w-3.5 h-3.5 text-primary" />
-                <span>Active filters:</span>
-                {searchTerm && <Badge variant="primary">Search: {searchTerm}</Badge>}
-                {specialization && <Badge variant="secondary">{specialization}</Badge>}
-                {hospital && <Badge variant="outline">{hospital}</Badge>}
-                {(startDate || endDate) && (
-                  <Badge variant="muted">
-                    {startDate || 'Start'} → {endDate || 'End'}
-                  </Badge>
+        {/* filter & search toolbar */}
+        <MotionWrapper delay={0.1} direction="up">
+          <Card className="p-4 sm:p-5 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+              {/* search input */}
+              <div className="lg:col-span-2 relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setPage(1);
+                  }}
+                  placeholder="Search by name, specialization, email..."
+                  className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-input bg-card text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-ring/15 outline-none transition-all"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
                 )}
               </div>
-              <button
-                onClick={handleResetFilters}
-                className="text-primary hover:underline font-bold text-xs cursor-pointer ml-auto"
-              >
-                Clear all filters
-              </button>
-            </div>
-          )}
-        </Card>
-      </MotionWrapper>
 
-      {/* doctors list table card */}
-      <MotionWrapper delay={0.2} direction="up">
-        <Card className="overflow-hidden">
-          {loading ? (
-            <div className="py-20 flex flex-col items-center justify-center space-y-3">
-              <RefreshCw className="w-8 h-8 text-primary animate-spin" />
-              <p className="text-xs font-semibold text-muted-foreground">Loading doctor records...</p>
-            </div>
-          ) : doctors.length === 0 ? (
-            <div className="py-16 text-center space-y-4 px-4">
-              <div className="w-14 h-14 rounded-2xl bg-accent text-accent-foreground mx-auto flex items-center justify-center">
-                <Stethoscope className="w-7 h-7 text-primary" />
+              {/* specialization select */}
+              <div>
+                <select
+                  value={specialization}
+                  onChange={(e) => {
+                    setSpecialization(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-full px-3 py-2.5 text-xs rounded-xl border border-input bg-card text-foreground focus:border-primary focus:ring-4 focus:ring-ring/15 outline-none transition-all cursor-pointer"
+                >
+                  <option value="">All Specializations</option>
+                  {specializationsList.map((spec) => (
+                    <option key={spec} value={spec}>
+                      {spec}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <div className="space-y-1">
-                <h3 className="font-bold text-foreground text-base">No doctors found</h3>
-                <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                  {hasActiveFilters
-                    ? 'No doctors match your selected filters. Try adjusting your query or clear all filters.'
-                    : 'Get started by creating your first doctor profile.'}
-                </p>
+
+              {/* hospital select */}
+              <div>
+                <select
+                  value={hospital}
+                  onChange={(e) => {
+                    setHospital(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-full px-3 py-2.5 text-xs rounded-xl border border-input bg-card text-foreground focus:border-primary focus:ring-4 focus:ring-ring/15 outline-none transition-all cursor-pointer"
+                >
+                  <option value="">All Hospitals</option>
+                  {hospitalsList.map((hosp) => (
+                    <option key={hosp} value={hosp}>
+                      {hosp}
+                    </option>
+                  ))}
+                </select>
               </div>
-              {hasActiveFilters ? (
-                <Button variant="outline" size="sm" onClick={handleResetFilters}>
-                  Clear Filters
-                </Button>
-              ) : (
-                <Button variant="primary" size="sm" onClick={handleOpenCreateModal}>
-                  Add First Doctor
-                </Button>
-              )}
+
+              {/* date range start & end */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => {
+                    setStartDate(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-1/2 px-2.5 py-2 text-xs rounded-xl border border-input bg-card text-foreground outline-none focus:border-primary"
+                />
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => {
+                    setEndDate(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-1/2 px-2.5 py-2 text-xs rounded-xl border border-input bg-card text-foreground outline-none focus:border-primary"
+                />
+              </div>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-border bg-muted/30 text-[11px] font-bold uppercase tracking-wider text-muted-foreground select-none">
-                    <th className="py-3.5 px-5">Doctor Info</th>
-                    <th className="py-3.5 px-4">Specialization</th>
-                    <th className="py-3.5 px-4">Hospital</th>
-                    <th className="py-3.5 px-4">Contact</th>
-                    <th className="py-3.5 px-4 text-center">Patients</th>
-                    <th className="py-3.5 px-5 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border text-xs">
-                  {doctors.map((doctor) => (
-                    <tr
-                      key={doctor._id}
-                      className="hover:bg-muted/40 transition-colors group"
-                    >
-                      {/* doctor name & avatar icon */}
-                      <td className="py-4 px-5">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-bold text-sm flex-shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-all">
-                            <Stethoscope className="w-5 h-5" />
+
+            {/* active filter pills & reset button */}
+            {hasActiveFilters && (
+              <div className="pt-2 border-t border-border flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-muted-foreground flex-wrap">
+                  <Filter className="w-3.5 h-3.5 text-primary" />
+                  <span>Active filters:</span>
+                  {searchTerm && <Badge variant="primary">Search: {searchTerm}</Badge>}
+                  {specialization && <Badge variant="secondary">{specialization}</Badge>}
+                  {hospital && <Badge variant="outline">{hospital}</Badge>}
+                  {(startDate || endDate) && (
+                    <Badge variant="muted">
+                      {startDate || 'Start'} → {endDate || 'End'}
+                    </Badge>
+                  )}
+                </div>
+                <button
+                  onClick={handleResetFilters}
+                  className="text-primary hover:underline font-bold text-xs cursor-pointer ml-auto"
+                >
+                  Clear all filters
+                </button>
+              </div>
+            )}
+          </Card>
+        </MotionWrapper>
+
+        {/* doctors list table card */}
+        <MotionWrapper delay={0.2} direction="up">
+          <Card className="overflow-hidden">
+            {loading ? (
+              <div className="py-20 flex flex-col items-center justify-center space-y-3">
+                <RefreshCw className="w-8 h-8 text-primary animate-spin" />
+                <p className="text-xs font-semibold text-muted-foreground">Loading doctor records...</p>
+              </div>
+            ) : doctors.length === 0 ? (
+              <div className="py-16 text-center space-y-4 px-4">
+                <div className="w-14 h-14 rounded-2xl bg-accent text-accent-foreground mx-auto flex items-center justify-center">
+                  <Stethoscope className="w-7 h-7 text-primary" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-bold text-foreground text-base">No doctors found</h3>
+                  <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                    {hasActiveFilters
+                      ? 'No doctors match your selected filters. Try adjusting your query or clear all filters.'
+                      : 'Get started by creating your first doctor profile.'}
+                  </p>
+                </div>
+                {hasActiveFilters ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleResetFilters}
+                    leftIcon={<X className="w-3.5 h-3.5" />}
+                  >
+                    Clear Filters
+                  </Button>
+                ) : (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={handleOpenCreateModal}
+                    leftIcon={<Plus className="w-3.5 h-3.5" />}
+                  >
+                    Add First Doctor
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/30 text-[11px] font-bold uppercase tracking-wider text-muted-foreground select-none">
+                      <th className="py-3.5 px-5">Doctor Info</th>
+                      <th className="py-3.5 px-4">Specialization</th>
+                      <th className="py-3.5 px-4">Hospital</th>
+                      <th className="py-3.5 px-4">Contact</th>
+                      <th className="py-3.5 px-4 text-center">Patients</th>
+                      <th className="py-3.5 px-5 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border text-xs">
+                    {doctors.map((doctor) => (
+                      <tr
+                        key={doctor._id}
+                        className="hover:bg-muted/40 transition-colors group"
+                      >
+                        {/* doctor name & avatar icon */}
+                        <td className="py-4 px-5">
+                          <div className="flex items-center gap-3">
+                            <div className="relative w-10 h-10 rounded-2xl bg-primary/10 text-primary overflow-hidden flex items-center justify-center font-bold text-sm shrink-0 border border-primary/20 shadow-xs">
+                              {doctor.avatar?.url ? (
+                                <Image
+                                  src={doctor.avatar.url}
+                                  alt={doctor.name}
+                                  fill
+                                  sizes="40px"
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <Stethoscope className="w-5 h-5" />
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-bold text-foreground group-hover:text-primary transition-colors text-sm">
+                                {doctor.name}
+                              </p>
+                              <p className="text-muted-foreground text-[11px] truncate flex items-center gap-1.5 mt-0.5">
+                                <Calendar className="w-3 h-3 text-muted-foreground/70" />
+                                Added {new Date(doctor.createdAt).toLocaleDateString()}
+                              </p>
+                            </div>
                           </div>
-                          <div className="min-w-0">
-                            <p className="font-bold text-foreground group-hover:text-primary transition-colors text-sm">
-                              {doctor.name}
-                            </p>
-                            <p className="text-muted-foreground text-[11px] truncate flex items-center gap-1.5 mt-0.5">
-                              <Calendar className="w-3 h-3 text-muted-foreground/70" />
-                              Added {new Date(doctor.createdAt).toLocaleDateString()}
-                            </p>
+                        </td>
+
+                        {/* specialization badge */}
+                        <td className="py-4 px-4">
+                          <Badge variant="primary" className="font-medium">
+                            {doctor.specialization}
+                          </Badge>
+                        </td>
+
+                        {/* hospital */}
+                        <td className="py-4 px-4">
+                          <div className="flex items-center gap-1.5 text-foreground font-medium">
+                            <Building2 className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                            <span className="truncate max-w-[180px]">{doctor.hospital}</span>
                           </div>
-                        </div>
-                      </td>
+                        </td>
 
-                      {/* specialization badge */}
-                      <td className="py-4 px-4">
-                        <Badge variant="primary" className="font-medium">
-                          {doctor.specialization}
-                        </Badge>
-                      </td>
+                        {/* contact phone & email */}
+                        <td className="py-4 px-4 space-y-1">
+                          <div className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
+                            <Phone className="w-3 h-3 text-secondary" />
+                            <span>{doctor.phone}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-muted-foreground text-[11px] truncate max-w-[180px]">
+                            <Mail className="w-3 h-3 text-primary" />
+                            <span>{doctor.email}</span>
+                          </div>
+                        </td>
 
-                      {/* hospital */}
-                      <td className="py-4 px-4">
-                        <div className="flex items-center gap-1.5 text-foreground font-medium">
-                          <Building2 className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                          <span className="truncate max-w-[180px]">{doctor.hospital}</span>
-                        </div>
-                      </td>
-
-                      {/* contact phone & email */}
-                      <td className="py-4 px-4 space-y-1">
-                        <div className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
-                          <Phone className="w-3 h-3 text-secondary" />
-                          <span>{doctor.phone}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-muted-foreground text-[11px] truncate max-w-[180px]">
-                          <Mail className="w-3 h-3 text-primary" />
-                          <span>{doctor.email}</span>
-                        </div>
-                      </td>
-
-                      {/* assigned patients count pill */}
-                      <td className="py-4 px-4 text-center">
-                        <button
-                          onClick={() => handleViewDetails(doctor._id)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/10 hover:bg-secondary/20 text-secondary font-bold text-xs transition-colors cursor-pointer"
-                        >
-                          <Users className="w-3.5 h-3.5" />
-                          <span>{doctor.patientCount || 0}</span>
-                        </button>
-                      </td>
-
-                      {/* action buttons */}
-                      <td className="py-4 px-5 text-right">
-                        <div className="inline-flex items-center gap-1.5">
+                        {/* assigned patients count pill */}
+                        <td className="py-4 px-4 text-center">
                           <button
                             onClick={() => handleViewDetails(doctor._id)}
-                            className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/10 hover:bg-secondary/20 text-secondary font-bold text-xs transition-colors cursor-pointer"
                           >
-                            <Eye className="w-4 h-4" />
+                            <Users className="w-3.5 h-3.5" />
+                            <span>{doctor.patientCount || 0}</span>
                           </button>
-                          <button
-                            onClick={() => handleOpenEditModal(doctor)}
-                            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              setDoctorToDelete(doctor);
-                              setIsDeleteModalOpen(true);
-                            }}
-                            className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                        </td>
 
-          {/* pagination bar */}
-          {total > 0 && (
-            <div className="p-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground bg-card">
-              <p>
-                Showing <strong className="text-foreground">{(page - 1) * limit + 1}</strong> to{' '}
-                <strong className="text-foreground">{Math.min(page * limit, total)}</strong> of{' '}
-                <strong className="text-foreground">{total}</strong> registered doctors
-              </p>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page <= 1}
-                  onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                  leftIcon={<ChevronLeft className="w-3.5 h-3.5" />}
-                >
-                  Previous
-                </Button>
-
-                <div className="px-3 py-1 font-bold text-foreground">
-                  Page {page} of {totalPages}
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page >= totalPages}
-                  onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-                  rightIcon={<ChevronRight className="w-3.5 h-3.5" />}
-                >
-                  Next
-                </Button>
+                        {/* action buttons */}
+                        <td className="py-4 px-5 text-right">
+                          <div className="inline-flex items-center gap-1.5">
+                            <button
+                              onClick={() => handleViewDetails(doctor._id)}
+                              className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleOpenEditModal(doctor)}
+                              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setDoctorToDelete(doctor);
+                                setIsDeleteModalOpen(true);
+                              }}
+                              className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </div>
-          )}
-        </Card>
-      </MotionWrapper>
+            )}
+
+            {/* pagination bar */}
+            {total > 0 && (
+              <div className="p-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground bg-card">
+                <p>
+                  Showing <strong className="text-foreground">{(page - 1) * limit + 1}</strong> to{' '}
+                  <strong className="text-foreground">{Math.min(page * limit, total)}</strong> of{' '}
+                  <strong className="text-foreground">{total}</strong> registered doctors
+                </p>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={page <= 1}
+                    onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                    leftIcon={<ChevronLeft className="w-3.5 h-3.5" />}
+                  >
+                    Previous
+                  </Button>
+
+                  <div className="px-3 py-1 font-bold text-foreground">
+                    Page {page} of {totalPages}
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={page >= totalPages}
+                    onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+                    rightIcon={<ChevronRight className="w-3.5 h-3.5" />}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+          </Card>
+        </MotionWrapper>
       </div>
 
       {/* right slide-in doctor details card matching profile card style */}
@@ -640,6 +672,12 @@ function DoctorsContent() {
         doctor={selectedDoctor}
         isOpen={isDetailCardOpen}
         onClose={() => setIsDetailCardOpen(false)}
+        onAvatarUpdated={(updatedDoc) => {
+          setSelectedDoctor(updatedDoc);
+          setDoctors((prev) =>
+            prev.map((d) => (d._id === updatedDoc._id ? { ...d, avatar: updatedDoc.avatar } : d))
+          );
+        }}
         onEdit={(doc) => {
           setIsDetailCardOpen(false);
           handleOpenEditModal(doc);
@@ -711,6 +749,45 @@ function DoctorsContent() {
               onChange={(e) => setDoctorForm({ ...doctorForm, email: e.target.value })}
               leftIcon={<Mail className="w-4 h-4" />}
             />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-foreground">Doctor Photo (Optional)</label>
+            <div className="flex items-center gap-3">
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                onChange={(e) => setDoctorAvatarFile(e.target.files?.[0] || null)}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => avatarInputRef.current?.click()}
+                leftIcon={<Camera className="w-3.5 h-3.5 text-primary" />}
+                className="text-xs font-semibold cursor-pointer"
+              >
+                {doctorAvatarFile
+                  ? doctorAvatarFile.name
+                  : editingDoctor?.avatar?.url
+                    ? 'Change Photo'
+                    : 'Choose Photo'}
+              </Button>
+              {doctorAvatarFile && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDoctorAvatarFile(null);
+                    if (avatarInputRef.current) avatarInputRef.current.value = '';
+                  }}
+                  className="text-xs text-destructive hover:underline cursor-pointer"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="pt-3 border-t border-border flex items-center justify-end gap-2.5">
@@ -950,6 +1027,7 @@ function DoctorsContent() {
               variant="destructive"
               size="sm"
               onClick={handleDeleteDoctor}
+              leftIcon={<Trash2 className="w-3.5 h-3.5" />}
             >
               Confirm Delete
             </Button>

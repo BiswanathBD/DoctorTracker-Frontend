@@ -88,38 +88,35 @@ export default function DashboardPage() {
   return (
     <div className="w-full space-y-8">
       {/* header */}
-      <MotionWrapper direction="up" duration={0.4}>
-        <PageHeader
-          icon={<UserRoundShield size={42} strokeWidth={1.2} />}
-          title={`Welcome back, ${admin?.name || 'Super Admin'}!`}
-          subtitle="Real-time analytics, specialist workload tracking, and patient monitoring."
-
-          actions={
-            <div className="flex items-center gap-2.5">
-              <Link href="/doctors?action=create">
-                <Button
-                  variant="outline"
-                  size="md"
-                  leftIcon={<PlusCircle className="w-4 h-4 text-primary" />}
-                  className="font-bold cursor-pointer"
-                >
-                  Add Doctor
-                </Button>
-              </Link>
-              <Link href="/patients?action=create">
-                <Button
-                  variant="primary"
-                  size="md"
-                  leftIcon={<Users className="w-4 h-4" />}
-                  className="font-bold cursor-pointer shadow-md shadow-primary/20"
-                >
-                  Admit Patient
-                </Button>
-              </Link>
-            </div>
-          }
-        />
-      </MotionWrapper>
+      <PageHeader
+        icon={<UserRoundShield size={42} strokeWidth={1.2} />}
+        title={`Welcome back, ${admin?.name || 'Super Admin'}!`}
+        subtitle="Real-time analytics, specialist workload tracking, and patient monitoring."
+        actions={
+          <div className="flex items-center gap-2.5">
+            <Link href="/doctors?action=create">
+              <Button
+                variant="primary"
+                size="md"
+                leftIcon={<PlusCircle className="w-4 h-4" />}
+                className="font-bold cursor-pointer"
+              >
+                Add Doctor
+              </Button>
+            </Link>
+            <Link href="/patients?action=create">
+              <Button
+                variant="secondary"
+                size="md"
+                leftIcon={<Users className="w-4 h-4" />}
+                className="font-bold cursor-pointer"
+              >
+                Admit Patient
+              </Button>
+            </Link>
+          </div>
+        }
+      />
 
       {/* kpi cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
@@ -207,8 +204,8 @@ export default function DashboardPage() {
                   type="button"
                   onClick={() => setTimelineView('all')}
                   className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${timelineView === 'all'
-                      ? 'bg-card text-foreground shadow-sm font-bold'
-                      : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-card text-foreground shadow-sm font-bold'
+                    : 'text-muted-foreground hover:text-foreground'
                     }`}
                 >
                   All
@@ -217,8 +214,8 @@ export default function DashboardPage() {
                   type="button"
                   onClick={() => setTimelineView('patients')}
                   className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${timelineView === 'patients'
-                      ? 'bg-secondary text-secondary-foreground shadow-sm font-bold'
-                      : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-secondary text-secondary-foreground shadow-sm font-bold'
+                    : 'text-muted-foreground hover:text-foreground'
                     }`}
                 >
                   Patients
@@ -227,8 +224,8 @@ export default function DashboardPage() {
                   type="button"
                   onClick={() => setTimelineView('doctors')}
                   className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${timelineView === 'doctors'
-                      ? 'bg-primary text-primary-foreground shadow-sm font-bold'
-                      : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-primary text-primary-foreground shadow-sm font-bold'
+                    : 'text-muted-foreground hover:text-foreground'
                     }`}
                 >
                   Doctors
@@ -269,14 +266,12 @@ export default function DashboardPage() {
                           <div
                             style={{ height: `${Math.max(6, patientHeight)}px` }}
                             className="w-1/2 rounded-t-lg bg-secondary/80 hover:bg-secondary transition-all"
-                            title={`Patients: ${item.patients}`}
                           />
                         )}
                         {(timelineView === 'all' || timelineView === 'doctors') && (
                           <div
                             style={{ height: `${Math.max(6, doctorHeight)}px` }}
                             className="w-1/2 rounded-t-lg bg-primary/80 hover:bg-primary transition-all"
-                            title={`Doctors: ${item.doctors}`}
                           />
                         )}
                       </div>

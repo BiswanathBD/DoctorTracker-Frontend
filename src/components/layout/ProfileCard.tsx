@@ -52,7 +52,6 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
           type="button"
           onClick={onClose}
           className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer transition-colors"
-          aria-label="Close panel"
         >
           <X className="w-4 h-4" />
         </button>

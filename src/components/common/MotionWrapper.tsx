@@ -176,17 +176,17 @@ export const Motion: React.FC<MotionProps> = ({
       },
 
       heightIncrease: {
-        initial: { height: 0 },
-        whileInView: { height: 'auto' },
-        exit: { height: 0 },
+        initial: { scaleY: 0, opacity: 0, originY: 0 },
+        whileInView: { scaleY: 1, opacity: 1 },
+        exit: { scaleY: 0, opacity: 0 },
         transition: transition ?? defaultTransition,
         viewport: { once },
       },
 
       widthIncrease: {
-        initial: { width: 0 },
-        whileInView: { width: 'auto' },
-        exit: { width: 0 },
+        initial: { scaleX: 0, opacity: 0, originX: 0 },
+        whileInView: { scaleX: 1, opacity: 1 },
+        exit: { scaleX: 0, opacity: 0 },
         transition: transition ?? defaultTransition,
         viewport: { once },
       },

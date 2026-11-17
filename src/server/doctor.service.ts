@@ -10,6 +10,10 @@ export interface DoctorPatient {
   phone: string;
   condition: string;
   admissionDate: string;
+  avatar?: {
+    url: string;
+    key: string;
+  };
 }
 
 export interface Doctor {
@@ -19,6 +23,10 @@ export interface Doctor {
   hospital: string;
   phone: string;
   email: string;
+  avatar?: {
+    url: string;
+    key: string;
+  };
   patientCount?: number;
   patients?: DoctorPatient[];
   assignedPatients?: DoctorPatient[];
@@ -51,19 +59,18 @@ export interface DoctorsResponse {
 export const DoctorService = {
   // get all doctors with query params
   async getAllDoctors(params: DoctorQueryParams = {}): Promise<DoctorsResponse> {
-    const token = AuthService.getToken();
     const query = new URLSearchParams();
+    if (params.page) query.append('page', params.page.toString());
+    if (params.limit) query.append('limit', params.limit.toString());
+    if (params.searchTerm) query.append('searchTerm', params.searchTerm);
+    if (params.specialization) query.append('specialization', params.specialization);
+    if (params.hospital) query.append('hospital', params.hospital);
+    if (params.startDate) query.append('startDate', params.startDate);
+    if (params.endDate) query.append('endDate', params.endDate);
+    if (params.sortBy) query.append('sortBy', params.sortBy);
+    if (params.sortOrder) query.append('sortOrder', params.sortOrder);
 
-    if (params.page) query.set('page', String(params.page));
-    if (params.limit) query.set('limit', String(params.limit));
-    if (params.searchTerm) query.set('searchTerm', params.searchTerm);
-    if (params.specialization) query.set('specialization', params.specialization);
-    if (params.hospital) query.set('hospital', params.hospital);
-    if (params.startDate) query.set('startDate', params.startDate);
-    if (params.endDate) query.set('endDate', params.endDate);
-    if (params.sortBy) query.set('sortBy', params.sortBy);
-    if (params.sortOrder) query.set('sortOrder', params.sortOrder);
-
+    const token = AuthService.getToken();
     const res = await fetch(`${API_URL}/doctors?${query.toString()}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -72,13 +79,10 @@ export const DoctorService = {
 
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'failed to fetch doctors');
-    return {
-      meta: data.meta,
-      data: data.data,
-    };
+    return data;
   },
 
-  // get single doctor with patient list
+  // get single doctor by id
   async getDoctorById(id: string): Promise<Doctor> {
     const token = AuthService.getToken();
     const res = await fetch(`${API_URL}/doctors/${id}`, {
@@ -88,11 +92,11 @@ export const DoctorService = {
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'failed to fetch doctor');
+    if (!res.ok) throw new Error(data.message || 'failed to fetch doctor details');
     return data.data;
   },
 
-  // create a new doctor
+  // create new doctor
   async createDoctor(payload: Omit<Doctor, '_id' | 'createdAt' | 'updatedAt'>): Promise<Doctor> {
     const token = AuthService.getToken();
     const res = await fetch(`${API_URL}/doctors`, {
@@ -109,8 +113,11 @@ export const DoctorService = {
     return data.data;
   },
 
-  // update doctor
-  async updateDoctor(id: string, payload: Partial<Doctor>): Promise<Doctor> {
+  // update doctor by id
+  async updateDoctor(
+    id: string,
+    payload: Partial<Omit<Doctor, '_id' | 'createdAt' | 'updatedAt'>>
+  ): Promise<Doctor> {
     const token = AuthService.getToken();
     const res = await fetch(`${API_URL}/doctors/${id}`, {
       method: 'PATCH',
@@ -126,7 +133,26 @@ export const DoctorService = {
     return data.data;
   },
 
-  // delete doctor
+  // update doctor avatar
+  async updateAvatar(doctorId: string, file: File): Promise<Doctor> {
+    const token = AuthService.getToken();
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const res = await fetch(`${API_URL}/doctors/${doctorId}/avatar`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'failed to update doctor avatar');
+    return data.data;
+  },
+
+  // delete doctor by id
   async deleteDoctor(id: string): Promise<void> {
     const token = AuthService.getToken();
     const res = await fetch(`${API_URL}/doctors/${id}`, {
@@ -140,8 +166,18 @@ export const DoctorService = {
     if (!res.ok) throw new Error(data.message || 'failed to delete doctor');
   },
 
-  // add patient directly under a doctor
-  async addPatientToDoctor(doctorId: string, payload: Record<string, unknown>): Promise<Record<string, unknown>> {
+  // add patient directly to a doctor
+  async addPatientToDoctor(
+    doctorId: string,
+    payload: {
+      name: string;
+      age: number;
+      gender: string;
+      phone: string;
+      condition: string;
+      admissionDate?: string;
+    }
+  ): Promise<DoctorPatient> {
     const token = AuthService.getToken();
     const res = await fetch(`${API_URL}/doctors/${doctorId}/patients`, {
       method: 'POST',

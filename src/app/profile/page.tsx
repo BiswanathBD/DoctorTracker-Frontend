@@ -49,18 +49,16 @@ export default function ProfilePage() {
   return (
     <div className="w-full max-w-4xl space-y-7 mx-auto">
       {/* header */}
-      <MotionWrapper direction="up">
-        <PageHeader
-          icon={<Shield size={42} strokeWidth={1.2} />}
-          title="Settings & Admin Profile"
-          subtitle="Manage your administrative credentials, Cloudinary avatar, and security preferences."
-          badge={
-            <Badge variant="primary" className="text-xs">
-              System Admin
-            </Badge>
-          }
-        />
-      </MotionWrapper>
+      <PageHeader
+        icon={<Shield size={42} strokeWidth={1.2} />}
+        title="Settings & Admin Profile"
+        subtitle="Manage your administrative credentials, Cloudinary avatar, and security preferences."
+        badge={
+          <Badge variant="primary" className="text-xs">
+            System Admin
+          </Badge>
+        }
+      />
 
       {/* admin profile card */}
       <MotionWrapper delay={0.1} direction="up">
@@ -134,14 +132,14 @@ export default function ProfilePage() {
                 >
                   Upload New Photo
                 </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  leftIcon={<LogOut className="w-3.5 h-3.5" />}
+                <button
+                  type="button"
                   onClick={() => AuthService.logout()}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-all font-bold text-xs shadow-md shadow-destructive/25 cursor-pointer active:scale-95"
                 >
-                  Sign Out
-                </Button>
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Sign Out</span>
+                </button>
               </div>
             </div>
           </div>
