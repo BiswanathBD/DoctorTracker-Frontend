@@ -54,7 +54,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         iconBg: 'text-foreground',
       },
       destructive: {
-        container: 'bg-destructive-foreground text-destructive shadow-xl',
+        container: 'bg-destructive/15 text-destructive shadow-xl',
         bodyText: 'bg-destructive text-destructive-foreground font-bold',
         iconBg: 'text-destructive',
       },

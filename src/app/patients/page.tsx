@@ -279,385 +279,385 @@ function PatientsContent() {
   return (
     <div className="w-full flex gap-6 items-start">
       <div className="flex-1 min-w-0 space-y-7">
-      {/* header */}
-      <PageHeader
-        icon={<Users size={42} strokeWidth={1.2} />}
-        title="Patient Management"
-        subtitle="Track patient admissions, manage medical conditions, and assign specialized doctors."
-        actions={
-          <Button
-            onClick={handleOpenCreateModal}
-            variant="secondary"
-            size="md"
-            leftIcon={<Plus className="w-4 h-4" />}
-            className="cursor-pointer"
-          >
-            Register Patient
-          </Button>
-        }
-      />
+        {/* header */}
+        <PageHeader
+          icon={<Users size={42} strokeWidth={1.2} />}
+          title="Patient Management"
+          subtitle="Track patient admissions, manage medical conditions, and assign specialized doctors."
+          actions={
+            <Button
+              onClick={handleOpenCreateModal}
+              variant="secondary"
+              size="md"
+              leftIcon={<Plus className="w-4 h-4" />}
+              className="cursor-pointer"
+            >
+              Register Patient
+            </Button>
+          }
+        />
 
-      {/* filter toolbar */}
-      <MotionWrapper delay={0.1} direction="up">
-        <Card className="p-4 sm:p-5 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5">
-            {/* search input */}
-            <div className="lg:col-span-2 relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setPage(1);
-                }}
-                placeholder="Search by patient name, phone, condition..."
-                className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-input bg-card text-foreground placeholder:text-muted-foreground focus:border-secondary focus:ring-4 focus:ring-secondary/15 outline-none transition-all"
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-
-            {/* condition filter */}
-            <div>
-              <select
-                value={condition}
-                onChange={(e) => {
-                  setCondition(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full px-3 py-2.5 text-xs rounded-xl border border-input bg-card text-foreground focus:border-secondary focus:ring-4 focus:ring-secondary/15 outline-none transition-all cursor-pointer"
-              >
-                <option value="">All Conditions</option>
-                {conditionsList.map((cond) => (
-                  <option key={cond} value={cond}>
-                    {cond}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* assigned doctor filter */}
-            <div>
-              <select
-                value={doctorId}
-                onChange={(e) => {
-                  setDoctorId(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full px-3 py-2.5 text-xs rounded-xl border border-input bg-card text-foreground focus:border-secondary focus:ring-4 focus:ring-secondary/15 outline-none transition-all cursor-pointer"
-              >
-                <option value="">All Assigned Doctors</option>
-                {doctorsList.map((doc) => (
-                  <option key={doc._id} value={doc._id}>
-                    {doc.name} ({doc.specialization})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* gender filter */}
-            <div>
-              <select
-                value={gender}
-                onChange={(e) => {
-                  setGender(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full px-3 py-2.5 text-xs rounded-xl border border-input bg-card text-foreground focus:border-secondary focus:ring-4 focus:ring-secondary/15 outline-none transition-all cursor-pointer"
-              >
-                <option value="">All Genders</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-
-            {/* date range start & end */}
-            <div className="flex items-center gap-1.5">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                  setPage(1);
-                }}
-                className="w-1/2 px-2 py-2 text-xs rounded-xl border border-input bg-card text-foreground outline-none focus:border-secondary"
-              />
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                  setPage(1);
-                }}
-                className="w-1/2 px-2 py-2 text-xs rounded-xl border border-input bg-card text-foreground outline-none focus:border-secondary"
-              />
-            </div>
-          </div>
-
-          {/* active filter pills & clear */}
-          {hasActiveFilters && (
-            <div className="pt-2 border-t border-border flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2 text-muted-foreground flex-wrap">
-                <Filter className="w-3.5 h-3.5 text-secondary" />
-                <span>Active filters:</span>
-                {searchTerm && <Badge variant="secondary">Search: {searchTerm}</Badge>}
-                {condition && <Badge variant="warning">{condition}</Badge>}
-                {gender && <Badge variant="outline">{gender}</Badge>}
-                {doctorId && <Badge variant="primary">Specific Doctor</Badge>}
-                {(startDate || endDate) && (
-                  <Badge variant="muted">
-                    {startDate || 'Start'} → {endDate || 'End'}
-                  </Badge>
+        {/* filter toolbar */}
+        <MotionWrapper delay={0.1} direction="up">
+          <Card className="p-4 sm:p-5 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5">
+              {/* search input */}
+              <div className="lg:col-span-2 relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setPage(1);
+                  }}
+                  placeholder="Search by patient name, phone, condition..."
+                  className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-input bg-card text-foreground placeholder:text-muted-foreground focus:border-secondary focus:ring-4 focus:ring-secondary/15 outline-none transition-all"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
                 )}
               </div>
-              <button
-                onClick={handleResetFilters}
-                className="text-secondary hover:underline font-bold text-xs cursor-pointer ml-auto"
-              >
-                Clear all filters
-              </button>
-            </div>
-          )}
-        </Card>
-      </MotionWrapper>
 
-      {/* patients table card */}
-      <MotionWrapper delay={0.2} direction="up">
-        <Card className="overflow-hidden">
-          {loading ? (
-            <div className="py-20 flex flex-col items-center justify-center space-y-3">
-              <RefreshCw className="w-8 h-8 text-secondary animate-spin" />
-              <p className="text-xs font-semibold text-muted-foreground">Loading patient records...</p>
+              {/* condition filter */}
+              <div>
+                <select
+                  value={condition}
+                  onChange={(e) => {
+                    setCondition(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-full px-3 py-2.5 text-xs rounded-xl border border-input bg-card text-foreground focus:border-secondary focus:ring-4 focus:ring-secondary/15 outline-none transition-all cursor-pointer"
+                >
+                  <option value="">All Conditions</option>
+                  {conditionsList.map((cond) => (
+                    <option key={cond} value={cond}>
+                      {cond}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* assigned doctor filter */}
+              <div>
+                <select
+                  value={doctorId}
+                  onChange={(e) => {
+                    setDoctorId(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-full px-3 py-2.5 text-xs rounded-xl border border-input bg-card text-foreground focus:border-secondary focus:ring-4 focus:ring-secondary/15 outline-none transition-all cursor-pointer"
+                >
+                  <option value="">All Assigned Doctors</option>
+                  {doctorsList.map((doc) => (
+                    <option key={doc._id} value={doc._id}>
+                      {doc.name} ({doc.specialization})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* gender filter */}
+              <div>
+                <select
+                  value={gender}
+                  onChange={(e) => {
+                    setGender(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-full px-3 py-2.5 text-xs rounded-xl border border-input bg-card text-foreground focus:border-secondary focus:ring-4 focus:ring-secondary/15 outline-none transition-all cursor-pointer"
+                >
+                  <option value="">All Genders</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              {/* date range start & end */}
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => {
+                    setStartDate(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-1/2 px-2 py-2 text-xs rounded-xl border border-input bg-card text-foreground outline-none focus:border-secondary"
+                />
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => {
+                    setEndDate(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-1/2 px-2 py-2 text-xs rounded-xl border border-input bg-card text-foreground outline-none focus:border-secondary"
+                />
+              </div>
             </div>
-          ) : patients.length === 0 ? (
-            <div className="py-16 text-center space-y-4 px-4">
-              <div className="w-14 h-14 rounded-2xl bg-secondary/10 text-secondary mx-auto flex items-center justify-center">
-                <Users className="w-7 h-7" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="font-bold text-foreground text-base">No patients found</h3>
-                <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                  {hasActiveFilters
-                    ? 'No patients match your selected query and filters.'
-                    : 'Admit and register your first patient record.'}
-                </p>
-              </div>
-              {hasActiveFilters ? (
-                <Button
-                  variant="outline"
-                  size="sm"
+
+            {/* active filter pills & clear */}
+            {hasActiveFilters && (
+              <div className="pt-2 border-t border-border flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-muted-foreground flex-wrap">
+                  <Filter className="w-3.5 h-3.5 text-secondary" />
+                  <span>Active filters:</span>
+                  {searchTerm && <Badge variant="secondary">Search: {searchTerm}</Badge>}
+                  {condition && <Badge variant="warning">{condition}</Badge>}
+                  {gender && <Badge variant="outline">{gender}</Badge>}
+                  {doctorId && <Badge variant="primary">Specific Doctor</Badge>}
+                  {(startDate || endDate) && (
+                    <Badge variant="muted">
+                      {startDate || 'Start'} → {endDate || 'End'}
+                    </Badge>
+                  )}
+                </div>
+                <button
                   onClick={handleResetFilters}
-                  leftIcon={<X className="w-3.5 h-3.5" />}
+                  className="text-secondary hover:underline font-bold text-xs cursor-pointer ml-auto"
                 >
-                  Clear Filters
-                </Button>
-              ) : (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleOpenCreateModal}
-                  leftIcon={<Plus className="w-3.5 h-3.5" />}
-                >
-                  Register First Patient
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-border bg-muted/30 text-[11px] font-bold uppercase tracking-wider text-muted-foreground select-none">
-                    <th className="py-3.5 px-5">Patient Name</th>
-                    <th className="py-3.5 px-4">Demographics</th>
-                    <th className="py-3.5 px-4">Medical Condition</th>
-                    <th className="py-3.5 px-4">Assigned Doctor</th>
-                    <th className="py-3.5 px-4">Contact</th>
-                    <th className="py-3.5 px-4">Admission</th>
-                    <th className="py-3.5 px-5 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border text-xs">
-                  {patients.map((patient) => {
-                    const docObj = typeof patient.doctorId === 'object' && patient.doctorId !== null ? patient.doctorId : null;
+                  Clear all filters
+                </button>
+              </div>
+            )}
+          </Card>
+        </MotionWrapper>
 
-                    return (
-                      <tr key={patient._id} className="hover:bg-muted/40 transition-colors group">
-                        {/* patient name */}
-                        <td className="py-4 px-5">
-                          <div className="flex items-center gap-3">
-                            <div className="relative w-9 h-9 rounded-2xl bg-secondary/10 text-secondary overflow-hidden flex items-center justify-center font-bold text-sm shrink-0 border border-secondary/20 shadow-xs">
-                              {patient.avatar?.url ? (
-                                <Image
-                                  src={patient.avatar.url}
-                                  alt={patient.name}
-                                  fill
-                                  sizes="36px"
-                                  className="object-cover"
-                                />
-                              ) : (
-                                <Users className="w-4 h-4" />
-                              )}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-bold text-foreground group-hover:text-secondary transition-colors text-sm">
-                                {patient.name}
-                              </p>
-                              <p className="text-[11px] text-muted-foreground">
-                                ID: #{patient._id.slice(-6).toUpperCase()}
-                              </p>
-                            </div>
-                          </div>
-                        </td>
+        {/* patients table card */}
+        <MotionWrapper delay={0.2} direction="up">
+          <Card className="overflow-hidden">
+            {loading ? (
+              <div className="py-20 flex flex-col items-center justify-center space-y-3">
+                <RefreshCw className="w-8 h-8 text-secondary animate-spin" />
+                <p className="text-xs font-semibold text-muted-foreground">Loading patient records...</p>
+              </div>
+            ) : patients.length === 0 ? (
+              <div className="py-16 text-center space-y-4 px-4">
+                <div className="w-14 h-14 rounded-2xl bg-secondary/10 text-secondary mx-auto flex items-center justify-center">
+                  <Users className="w-7 h-7" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-bold text-foreground text-base">No patients found</h3>
+                  <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                    {hasActiveFilters
+                      ? 'No patients match your selected query and filters.'
+                      : 'Admit and register your first patient record.'}
+                  </p>
+                </div>
+                {hasActiveFilters ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleResetFilters}
+                    leftIcon={<X className="w-3.5 h-3.5" />}
+                  >
+                    Clear Filters
+                  </Button>
+                ) : (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleOpenCreateModal}
+                    leftIcon={<Plus className="w-3.5 h-3.5" />}
+                  >
+                    Register First Patient
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/30 text-[11px] font-bold uppercase tracking-wider text-muted-foreground select-none">
+                      <th className="py-3.5 px-5">Patient Name</th>
+                      <th className="py-3.5 px-4">Demographics</th>
+                      <th className="py-3.5 px-4">Medical Condition</th>
+                      <th className="py-3.5 px-4">Assigned Doctor</th>
+                      <th className="py-3.5 px-4">Contact</th>
+                      <th className="py-3.5 px-4">Admission</th>
+                      <th className="py-3.5 px-5 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border text-xs">
+                    {patients.map((patient) => {
+                      const docObj = typeof patient.doctorId === 'object' && patient.doctorId !== null ? patient.doctorId : null;
 
-                        {/* demographics */}
-                        <td className="py-4 px-4 text-foreground font-medium">
-                          {patient.age} yrs • {patient.gender}
-                        </td>
-
-                        {/* condition badge */}
-                        <td className="py-4 px-4">
-                          <Badge variant="warning" className="font-semibold">
-                            <HeartPulse className="w-3 h-3 mr-1" />
-                            {patient.condition}
-                          </Badge>
-                        </td>
-
-                        {/* assigned doctor */}
-                        <td className="py-4 px-4">
-                          {docObj ? (
-                            <div className="flex items-center gap-2">
-                              {docObj.avatar?.url ? (
-                                <div className="relative w-7 h-7 rounded-xl overflow-hidden border border-primary/20 shrink-0">
+                      return (
+                        <tr key={patient._id} className="hover:bg-muted/40 transition-colors group">
+                          {/* patient name */}
+                          <td className="py-4 px-5">
+                            <div className="flex items-center gap-3">
+                              <div className="relative w-9 h-9 rounded-2xl bg-secondary/10 text-secondary overflow-hidden flex items-center justify-center font-bold text-sm shrink-0 border border-secondary/20 shadow-xs">
+                                {patient.avatar?.url ? (
                                   <Image
-                                    src={docObj.avatar.url}
-                                    alt={docObj.name}
+                                    src={patient.avatar.url}
+                                    alt={patient.name}
                                     fill
-                                    sizes="28px"
+                                    sizes="36px"
                                     className="object-cover"
                                   />
-                                </div>
-                              ) : null}
-                              <div className="space-y-0.5 min-w-0">
-                                <p className="font-bold text-foreground text-xs flex items-center gap-1.5 truncate">
-                                  {!docObj.avatar?.url && <Stethoscope className="w-3.5 h-3.5 text-primary shrink-0" />}
-                                  <span className="truncate">{docObj.name}</span>
+                                ) : (
+                                  <Users className="w-4 h-4" />
+                                )}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-bold text-foreground group-hover:text-secondary transition-colors text-sm">
+                                  {patient.name}
                                 </p>
-                                <p className="text-[10px] text-muted-foreground truncate">
-                                  {docObj.specialization} • {docObj.hospital}
+                                <p className="text-[11px] text-muted-foreground">
+                                  ID: #{patient._id.slice(-6).toUpperCase()}
                                 </p>
                               </div>
                             </div>
-                          ) : (
-                            <span className="text-muted-foreground italic text-xs">Unassigned</span>
-                          )}
-                        </td>
+                          </td>
 
-                        {/* contact */}
-                        <td className="py-4 px-4 space-y-1">
-                          <div className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
-                            <Phone className="w-3 h-3 text-secondary" />
-                            <span>{patient.phone}</span>
-                          </div>
-                          {patient.email && (
-                            <div className="flex items-center gap-1.5 text-muted-foreground text-[11px] truncate max-w-[160px]">
-                              <Mail className="w-3 h-3 text-primary" />
-                              <span>{patient.email}</span>
+                          {/* demographics */}
+                          <td className="py-4 px-4 text-foreground font-medium">
+                            {patient.age} yrs • {patient.gender}
+                          </td>
+
+                          {/* condition badge */}
+                          <td className="py-4 px-4">
+                            <Badge variant="warning" className="font-semibold">
+                              <HeartPulse className="w-3 h-3 mr-1" />
+                              {patient.condition}
+                            </Badge>
+                          </td>
+
+                          {/* assigned doctor */}
+                          <td className="py-4 px-4">
+                            {docObj ? (
+                              <div className="flex items-center gap-2">
+                                {docObj.avatar?.url ? (
+                                  <div className="relative w-7 h-7 rounded-xl overflow-hidden border border-primary/20 shrink-0">
+                                    <Image
+                                      src={docObj.avatar.url}
+                                      alt={docObj.name}
+                                      fill
+                                      sizes="28px"
+                                      className="object-cover"
+                                    />
+                                  </div>
+                                ) : null}
+                                <div className="space-y-0.5 min-w-0">
+                                  <p className="font-bold text-foreground text-xs flex items-center gap-1.5 truncate">
+                                    {!docObj.avatar?.url && <Stethoscope className="w-3.5 h-3.5 text-primary shrink-0" />}
+                                    <span className="truncate">{docObj.name}</span>
+                                  </p>
+                                  <p className="text-[10px] text-muted-foreground truncate">
+                                    {docObj.specialization} • {docObj.hospital}
+                                  </p>
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground italic text-xs">Unassigned</span>
+                            )}
+                          </td>
+
+                          {/* contact */}
+                          <td className="py-4 px-4 space-y-1">
+                            <div className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
+                              <Phone className="w-3 h-3 text-secondary" />
+                              <span>{patient.phone}</span>
                             </div>
-                          )}
-                        </td>
+                            {patient.email && (
+                              <div className="flex items-center gap-1.5 text-muted-foreground text-[11px] truncate max-w-[160px]">
+                                <Mail className="w-3 h-3 text-primary" />
+                                <span>{patient.email}</span>
+                              </div>
+                            )}
+                          </td>
 
-                        {/* admission date */}
-                        <td className="py-4 px-4 text-muted-foreground text-[11px]">
-                          <div className="flex items-center gap-1.5">
-                            <Calendar className="w-3.5 h-3.5 text-muted-foreground/70" />
-                            <span>{new Date(patient.admissionDate).toLocaleDateString()}</span>
-                          </div>
-                        </td>
+                          {/* admission date */}
+                          <td className="py-4 px-4 text-muted-foreground text-[11px]">
+                            <div className="flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5 text-muted-foreground/70" />
+                              <span>{new Date(patient.admissionDate).toLocaleDateString()}</span>
+                            </div>
+                          </td>
 
-                        {/* actions */}
-                        <td className="py-4 px-5 text-right">
-                          <div className="inline-flex items-center gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedPatient(patient);
-                                setIsDetailCardOpen(true);
-                              }}
-                              className="p-1.5 rounded-lg text-muted-foreground hover:text-secondary hover:bg-secondary/10 transition-colors cursor-pointer"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleOpenEditModal(patient)}
-                              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                setPatientToDelete(patient);
-                                setIsDeleteModalOpen(true);
-                              }}
-                              className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* pagination bar */}
-          {total > 0 && (
-            <div className="p-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground bg-card">
-              <p>
-                Showing <strong className="text-foreground">{(page - 1) * limit + 1}</strong> to{' '}
-                <strong className="text-foreground">{Math.min(page * limit, total)}</strong> of{' '}
-                <strong className="text-foreground">{total}</strong> admitted patients
-              </p>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page <= 1}
-                  onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                  leftIcon={<ChevronLeft className="w-3.5 h-3.5" />}
-                >
-                  Previous
-                </Button>
-
-                <div className="px-3 py-1 font-bold text-foreground">
-                  Page {page} of {totalPages}
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page >= totalPages}
-                  onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-                  rightIcon={<ChevronRight className="w-3.5 h-3.5" />}
-                >
-                  Next
-                </Button>
+                          {/* actions */}
+                          <td className="py-4 px-5 text-right">
+                            <div className="inline-flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedPatient(patient);
+                                  setIsDetailCardOpen(true);
+                                }}
+                                className="p-1.5 rounded-lg text-muted-foreground hover:text-secondary hover:bg-secondary/10 transition-colors cursor-pointer"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleOpenEditModal(patient)}
+                                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setPatientToDelete(patient);
+                                  setIsDeleteModalOpen(true);
+                                }}
+                                className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
-            </div>
-          )}
-        </Card>
-      </MotionWrapper>
+            )}
+
+            {/* pagination bar */}
+            {total > 0 && (
+              <div className="p-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground bg-card">
+                <p>
+                  Showing <strong className="text-foreground">{(page - 1) * limit + 1}</strong> to{' '}
+                  <strong className="text-foreground">{Math.min(page * limit, total)}</strong> of{' '}
+                  <strong className="text-foreground">{total}</strong> admitted patients
+                </p>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={page <= 1}
+                    onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                    leftIcon={<ChevronLeft className="w-3.5 h-3.5" />}
+                  >
+                    Previous
+                  </Button>
+
+                  <div className="px-3 py-1 font-bold text-foreground">
+                    Page {page} of {totalPages}
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={page >= totalPages}
+                    onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+                    rightIcon={<ChevronRight className="w-3.5 h-3.5" />}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+          </Card>
+        </MotionWrapper>
       </div>
 
       {/* right slide-in patient details card matching profile card style */}
@@ -740,7 +740,7 @@ function PatientsContent() {
 
             <Input
               label="Phone Number"
-              placeholder="+1 (555) 432-1098"
+              placeholder="+880 1712-345678"
               required
               value={patientForm.phone}
               onChange={(e) => setPatientForm({ ...patientForm, phone: e.target.value })}
@@ -807,8 +807,8 @@ function PatientsContent() {
                 {patientAvatarFile
                   ? patientAvatarFile.name
                   : editingPatient?.avatar?.url
-                  ? 'Change Photo'
-                  : 'Choose Photo'}
+                    ? 'Change Photo'
+                    : 'Choose Photo'}
               </Button>
               {patientAvatarFile && (
                 <button

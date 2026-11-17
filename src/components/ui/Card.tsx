@@ -17,8 +17,11 @@ export const Card: React.FC<CardProps> = ({
     flat: 'bg-muted/40 backdrop-blur-md text-foreground border border-border/40',
   }[variant];
 
+  const hasOverflow = className.includes('overflow-');
+  const overflowClass = hasOverflow ? '' : 'overflow-hidden';
+
   return (
-    <div className={`rounded-3xl overflow-hidden transition-all ${variantStyles} ${className}`} {...props}>
+    <div className={`rounded-3xl ${overflowClass} transition-all ${variantStyles} ${className}`} {...props}>
       {children}
     </div>
   );

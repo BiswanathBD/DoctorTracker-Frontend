@@ -4,17 +4,20 @@ import React, { useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
+import { PageHeader } from './PageHeader';
+import { Motion } from '../common/MotionWrapper';
 
 export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
   description?: string;
+  icon?: React.ReactNode;
   children: React.ReactNode;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl';
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 }
 
-const emptySubscribe = () => () => {};
+const emptySubscribe = () => () => { };
 const getClientSnapshot = () => true;
 const getServerSnapshot = () => false;
 
@@ -23,6 +26,7 @@ export const Modal: React.FC<ModalProps> = ({
   onClose,
   title,
   description,
+  icon,
   children,
   maxWidth = 'md',
 }) => {
@@ -53,6 +57,7 @@ export const Modal: React.FC<ModalProps> = ({
     md: 'max-w-md',
     lg: 'max-w-lg',
     xl: 'max-w-xl',
+    '2xl': 'max-w-2xl',
   }[maxWidth];
 
   if (!isMounted) return null;
@@ -60,7 +65,7 @@ export const Modal: React.FC<ModalProps> = ({
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
           {/* backdrop covering entire viewport including navbar */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -76,35 +81,37 @@ export const Modal: React.FC<ModalProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 16 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className={`relative z-10 w-full ${maxWidthClass} rounded-3xl bg-card text-card-foreground border border-border shadow-2xl overflow-hidden p-6 sm:p-7 space-y-5`}
+            className={`relative z-10 w-full ${maxWidthClass} rounded-3xl bg-card text-card-foreground border-0 shadow-2xl overflow-hidden p-6 sm:p-7 space-y-5`}
           >
-            {/* modal header */}
+            {/* background decorative elements */}
+            <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/15 blur-3xl" />
+            <div className="pointer-events-none absolute -left-16 -bottom-16 h-48 w-48 rounded-full bg-secondary/15 blur-3xl" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(#808080_1px,transparent_1px)] opacity-[0.07] bg-size-[18px_18px]" />
+            <div className="pointer-events-none absolute -bottom-20 -right-20 h-44 w-44 rounded-full border border-secondary/10" />
+
+            <Motion animationType='button'
+               className='absolute top-5 right-5 w-8 h-8 z-20 rounded-full bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground flex items-center justify-center shadow-md transition-all cursor-pointer'>
+              <button
+                type="button"
+                onClick={onClose}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </Motion>
+
+            {/* modal header using PageHeader */}
             {(title || description) && (
-              <div className="flex items-start justify-between gap-4">
-                <div className="space-y-1">
-                  {title && (
-                    <h3 className="text-lg font-bold text-card-foreground tracking-tight leading-snug">
-                      {title}
-                    </h3>
-                  )}
-                  {description && (
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {description}
-                    </p>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="p-1.5 text-muted-foreground hover:text-card-foreground hover:bg-muted rounded-xl transition-colors cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+              <div className="relative">
+                <PageHeader
+                  title={title || ''}
+                  subtitle={description}
+                  icon={icon}
+                />
               </div>
             )}
 
             {/* modal body */}
-            <div className="space-y-4">{children}</div>
+            <div className="relative space-y-4">{children}</div>
           </motion.div>
         </div>
       )}

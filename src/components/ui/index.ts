@@ -7,3 +7,4 @@ export * from './Modal';
 export * from './SideSheet';
 export * from './ToastCard';
 export * from './PageHeader';
+export * from './Select';
