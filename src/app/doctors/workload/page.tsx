@@ -3,14 +3,13 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { MotionWrapper } from '@/components/common/MotionWrapper';
-import { Card, Badge, Button } from '@/components/ui';
+import { Card, Badge, Button, PageHeader } from '@/components/ui';
 import { DashboardService, type DashboardStats } from '@/server/dashboard.service';
 import { DoctorService, type Doctor } from '@/server/doctor.service';
 import {
   Activity,
   Stethoscope,
   Building2,
-  ArrowLeft,
   RefreshCw,
   PlusCircle,
   TrendingUp,
@@ -44,40 +43,24 @@ export default function DoctorWorkloadPage() {
     <div className="w-full space-y-7">
       {/* header */}
       <MotionWrapper direction="up">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Link href="/doctors">
-              <button
-                type="button"
-                className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-                title="Back to Doctors Directory"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-            </Link>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-                Doctor Workload Distribution
-              </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                Real-time patient load analysis, capacity monitoring, and clinical assignments.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
+        <PageHeader
+          backHref="/doctors"
+          icon={<Stethoscope className="w-6 h-6" />}
+          title="Doctor Workload Distribution"
+          subtitle="Real-time patient load analysis, capacity monitoring, and clinical assignments."
+          actions={
             <Link href="/doctors?action=create">
               <Button
                 variant="primary"
                 size="sm"
                 leftIcon={<PlusCircle className="w-4 h-4" />}
-                className="shadow-md shadow-primary/20"
+                className="shadow-md shadow-primary/20 cursor-pointer"
               >
                 Add Specialist
               </Button>
             </Link>
-          </div>
-        </div>
+          }
+        />
       </MotionWrapper>
 
       {/* KPI summary */}

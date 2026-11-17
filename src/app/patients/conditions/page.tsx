@@ -3,12 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { MotionWrapper } from '@/components/common/MotionWrapper';
-import { Card, Badge, Button } from '@/components/ui';
+import { Card, Badge, Button, PageHeader } from '@/components/ui';
 import { DashboardService, type DashboardStats } from '@/server/dashboard.service';
 import { PatientService, type Patient } from '@/server/patient.service';
 import {
   HeartPulse,
-  ArrowLeft,
   RefreshCw,
   PlusCircle,
   Calendar
@@ -42,40 +41,24 @@ export default function PatientConditionsPage() {
     <div className="w-full space-y-7">
       {/* header */}
       <MotionWrapper direction="up">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Link href="/patients">
-              <button
-                type="button"
-                className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-                title="Back to Patients Directory"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-            </Link>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-                Patient Conditions Breakdown
-              </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                Clinical diagnosis analytics, category clustering, and patient medical distribution.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
+        <PageHeader
+          backHref="/patients"
+          icon={<HeartPulse className="w-6 h-6" />}
+          title="Patient Conditions Breakdown"
+          subtitle="Clinical diagnosis analytics, category clustering, and patient medical distribution."
+          actions={
             <Link href="/patients?action=create">
               <Button
                 variant="secondary"
                 size="sm"
                 leftIcon={<PlusCircle className="w-4 h-4" />}
-                className="shadow-md shadow-secondary/20"
+                className="shadow-md shadow-secondary/20 cursor-pointer"
               >
                 Admit Patient
               </Button>
             </Link>
-          </div>
-        </div>
+          }
+        />
       </MotionWrapper>
 
       {/* condition cards grid */}

@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 import { MotionWrapper } from '@/components/common/MotionWrapper';
-import { Button, Input, Card, Badge, Modal, toast } from '@/components/ui';
+import { Button, Input, Card, Badge, Modal, toast, PageHeader } from '@/components/ui';
 import { PatientDetailCard } from '@/components/layout/PatientDetailCard';
 import { PatientService, type Patient } from '@/server/patient.service';
 import { DoctorService, type Doctor } from '@/server/doctor.service';
@@ -267,28 +267,24 @@ function PatientsContent() {
   return (
     <div className="w-full flex gap-6 items-start">
       <div className="flex-1 min-w-0 space-y-7">
-      {/* page header banner */}
+      {/* header */}
       <MotionWrapper direction="up">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-              Patient Management
-            </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-              Track patient admissions, manage medical conditions, and assign specialized doctors.
-            </p>
-          </div>
-
-          <Button
-            onClick={handleOpenCreateModal}
-            variant="secondary"
-            size="md"
-            leftIcon={<Plus className="w-4 h-4" />}
-            className="shadow-lg shadow-secondary/25"
-          >
-            Register Patient
-          </Button>
-        </div>
+        <PageHeader
+          icon={<Users className="w-6 h-6" />}
+          title="Patient Management"
+          subtitle="Track patient admissions, manage medical conditions, and assign specialized doctors."
+          actions={
+            <Button
+              onClick={handleOpenCreateModal}
+              variant="secondary"
+              size="md"
+              leftIcon={<Plus className="w-4 h-4" />}
+              className="shadow-lg shadow-secondary/25 cursor-pointer"
+            >
+              Register Patient
+            </Button>
+          }
+        />
       </MotionWrapper>
 
       {/* filter toolbar */}

@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 import { MotionWrapper } from '@/components/common/MotionWrapper';
-import { Button, Input, Card, Badge, Modal, toast } from '@/components/ui';
+import { Button, Input, Card, Badge, Modal, toast, PageHeader } from '@/components/ui';
 import { DoctorDetailCard } from '@/components/layout/DoctorDetailCard';
 import { DoctorService, type Doctor } from '@/server/doctor.service';
 import {
@@ -322,28 +322,24 @@ function DoctorsContent() {
   return (
     <div className="w-full flex gap-6 items-start">
       <div className="flex-1 min-w-0 space-y-7">
-      {/* page header banner */}
+      {/* header */}
       <MotionWrapper direction="up">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-              Doctor Management
-            </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-              Register medical specialists, filter hospital directories, and manage patient assignments.
-            </p>
-          </div>
-
-          <Button
-            onClick={handleOpenCreateModal}
-            variant="primary"
-            size="md"
-            leftIcon={<Plus className="w-4 h-4" />}
-            className="shadow-lg shadow-primary/25"
-          >
-            Add New Doctor
-          </Button>
-        </div>
+        <PageHeader
+          icon={<Stethoscope className="w-6 h-6" />}
+          title="Doctor Management"
+          subtitle="Register medical specialists, filter hospital directories, and manage patient assignments."
+          actions={
+            <Button
+              onClick={handleOpenCreateModal}
+              variant="primary"
+              size="md"
+              leftIcon={<Plus className="w-4 h-4" />}
+              className="shadow-lg shadow-primary/25 cursor-pointer"
+            >
+              Add New Doctor
+            </Button>
+          }
+        />
       </MotionWrapper>
 
       {/* filter & search toolbar */}

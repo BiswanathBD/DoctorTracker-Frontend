@@ -3,7 +3,7 @@
 import React, { useState, useRef, useSyncExternalStore } from 'react';
 import Image from 'next/image';
 import { MotionWrapper } from '@/components/common/MotionWrapper';
-import { Button, Card, Badge, toast } from '@/components/ui';
+import { Button, Card, Badge, toast, PageHeader } from '@/components/ui';
 import {
   AuthService,
   subscribeAuth,
@@ -48,16 +48,18 @@ export default function ProfilePage() {
 
   return (
     <div className="w-full max-w-4xl space-y-7 mx-auto">
-      {/* page header */}
+      {/* header */}
       <MotionWrapper direction="up">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-            Settings & Admin Profile
-          </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            Manage your administrative credentials, Cloudinary avatar, and security preferences.
-          </p>
-        </div>
+        <PageHeader
+          icon={<Shield className="w-6 h-6" />}
+          title="Settings & Admin Profile"
+          subtitle="Manage your administrative credentials, Cloudinary avatar, and security preferences."
+          badge={
+            <Badge variant="primary" className="text-xs">
+              System Admin
+            </Badge>
+          }
+        />
       </MotionWrapper>
 
       {/* admin profile card */}

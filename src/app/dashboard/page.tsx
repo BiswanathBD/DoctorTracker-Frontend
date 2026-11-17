@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { MotionWrapper } from '@/components/common/MotionWrapper';
-import { Card, Badge, Button } from '@/components/ui';
+import { Card, Badge, Button, PageHeader } from '@/components/ui';
 import {
   AuthService,
   subscribeAuth,
@@ -24,7 +24,8 @@ import {
   BarChart3,
   RefreshCw,
   Calendar,
-  Layers
+  Layers,
+  LayoutDashboard
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -86,47 +87,42 @@ export default function DashboardPage() {
 
   return (
     <div className="w-full space-y-8">
-      {/* banner */}
-      <MotionWrapper direction="up" duration={0.5}>
-        <div className="rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-primary via-primary-hover to-secondary text-primary-foreground shadow-xl shadow-primary/15 relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="absolute right-0 top-0 translate-x-12 -translate-y-12 w-64 h-64 bg-primary-foreground/10 rounded-full blur-2xl pointer-events-none" />
-          <div className="relative z-10 max-w-2xl space-y-3">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-foreground/15 backdrop-blur-sm text-xs font-semibold">
-              <Activity className="w-3.5 h-3.5 text-accent animate-pulse" />
-              <span>Real-Time Healthcare Management</span>
+      {/* header */}
+      <MotionWrapper direction="up" duration={0.4}>
+        <PageHeader
+          icon={<LayoutDashboard className="w-6 h-6" />}
+          title={`Welcome back, ${admin?.name || 'Super Admin'}! 👋`}
+          subtitle="Real-time healthcare analytics, specialist workload tracking, and patient monitoring."
+          badge={
+            <Badge variant="primary" className="text-xs font-bold">
+              Live Portal
+            </Badge>
+          }
+          actions={
+            <div className="flex items-center gap-2.5">
+              <Link href="/doctors?action=create">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  leftIcon={<PlusCircle className="w-4 h-4 text-primary" />}
+                  className="font-bold cursor-pointer"
+                >
+                  Add Doctor
+                </Button>
+              </Link>
+              <Link href="/patients?action=create">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  leftIcon={<Users className="w-4 h-4" />}
+                  className="font-bold cursor-pointer shadow-md shadow-primary/20"
+                >
+                  Admit Patient
+                </Button>
+              </Link>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Welcome back, {admin?.name || 'Super Admin'}! 👋
-            </h1>
-            <p className="text-sm opacity-90 leading-relaxed font-normal">
-              Manage all registered doctors, track patient assignments, and monitor real-time hospital statistics.
-            </p>
-          </div>
-
-          {/* banner actions */}
-          <div className="relative z-10 flex items-center gap-3">
-            <Link href="/doctors?action=create">
-              <Button
-                variant="outline"
-                size="md"
-                leftIcon={<PlusCircle className="w-4 h-4 text-primary" />}
-                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 border-none shadow-md font-bold"
-              >
-                Add Doctor
-              </Button>
-            </Link>
-            <Link href="/patients?action=create">
-              <Button
-                variant="secondary"
-                size="md"
-                leftIcon={<Users className="w-4 h-4" />}
-                className="shadow-md font-bold"
-              >
-                Admit Patient
-              </Button>
-            </Link>
-          </div>
-        </div>
+          }
+        />
       </MotionWrapper>
 
       {/* kpi cards */}

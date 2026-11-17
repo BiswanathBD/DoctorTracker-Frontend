@@ -5,3 +5,4 @@ export * from './Container';
 export * from './Badge';
 export * from './Modal';
 export * from './ToastCard';
+export * from './PageHeader';
