@@ -97,7 +97,40 @@ export const AuthService = {
     const user = data.data;
     if (typeof window !== 'undefined') {
       localStorage.setItem('user', JSON.stringify(user));
+      notifyAuthListeners();
     }
     return user;
   },
 };
+
+// listeners for auth store subscription
+let listeners: Array<() => void> = [];
+
+const notifyAuthListeners = () => {
+  listeners.forEach((listener) => listener());
+};
+
+export const subscribeAuth = (callback: () => void) => {
+  listeners.push(callback);
+  return () => {
+    listeners = listeners.filter((l) => l !== callback);
+  };
+};
+
+let cachedUser: AdminUser | null = null;
+let cachedRaw: string | null = null;
+
+export const getAuthSnapshot = (): AdminUser | null => {
+  if (typeof window === 'undefined') return null;
+  const raw = localStorage.getItem('user');
+  if (raw === cachedRaw) return cachedUser;
+  cachedRaw = raw;
+  try {
+    cachedUser = raw ? JSON.parse(raw) : null;
+  } catch {
+    cachedUser = null;
+  }
+  return cachedUser;
+};
+
+export const getAuthServerSnapshot = (): AdminUser | null => null;

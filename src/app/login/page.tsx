@@ -5,9 +5,8 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Logo } from '@/components/common/Logo';
 import { MotionWrapper } from '@/components/common/MotionWrapper';
-import { Button, Input } from '@/components/ui';
+import { Button, Input, toast } from '@/components/ui';
 import { AuthService } from '@/server/auth.service';
-import { toast } from '@/utils/toast';
 import { Lock, Mail, Eye, EyeOff, ArrowRight, ShieldCheck, Sparkles, Activity } from 'lucide-react';
 
 export default function LoginPage() {
