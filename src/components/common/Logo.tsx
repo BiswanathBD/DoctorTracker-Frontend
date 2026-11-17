@@ -25,7 +25,7 @@ export const Logo: React.FC<LogoProps> = ({
       {/* logo icon */}
       <div 
         style={{ width: icon, height: icon }}
-        className="relative shrink-0 rounded-2xl bg-gradient-to-br from-primary to-secondary p-2 shadow-md shadow-primary/20 group-hover:scale-105 transition-transform duration-200 text-primary-foreground"
+        className="relative shrink-0 rounded-2xl bg-linear-to-br from-primary to-secondary p-2 shadow-md shadow-primary/20 group-hover:scale-105 transition-transform duration-200 text-primary-foreground"
       >
         <svg viewBox="0 0 40 40" fill="none" className="w-full h-full">
           <rect x="16" y="8" width="8" height="24" rx="3" fill="currentColor" opacity="0.95" />

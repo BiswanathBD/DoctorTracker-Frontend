@@ -99,7 +99,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         <button
           type="button"
           onClick={onProfileToggle}
-          className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-2xl border transition-all cursor-pointer bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20"
+          className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-2xl border transition-all cursor-pointer bg-linear-to-br from-primary to-primary-hover text-primary-foreground border-border shadow-md"
         >
           {admin?.avatar?.url ? (
             <div className="relative w-8 h-8 rounded-xl overflow-hidden border-2 border-border shrink-0">

@@ -43,9 +43,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     // size styles
     const sizeStyles = {
-      sm: 'px-3 py-1.5 text-xs rounded-xl gap-1.5',
-      md: 'px-4 py-2.5 text-sm rounded-xl gap-2 font-medium',
-      lg: 'px-5 py-3 text-base rounded-2xl gap-2.5 font-semibold',
+      sm: 'px-3 py-2 text-xs rounded-xl gap-1.5',
+      md: 'px-4 py-3 text-sm rounded-xl gap-2 font-medium',
+      lg: 'px-5 py-4 text-base rounded-2xl gap-2.5 font-semibold',
     }[size];
 
     return (

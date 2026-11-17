@@ -24,7 +24,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${className}`}>
+    <div className={`mt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${className}`}>
       <div className="flex items-center gap-4 min-w-0">
         {/* back button */}
         {backHref && (
@@ -39,20 +39,19 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
 
         {/* icon */}
         {icon && (
-          <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary border border-primary/20 shrink-0 flex items-center justify-center">
-            {icon}
+          <div className='flex items-center'>
+            <div className="w-16 h-16 text-secondary flex items-center justify-center">
+              {icon}
+            </div>
+            {/* divider */}
+            <div className="h-16 w-px bg-primary/20 shrink-0 hidden sm:block" />
           </div>
-        )}
-
-        {/* divider */}
-        {icon && (
-          <div className="h-11 w-px bg-border shrink-0 hidden sm:block" />
         )}
 
         {/* titles */}
         <div className="min-w-0 space-y-0.5">
           <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-extrabold text-primary-hover tracking-tight">
               {title}
             </h1>
             {badge && <div>{badge}</div>}

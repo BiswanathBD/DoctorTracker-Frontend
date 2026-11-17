@@ -25,7 +25,7 @@ import {
   RefreshCw,
   Calendar,
   Layers,
-  LayoutDashboard
+  UserRoundShield
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -90,14 +90,10 @@ export default function DashboardPage() {
       {/* header */}
       <MotionWrapper direction="up" duration={0.4}>
         <PageHeader
-          icon={<LayoutDashboard className="w-6 h-6" />}
-          title={`Welcome back, ${admin?.name || 'Super Admin'}! 👋`}
-          subtitle="Real-time healthcare analytics, specialist workload tracking, and patient monitoring."
-          badge={
-            <Badge variant="primary" className="text-xs font-bold">
-              Live Portal
-            </Badge>
-          }
+          icon={<UserRoundShield size={42} strokeWidth={1.2} />}
+          title={`Welcome back, ${admin?.name || 'Super Admin'}!`}
+          subtitle="Real-time analytics, specialist workload tracking, and patient monitoring."
+          
           actions={
             <div className="flex items-center gap-2.5">
               <Link href="/doctors?action=create">
@@ -112,7 +108,7 @@ export default function DashboardPage() {
               </Link>
               <Link href="/patients?action=create">
                 <Button
-                  variant="primary"
+                  variant="secondary"
                   size="sm"
                   leftIcon={<Users className="w-4 h-4" />}
                   className="font-bold cursor-pointer shadow-md shadow-primary/20"
@@ -355,7 +351,7 @@ export default function DashboardPage() {
                       <div className="w-full h-2.5 rounded-full bg-muted overflow-hidden">
                         <div
                           style={{ width: `${Math.max(5, percent)}%` }}
-                          className="h-full rounded-full bg-gradient-to-r from-primary to-secondary transition-all duration-500"
+                          className="h-full rounded-full bg-linear-to-r from-primary to-secondary transition-all duration-500"
                         />
                       </div>
                     </div>
@@ -478,7 +474,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
               </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 group-hover:text-primary transition-all flex-shrink-0" />
+              <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 group-hover:text-primary transition-all shrink-0" />
             </Card>
           </Link>
         </MotionWrapper>
@@ -487,7 +483,7 @@ export default function DashboardPage() {
           <Link href="/patients" className="block group h-full">
             <Card variant="default" className="p-6 h-full group-hover:border-secondary group-hover:shadow-md transition-all flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="p-3.5 rounded-2xl bg-secondary/10 text-secondary group-hover:scale-105 transition-transform flex-shrink-0">
+                <div className="p-3.5 rounded-2xl bg-secondary/10 text-secondary group-hover:scale-105 transition-transform shrink-0">
                   <Users className="w-6 h-6" />
                 </div>
                 <div className="space-y-1">
@@ -502,7 +498,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
               </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 group-hover:text-secondary transition-all flex-shrink-0" />
+              <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 group-hover:text-secondary transition-all shrink-0" />
             </Card>
           </Link>
         </MotionWrapper>
