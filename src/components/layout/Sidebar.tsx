@@ -242,7 +242,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, admin }) => {
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-black text-primary-foreground truncate leading-tight transition-colors">
+                  <p className="text-xs font-black text-primary-foreground truncate leading-tight group-hover:text-accent transition-colors">
                     {admin?.name || 'Super Admin'}
                   </p>
                   <p className="text-[10px] text-primary-foreground/75 truncate mt-0.5 font-medium">

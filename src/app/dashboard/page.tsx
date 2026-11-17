@@ -99,7 +99,7 @@ export default function DashboardPage() {
               <Link href="/doctors?action=create">
                 <Button
                   variant="outline"
-                  size="sm"
+                  size="md"
                   leftIcon={<PlusCircle className="w-4 h-4 text-primary" />}
                   className="font-bold cursor-pointer"
                 >
@@ -109,7 +109,7 @@ export default function DashboardPage() {
               <Link href="/patients?action=create">
                 <Button
                   variant="primary"
-                  size="sm"
+                  size="md"
                   leftIcon={<Users className="w-4 h-4" />}
                   className="font-bold cursor-pointer shadow-md shadow-primary/20"
                 >
