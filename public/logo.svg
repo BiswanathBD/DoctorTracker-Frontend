@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" fill="none">
+  <defs>
+    <linearGradient id="logoBadgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#0d9488" />
+    </linearGradient>
+  </defs>
+
+  <!-- emblem badge -->
+  <g transform="translate(10, 10)">
+    <rect width="60" height="60" rx="16" fill="url(#logoBadgeGrad)"/>
+    <g fill="#ffffff">
+      <rect x="25" y="14" width="10" height="32" rx="4" opacity="0.95"/>
+      <rect x="14" y="25" width="32" height="10" rx="4" opacity="0.95"/>
+    </g>
+    <!-- ecg line -->
+    <path d="M12 30h10l3-7 6 15 4-10 3 4h10" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <!-- beacon ping -->
+    <circle cx="48" cy="14" r="3.5" fill="#38bdf8"/>
+    <circle cx="48" cy="14" r="6" stroke="#ffffff" stroke-width="1.2" fill="none" opacity="0.8"/>
+  </g>
+
+  <!-- brand typography -->
+  <g transform="translate(84, 20)">
+    <text x="0" y="26" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="24" font-weight="800" fill="#0f172a" letter-spacing="-0.5">
+      Doctor<tspan fill="#0284c7">Tracker</tspan>
+    </text>
+    <text x="0" y="44" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#64748b" letter-spacing="1.5">
+      MEDICAL SYSTEM
+    </text>
+  </g>
+</svg>
