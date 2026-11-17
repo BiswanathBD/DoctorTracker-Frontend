@@ -45,7 +45,7 @@ export default function DoctorWorkloadPage() {
       <MotionWrapper direction="up">
         <PageHeader
           backHref="/doctors"
-          icon={<Stethoscope className="w-6 h-6" />}
+          icon={<Stethoscope size={42} strokeWidth={1.2} />}
           title="Doctor Workload Distribution"
           subtitle="Real-time patient load analysis, capacity monitoring, and clinical assignments."
           actions={

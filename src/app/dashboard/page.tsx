@@ -11,12 +11,12 @@ import {
   getAuthServerSnapshot,
 } from '@/server/auth.service';
 import { DashboardService, type DashboardStats } from '@/server/dashboard.service';
-import { 
-  Users, 
-  Stethoscope, 
-  Activity, 
-  TrendingUp, 
-  Building2, 
+import {
+  Users,
+  Stethoscope,
+  Activity,
+  TrendingUp,
+  Building2,
   ChevronRight,
   ArrowUpRight,
   PlusCircle,
@@ -93,7 +93,7 @@ export default function DashboardPage() {
           icon={<UserRoundShield size={42} strokeWidth={1.2} />}
           title={`Welcome back, ${admin?.name || 'Super Admin'}!`}
           subtitle="Real-time analytics, specialist workload tracking, and patient monitoring."
-          
+
           actions={
             <div className="flex items-center gap-2.5">
               <Link href="/doctors?action=create">
@@ -108,7 +108,7 @@ export default function DashboardPage() {
               </Link>
               <Link href="/patients?action=create">
                 <Button
-                  variant="secondary"
+                  variant="primary"
                   size="sm"
                   leftIcon={<Users className="w-4 h-4" />}
                   className="font-bold cursor-pointer shadow-md shadow-primary/20"
@@ -206,33 +206,30 @@ export default function DashboardPage() {
                 <button
                   type="button"
                   onClick={() => setTimelineView('all')}
-                  className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
-                    timelineView === 'all'
+                  className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${timelineView === 'all'
                       ? 'bg-card text-foreground shadow-sm font-bold'
                       : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                    }`}
                 >
                   All
                 </button>
                 <button
                   type="button"
                   onClick={() => setTimelineView('patients')}
-                  className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
-                    timelineView === 'patients'
+                  className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${timelineView === 'patients'
                       ? 'bg-secondary text-secondary-foreground shadow-sm font-bold'
                       : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                    }`}
                 >
                   Patients
                 </button>
                 <button
                   type="button"
                   onClick={() => setTimelineView('doctors')}
-                  className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
-                    timelineView === 'doctors'
+                  className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${timelineView === 'doctors'
                       ? 'bg-primary text-primary-foreground shadow-sm font-bold'
                       : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                    }`}
                 >
                   Doctors
                 </button>

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useSyncExternalStore } from 'react';
-import { motion } from 'framer-motion';
 import { Sidebar } from './Sidebar';
 import { DashboardHeader } from './DashboardHeader';
 import { ProfileCard } from './ProfileCard';
@@ -55,23 +54,9 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             admin={admin}
           />
 
-          <motion.main
-            layout
-            initial={false}
-            animate={{
-              scale: profileOpen ? 0.985 : 1,
-              transition: {
-                type: 'spring',
-                stiffness: 280,
-                damping: 30,
-                mass: 0.8,
-              },
-            }}
-            style={{ originX: 0, originY: 0 }}
-            className="flex-1 min-w-0 space-y-8"
-          >
+          <main className="flex-1 min-w-0 space-y-8">
             {children}
-          </motion.main>
+          </main>
 
           <ProfileCard
             isOpen={profileOpen}

@@ -31,7 +31,6 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
           <Link
             href={backHref}
             className="p-2.5 rounded-2xl bg-card border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition-all shrink-0 cursor-pointer"
-            title="Go Back"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>

@@ -270,7 +270,7 @@ function PatientsContent() {
       {/* header */}
       <MotionWrapper direction="up">
         <PageHeader
-          icon={<Users className="w-6 h-6" />}
+          icon={<Users size={42} strokeWidth={1.2} />}
           title="Patient Management"
           subtitle="Track patient admissions, manage medical conditions, and assign specialized doctors."
           actions={
@@ -373,7 +373,6 @@ function PatientsContent() {
             <div className="flex items-center gap-1.5">
               <input
                 type="date"
-                title="Start Date"
                 value={startDate}
                 onChange={(e) => {
                   setStartDate(e.target.value);
@@ -383,7 +382,6 @@ function PatientsContent() {
               />
               <input
                 type="date"
-                title="End Date"
                 value={endDate}
                 onChange={(e) => {
                   setEndDate(e.target.value);
@@ -551,14 +549,12 @@ function PatientsContent() {
                                 setIsDetailCardOpen(true);
                               }}
                               className="p-1.5 rounded-lg text-muted-foreground hover:text-secondary hover:bg-secondary/10 transition-colors cursor-pointer"
-                              title="View Patient Details"
                             >
                               <Eye className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleOpenEditModal(patient)}
                               className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-                              title="Edit Patient"
                             >
                               <Edit2 className="w-4 h-4" />
                             </button>
@@ -568,7 +564,6 @@ function PatientsContent() {
                                 setIsDeleteModalOpen(true);
                               }}
                               className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
-                              title="Delete Patient"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>

@@ -43,7 +43,7 @@ export default function PatientConditionsPage() {
       <MotionWrapper direction="up">
         <PageHeader
           backHref="/patients"
-          icon={<HeartPulse className="w-6 h-6" />}
+          icon={<HeartPulse size={42} strokeWidth={1.2} />}
           title="Patient Conditions Breakdown"
           subtitle="Clinical diagnosis analytics, category clustering, and patient medical distribution."
           actions={

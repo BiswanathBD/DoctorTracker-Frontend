@@ -325,7 +325,7 @@ function DoctorsContent() {
       {/* header */}
       <MotionWrapper direction="up">
         <PageHeader
-          icon={<Stethoscope className="w-6 h-6" />}
+          icon={<Stethoscope size={42} strokeWidth={1.2} />}
           title="Doctor Management"
           subtitle="Register medical specialists, filter hospital directories, and manage patient assignments."
           actions={
@@ -411,7 +411,6 @@ function DoctorsContent() {
             <div className="flex items-center gap-2">
               <input
                 type="date"
-                title="Start Date"
                 value={startDate}
                 onChange={(e) => {
                   setStartDate(e.target.value);
@@ -421,7 +420,6 @@ function DoctorsContent() {
               />
               <input
                 type="date"
-                title="End Date"
                 value={endDate}
                 onChange={(e) => {
                   setEndDate(e.target.value);
@@ -558,7 +556,6 @@ function DoctorsContent() {
                         <button
                           onClick={() => handleViewDetails(doctor._id)}
                           className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/10 hover:bg-secondary/20 text-secondary font-bold text-xs transition-colors cursor-pointer"
-                          title="Click to view assigned patients"
                         >
                           <Users className="w-3.5 h-3.5" />
                           <span>{doctor.patientCount || 0}</span>
@@ -571,14 +568,12 @@ function DoctorsContent() {
                           <button
                             onClick={() => handleViewDetails(doctor._id)}
                             className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer"
-                            title="View Doctor & Patients"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleOpenEditModal(doctor)}
                             className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-                            title="Edit Doctor"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
@@ -588,7 +583,6 @@ function DoctorsContent() {
                               setIsDeleteModalOpen(true);
                             }}
                             className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
-                            title="Delete Doctor"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -813,7 +807,6 @@ function DoctorsContent() {
                             <button
                               onClick={() => handleRemovePatient(patient._id, patient.name)}
                               className="p-1 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
-                              title="Remove from doctor list"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>

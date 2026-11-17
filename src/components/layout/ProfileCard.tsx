@@ -3,10 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
 import { AuthService, type AdminUser } from '@/server/auth.service';
 import { DashboardService, type DashboardStats } from '@/server/dashboard.service';
-import { Button, Badge } from '@/components/ui';
+import { SideSheet, Badge } from '@/components/ui';
 import {
   LogOut,
   Shield,
@@ -14,10 +13,9 @@ import {
   Users,
   Settings,
   X,
-  ExternalLink,
-  Activity,
-  CheckCircle2,
-  Mail
+  ChevronRight,
+  Mail,
+  Building2
 } from 'lucide-react';
 
 interface ProfileCardProps {
@@ -37,205 +35,196 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
 
   const totalDoctors = stats?.overview.totalDoctors ?? '--';
   const totalPatients = stats?.overview.totalPatients ?? '--';
+  const totalHospitals = stats?.overview.totalHospitals ?? '--';
 
-  const cardContent = (
-    <div className="w-80 h-[calc(100vh-7rem)] rounded-3xl bg-card/75 backdrop-blur-xl border border-border/80 p-6 flex flex-col justify-between shadow-2xl shadow-black/10 dark:shadow-primary/5 shrink-0 transition-colors">
-      <div className="space-y-5">
-        {/* header */}
-        <div className="flex items-center justify-between pb-3 border-b border-border/70">
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-primary" />
-            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Admin Profile
+  return (
+    <SideSheet isOpen={isOpen} onClose={onClose} width="md" className="p-0">
+      {/* fixed header */}
+      <div className="shrink-0 px-6 py-4 border-b border-border/80 flex items-center justify-between bg-card/90">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+          <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+            Account Center
+          </span>
+        </div>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer transition-colors"
+          aria-label="Close panel"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* scrollable body */}
+      <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-6">
+        {/* modern identity card */}
+        <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-primary/15 via-muted/30 to-card border border-primary/20 py-3 px-4 shadow-sm">
+          {/* subtle decorative vector */}
+          <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-primary/10 blur-2xl pointer-events-none" />
+
+          <div className="relative z-10 flex items-center gap-4">
+            <div className="relative shrink-0">
+              {admin?.avatar?.url ? (
+                <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-primary/40 shadow-lg shadow-primary/20">
+                  <Image
+                    src={admin.avatar.url}
+                    alt={admin.name || 'Admin'}
+                    fill
+                    sizes="64px"
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-primary via-primary-hover to-secondary text-primary-foreground font-black text-xl flex items-center justify-center uppercase shadow-lg shadow-primary/20">
+                  {admin?.name?.charAt(0) || 'A'}
+                </div>
+              )}
+              <div
+                className="absolute -bottom-1 -right-1 w-4.5 h-4.5 rounded-full bg-success border-2 border-card"
+              />
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <h3 className="font-black text-foreground text-base tracking-tight truncate">
+                  {admin?.name || 'Super Admin'}
+                </h3>
+              </div>
+
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5 truncate mt-0.5 font-medium">
+                <Mail className="w-3.5 h-3.5 text-primary shrink-0" />
+                <span className="truncate">{admin?.email || 'admin@doctortracker.com'}</span>
+              </p>
+
+              <div className="mt-2 flex items-center gap-1.5">
+                <Badge variant="primary" className="text-[10px] py-0.5 px-2 font-bold">
+                  {admin?.role || 'Super Admin'}
+                </Badge>
+                <span className="text-[10px] text-muted-foreground font-semibold flex items-center gap-1">
+                  <Shield className="w-3 h-3 text-success" />
+                  Verified Access
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* platform impact metrics */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between px-1">
+            <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">
+              Platform Directory
+            </p>
+            <span className="text-[10px] text-primary font-bold flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              Live Sync
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-success/15 text-success text-[10px] font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-              Active
-            </div>
-            <button
-              type="button"
+
+          <div className="grid grid-cols-3 gap-2.5">
+            {/* doctors card */}
+            <Link
+              href="/doctors"
               onClick={onClose}
-              className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/70 cursor-pointer transition-colors"
-              title="Close profile card"
-              aria-label="Close profile card"
+              className="group relative overflow-hidden p-3.5 rounded-2xl bg-linear-to-b from-primary/10 via-card to-card border border-primary/20 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs hover:shadow-md hover:shadow-primary/10 cursor-pointer"
             >
-              <X className="w-4 h-4" />
-            </button>
+              <div className="flex items-center justify-between">
+                <div className="w-7 h-7 rounded-xl bg-primary/15 text-primary flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs">
+                  <Stethoscope className="w-3.5 h-3.5" />
+                </div>
+                <ChevronRight className="w-3 h-3 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+              </div>
+              <div className="mt-3">
+                <p className="text-xl font-black text-foreground tracking-tight leading-none group-hover:text-primary transition-colors">
+                  {totalDoctors}
+                </p>
+                <p className="text-[10px] font-bold text-muted-foreground mt-1">Specialists</p>
+              </div>
+            </Link>
+
+            {/* patients card */}
+            <Link
+              href="/patients"
+              onClick={onClose}
+              className="group relative overflow-hidden p-3.5 rounded-2xl bg-linear-to-b from-secondary/10 via-card to-card border border-secondary/20 hover:border-secondary/50 transition-all flex flex-col justify-between shadow-xs hover:shadow-md hover:shadow-secondary/10 cursor-pointer"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-7 h-7 rounded-xl bg-secondary/15 text-secondary flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs">
+                  <Users className="w-3.5 h-3.5" />
+                </div>
+                <ChevronRight className="w-3 h-3 text-muted-foreground/40 group-hover:text-secondary group-hover:translate-x-0.5 transition-all" />
+              </div>
+              <div className="mt-3">
+                <p className="text-xl font-black text-foreground tracking-tight leading-none group-hover:text-secondary transition-colors">
+                  {totalPatients}
+                </p>
+                <p className="text-[10px] font-bold text-muted-foreground mt-1">Admissions</p>
+              </div>
+            </Link>
+
+            {/* hospitals card */}
+            <Link
+              href="/doctors"
+              onClick={onClose}
+              className="group relative overflow-hidden p-3.5 rounded-2xl bg-linear-to-b from-primary/10 via-card to-card border border-primary/20 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs hover:shadow-md hover:shadow-primary/10 cursor-pointer"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-7 h-7 rounded-xl bg-primary/15 text-primary flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs">
+                  <Building2 className="w-3.5 h-3.5" />
+                </div>
+                <ChevronRight className="w-3 h-3 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+              </div>
+              <div className="mt-3">
+                <p className="text-xl font-black text-foreground tracking-tight leading-none group-hover:text-primary transition-colors">
+                  {totalHospitals}
+                </p>
+                <p className="text-[10px] font-bold text-muted-foreground mt-1">Hospitals</p>
+              </div>
+            </Link>
           </div>
         </div>
 
-        {/* user info */}
-        <div className="flex flex-col items-center text-center space-y-3 pt-2">
-          <div className="relative group">
-            {admin?.avatar?.url ? (
-              <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-primary/40 shadow-lg shadow-primary/10 transition-transform group-hover:scale-105 duration-300">
-                <Image
-                  src={admin.avatar.url}
-                  alt={admin.name || 'Admin'}
-                  fill
-                  sizes="80px"
-                  className="object-cover"
-                />
-              </div>
-            ) : (
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary via-primary-hover to-secondary text-primary-foreground font-black text-2xl flex items-center justify-center uppercase shadow-lg shadow-primary/20 transition-transform group-hover:scale-105 duration-300">
-                {admin?.name?.charAt(0) || 'A'}
-              </div>
-            )}
-            <div
-              className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-success border-2 border-card flex items-center justify-center shadow-sm"
-              title="Online"
-            >
-              <CheckCircle2 className="w-3.5 h-3.5 text-primary-foreground" />
-            </div>
-          </div>
-
-          <div className="space-y-1">
-            <h3 className="font-extrabold text-foreground text-base tracking-tight">
-              {admin?.name || 'Super Admin'}
-            </h3>
-            <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-              <Mail className="w-3 h-3" />
-              {admin?.email || 'admin@doctortracker.com'}
-            </p>
-            <Badge variant="primary" className="mt-1 font-semibold text-[10px]">
-              System Administrator
-            </Badge>
-          </div>
-        </div>
-
-        {/* metrics */}
-        <div className="space-y-2.5 pt-2">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-            Scope of Management
+        {/* navigation & settings options */}
+        <div className="space-y-2">
+          <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground px-1">
+            Preferences
           </p>
-          <div className="grid grid-cols-2 gap-2.5">
-            <div className="p-3 rounded-2xl bg-muted/40 backdrop-blur-md border border-border/70 space-y-1 hover:border-primary/40 transition-colors">
-              <div className="flex items-center gap-1.5 text-primary text-[11px] font-semibold">
-                <Stethoscope className="w-3.5 h-3.5" />
-                <span>Doctors</span>
-              </div>
-              <p className="text-lg font-extrabold text-foreground tracking-tight">
-                {totalDoctors}
-              </p>
-            </div>
 
-            <div className="p-3 rounded-2xl bg-muted/40 backdrop-blur-md border border-border/70 space-y-1 hover:border-secondary/40 transition-colors">
-              <div className="flex items-center gap-1.5 text-secondary text-[11px] font-semibold">
-                <Users className="w-3.5 h-3.5" />
-                <span>Patients</span>
-              </div>
-              <p className="text-lg font-extrabold text-foreground tracking-tight">
-                {totalPatients}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* settings link */}
-        <div className="pt-1">
           <Link
             href="/profile"
-            onClick={() => {
-              if (window.innerWidth < 1280) onClose();
-            }}
+            onClick={onClose}
+            className="p-3.5 rounded-2xl bg-card hover:bg-muted/50 border border-border/80 hover:border-primary/40 transition-all flex items-center justify-between group cursor-pointer shadow-xs"
           >
-            <div className="p-3 rounded-2xl bg-primary/5 hover:bg-primary/10 backdrop-blur-md border border-primary/20 transition-all flex items-center justify-between group cursor-pointer shadow-sm">
-              <div className="flex items-center gap-2.5">
-                <div className="p-1.5 rounded-xl bg-primary/15 text-primary group-hover:scale-105 transition-transform">
-                  <Settings className="w-4 h-4" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
-                    Account Settings
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">Change photo & credentials</p>
-                </div>
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+                <Settings className="w-4 h-4" />
               </div>
-              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+              <div>
+                <p className="text-xs font-black text-foreground group-hover:text-primary transition-colors leading-tight">
+                  Admin Settings
+                </p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Edit profile, credentials & avatar</p>
+              </div>
             </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
           </Link>
         </div>
       </div>
 
-      {/* logout */}
-      <div className="pt-4 border-t border-border/70 space-y-2">
-        <div className="flex items-center justify-between text-[11px] text-muted-foreground px-1 pb-1">
-          <span className="flex items-center gap-1">
-            <Activity className="w-3 h-3 text-success" />
-            Secure JWT Session
-          </span>
-          <span className="font-mono text-[10px]">v1.0.0</span>
-        </div>
-
-        <Button
-          variant="outline"
+      {/* fixed footer */}
+      <div className="shrink-0 p-5 border-t border-border/80 bg-card/90">
+        <button
+          type="button"
           onClick={() => AuthService.logout()}
-          className="w-full justify-center text-destructive border-destructive/20 hover:bg-destructive hover:text-destructive-foreground font-bold rounded-2xl py-2.5 transition-all shadow-sm"
+          className="w-full py-3 px-4 rounded-2xl bg-destructive hover:bg-destructive/90 text-destructive-foreground font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-destructive/25 transition-all cursor-pointer active:scale-[0.99]"
         >
-          <LogOut className="w-4 h-4 mr-2" />
-          Sign Out
-        </Button>
+          <LogOut className="w-4 h-4" />
+          <span>Sign Out</span>
+        </button>
       </div>
-    </div>
-  );
-
-  return (
-    <>
-      {/* desktop drawer */}
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.aside
-            key="desktop-profile-card"
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 320, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
-            transition={{
-              type: 'spring',
-              stiffness: 280,
-              damping: 30,
-              mass: 0.8,
-            }}
-            className="hidden xl:block shrink-0 sticky top-22 z-20"
-          >
-            {cardContent}
-          </motion.aside>
-        )}
-      </AnimatePresence>
-
-      {/* mobile drawer */}
-      <AnimatePresence>
-        {isOpen && (
-          <div className="xl:hidden">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              onClick={onClose}
-              className="fixed inset-0 z-40 bg-foreground/50 backdrop-blur-sm"
-            />
-
-            <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{
-                type: 'spring',
-                stiffness: 300,
-                damping: 32,
-              }}
-              className="fixed top-0 bottom-0 right-0 z-50 p-4 max-w-sm w-full flex items-center justify-end"
-            >
-              <div className="w-full h-full max-h-[96vh] my-auto">
-                {cardContent}
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </>
+    </SideSheet>
   );
 };

@@ -51,7 +51,7 @@ export default function ProfilePage() {
       {/* header */}
       <MotionWrapper direction="up">
         <PageHeader
-          icon={<Shield className="w-6 h-6" />}
+          icon={<Shield size={42} strokeWidth={1.2} />}
           title="Settings & Admin Profile"
           subtitle="Manage your administrative credentials, Cloudinary avatar, and security preferences."
           badge={
