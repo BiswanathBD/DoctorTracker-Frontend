@@ -1,0 +1,155 @@
+import { AuthService } from './auth.service';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
+export interface Patient {
+  _id: string;
+  name: string;
+  age: number;
+  gender: 'Male' | 'Female' | 'Other';
+  phone: string;
+  email?: string;
+  condition: string;
+  doctorId: {
+    _id: string;
+    name: string;
+    specialization: string;
+    hospital: string;
+    email: string;
+    phone: string;
+  } | string;
+  admissionDate: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PatientQueryParams {
+  page?: number;
+  limit?: number;
+  searchTerm?: string;
+  condition?: string;
+  gender?: string;
+  doctorId?: string;
+  startDate?: string;
+  endDate?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface PatientsResponse {
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  data: Patient[];
+}
+
+export const PatientService = {
+  // get all patients with query params
+  async getAllPatients(params: PatientQueryParams = {}): Promise<PatientsResponse> {
+    const token = AuthService.getToken();
+    const query = new URLSearchParams();
+
+    if (params.page) query.set('page', String(params.page));
+    if (params.limit) query.set('limit', String(params.limit));
+    if (params.searchTerm) query.set('searchTerm', params.searchTerm);
+    if (params.condition) query.set('condition', params.condition);
+    if (params.gender) query.set('gender', params.gender);
+    if (params.doctorId) query.set('doctorId', params.doctorId);
+    if (params.startDate) query.set('startDate', params.startDate);
+    if (params.endDate) query.set('endDate', params.endDate);
+    if (params.sortBy) query.set('sortBy', params.sortBy);
+    if (params.sortOrder) query.set('sortOrder', params.sortOrder);
+
+    const res = await fetch(`${API_URL}/patients?${query.toString()}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'failed to fetch patients');
+    return {
+      meta: data.meta,
+      data: data.data,
+    };
+  },
+
+  // get single patient by id
+  async getPatientById(id: string): Promise<Patient> {
+    const token = AuthService.getToken();
+    const res = await fetch(`${API_URL}/patients/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'failed to fetch patient');
+    return data.data;
+  },
+
+  // create a new patient
+  async createPatient(payload: Record<string, unknown>): Promise<Patient> {
+    const token = AuthService.getToken();
+    const res = await fetch(`${API_URL}/patients`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'failed to create patient');
+    return data.data;
+  },
+
+  // update patient
+  async updatePatient(id: string, payload: Record<string, unknown>): Promise<Patient> {
+    const token = AuthService.getToken();
+    const res = await fetch(`${API_URL}/patients/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'failed to update patient');
+    return data.data;
+  },
+
+  // delete patient
+  async deletePatient(id: string): Promise<void> {
+    const token = AuthService.getToken();
+    const res = await fetch(`${API_URL}/patients/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'failed to delete patient');
+  },
+
+  // get distinct conditions
+  async getConditions(): Promise<string[]> {
+    const token = AuthService.getToken();
+    const res = await fetch(`${API_URL}/patients/conditions`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'failed to fetch conditions');
+    return data.data || [];
+  },
+};

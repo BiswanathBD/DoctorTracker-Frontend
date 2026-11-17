@@ -12,13 +12,13 @@ export const Card: React.FC<CardProps> = ({
   ...props
 }) => {
   const variantStyles = {
-    default: 'bg-card text-card-foreground border border-border shadow-sm',
-    elevated: 'bg-card text-card-foreground border border-border shadow-xl',
-    flat: 'bg-muted/50 text-foreground border border-transparent',
+    default: 'bg-card/75 backdrop-blur-xl text-card-foreground border border-border/80 shadow-md shadow-black/5 hover:border-border transition-all',
+    elevated: 'bg-card/85 backdrop-blur-2xl text-card-foreground border border-border shadow-2xl shadow-primary/10',
+    flat: 'bg-muted/40 backdrop-blur-md text-foreground border border-border/40',
   }[variant];
 
   return (
-    <div className={`rounded-2xl overflow-hidden transition-all ${variantStyles} ${className}`} {...props}>
+    <div className={`rounded-3xl overflow-hidden transition-all ${variantStyles} ${className}`} {...props}>
       {children}
     </div>
   );

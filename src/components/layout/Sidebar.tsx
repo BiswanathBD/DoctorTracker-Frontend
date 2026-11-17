@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -11,116 +11,49 @@ import {
   LayoutDashboard,
   Stethoscope,
   Users,
-  Settings,
-  ChevronDown,
   LogOut,
-  PlusCircle,
-  ListOrdered,
-  Activity,
-  HeartPulse,
-  X
+  X,
+  Compass,
+  ChevronRight
 } from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
-  admin: AdminUser | null;
-}
-
-interface NavItem {
-  title: string;
-  icon: React.ReactNode;
-  href?: string;
-  submenu?: {
-    title: string;
-    href: string;
-    icon: React.ReactNode;
-  }[];
+  admin?: AdminUser | null;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, admin }) => {
   const pathname = usePathname();
 
-  // state for open submenus (open doctors by default if on /doctors, etc.)
-  const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({
-    doctors: pathname.startsWith('/doctors'),
-    patients: pathname.startsWith('/patients'),
-  });
-
-  const toggleSubmenu = (key: string) => {
-    setOpenSubmenus((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  const navItems: { key: string; item: NavItem }[] = [
+  // navigation items
+  const primaryNavItems = [
     {
-      key: 'dashboard',
-      item: {
-        title: 'Dashboard Home',
-        href: '/dashboard',
-        icon: <LayoutDashboard className="w-5 h-5" />,
-      },
+      title: 'Dashboard Home',
+      subtitle: 'Overview & Hospital KPIs',
+      href: '/dashboard',
+      icon: <LayoutDashboard className="w-4 h-4" />,
+      active: pathname === '/dashboard',
     },
     {
-      key: 'doctors',
-      item: {
-        title: 'Doctor Management',
-        icon: <Stethoscope className="w-5 h-5" />,
-        submenu: [
-          {
-            title: 'All Doctors',
-            href: '/doctors',
-            icon: <ListOrdered className="w-4 h-4" />,
-          },
-          {
-            title: 'Add New Doctor',
-            href: '/doctors?action=create',
-            icon: <PlusCircle className="w-4 h-4" />,
-          },
-          {
-            title: 'Doctor Workload',
-            href: '/doctors/workload',
-            icon: <Activity className="w-4 h-4" />,
-          },
-        ],
-      },
+      title: 'Doctor Management',
+      subtitle: 'Specialists & Assignments',
+      href: '/doctors',
+      icon: <Stethoscope className="w-4 h-4" />,
+      active: pathname.startsWith('/doctors'),
     },
     {
-      key: 'patients',
-      item: {
-        title: 'Patient Management',
-        icon: <Users className="w-5 h-5" />,
-        submenu: [
-          {
-            title: 'All Patients',
-            href: '/patients',
-            icon: <ListOrdered className="w-4 h-4" />,
-          },
-          {
-            title: 'Add New Patient',
-            href: '/patients?action=create',
-            icon: <PlusCircle className="w-4 h-4" />,
-          },
-          {
-            title: 'Patient Conditions',
-            href: '/patients/conditions',
-            icon: <HeartPulse className="w-4 h-4" />,
-          },
-        ],
-      },
-    },
-    {
-      key: 'settings',
-      item: {
-        title: 'Settings & Profile',
-        href: '/profile',
-        icon: <Settings className="w-5 h-5" />,
-      },
+      title: 'Patient Management',
+      subtitle: 'Admissions & Clinical Records',
+      href: '/patients',
+      icon: <Users className="w-4 h-4" />,
+      active: pathname.startsWith('/patients'),
     },
   ];
 
   return (
     <>
-      {/* mobile backdrop overlay */}
+      {/* mobile backdrop */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -128,157 +61,202 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, admin }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs lg:hidden"
+            className="fixed inset-0 z-40 bg-foreground/50 backdrop-blur-sm lg:hidden"
           />
         )}
       </AnimatePresence>
 
-      {/* side navigation bar */}
+      {/* sidebar navigation */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-card border-r border-border flex flex-col transition-transform duration-300 lg:translate-x-0 ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-gradient-to-b from-primary via-primary-hover to-secondary text-primary-foreground shadow-2xl shadow-primary/30 border border-primary-foreground/20 p-4 flex flex-col justify-between transition-transform duration-300 overflow-hidden lg:sticky lg:top-22 lg:z-20 lg:w-64 xl:w-72 lg:h-[calc(100vh-7rem)] lg:rounded-3xl lg:translate-x-0 ${
+          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        {/* header brand */}
-        <div className="h-16 px-6 border-b border-border flex items-center justify-between flex-shrink-0">
-          <Logo size="sm" />
+        {/* ambient background elements */}
+        <div className="absolute -top-12 -right-12 w-36 h-36 rounded-full bg-primary-foreground/20 blur-xl pointer-events-none" />
+        <div className="absolute top-1/2 -left-12 w-36 h-36 rounded-full bg-primary-foreground/10 blur-2xl pointer-events-none" />
+        <div className="absolute -bottom-10 right-0 w-44 h-44 rounded-full bg-secondary/40 blur-2xl pointer-events-none" />
+        <div className="absolute -top-20 -left-20 w-56 h-56 rounded-full border border-primary-foreground/10 pointer-events-none" />
+        <div className="absolute -top-10 -left-10 w-40 h-40 rounded-full border border-primary-foreground/10 pointer-events-none" />
+
+        {/* ecg waveform accent */}
+        <svg
+          className="absolute bottom-36 -right-4 w-64 h-28 opacity-25 pointer-events-none text-primary-foreground"
+          viewBox="0 0 200 100"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M0,50 L40,50 L52,20 L62,80 L72,30 L82,65 L92,50 L200,50" />
+        </svg>
+
+        {/* mobile brand header */}
+        <div className="relative z-10 h-12 px-2 flex items-center justify-between lg:hidden border-b border-primary-foreground/15 mb-2">
+          <div className="brightness-200">
+            <Logo size="sm" />
+          </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted lg:hidden cursor-pointer"
+            className="p-1.5 rounded-xl text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/15 cursor-pointer transition-colors"
             aria-label="Close sidebar"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* navigation items list */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-1.5">
-          <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground select-none">
-            Main Navigation
-          </p>
+        {/* nav links */}
+        <div className="relative z-10 flex-1 overflow-y-auto pr-1 space-y-2 py-2">
+          {/* nav header */}
+          <div className="px-3 py-1.5 flex items-center justify-between border-b border-primary-foreground/10 pb-2 mb-2">
+            <div className="flex items-center gap-2">
+              <Compass className="w-4 h-4 text-accent" />
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary-foreground/85 select-none">
+                Navigation
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary-foreground/15 backdrop-blur-sm text-[9px] font-bold text-primary-foreground">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-ping" />
+              <span>Live Portal</span>
+            </div>
+          </div>
 
-          {navItems.map(({ key, item }) => {
-            const hasSubmenu = !!item.submenu;
-            const isSubmenuOpen = !!openSubmenus[key];
-            const isActive = item.href ? pathname === item.href : false;
-
-            if (!hasSubmenu && item.href) {
-              return (
-                <Link
-                  key={key}
-                  href={item.href}
-                  onClick={() => {
-                    if (window.innerWidth < 1024) onClose();
-                  }}
-                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all ${
-                    isActive
-                      ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                  }`}
-                >
-                  {item.icon}
-                  <span>{item.title}</span>
-                </Link>
-              );
-            }
-
-            return (
-              <div key={key} className="space-y-1">
-                {/* parent menu trigger */}
-                <button
-                  type="button"
-                  onClick={() => toggleSubmenu(key)}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
-                    isSubmenuOpen
-                      ? 'bg-accent text-accent-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    {item.icon}
-                    <span>{item.title}</span>
-                  </div>
-                  <ChevronDown
-                    className={`w-4 h-4 transition-transform duration-200 ${
-                      isSubmenuOpen ? 'rotate-180' : ''
-                    }`}
+          <div className="space-y-2">
+            {primaryNavItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => {
+                  if (window.innerWidth < 1024) onClose();
+                }}
+                className={`relative flex items-center justify-between px-3.5 py-2.5 rounded-2xl transition-colors duration-200 cursor-pointer group ${
+                  item.active
+                    ? 'text-primary-foreground font-bold'
+                    : 'text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10'
+                }`}
+              >
+                {/* active indicator */}
+                {item.active && (
+                  <motion.div
+                    layoutId="activeNavHighlight"
+                    transition={{
+                      type: 'spring',
+                      stiffness: 400,
+                      damping: 32,
+                      mass: 0.8,
+                    }}
+                    className="absolute inset-0 rounded-2xl bg-primary-foreground/20 border border-primary-foreground/30 backdrop-blur-md shadow-lg shadow-black/10 z-0"
                   />
-                </button>
+                )}
 
-                {/* expandable submenu */}
-                <AnimatePresence initial={false}>
-                  {isSubmenuOpen && item.submenu && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden pl-5 pr-1 space-y-1"
-                    >
-                      {item.submenu.map((sub) => {
-                        const isSubActive = pathname === sub.href;
-                        return (
-                          <Link
-                            key={sub.href}
-                            href={sub.href}
-                            onClick={() => {
-                              if (window.innerWidth < 1024) onClose();
-                            }}
-                            className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
-                              isSubActive
-                                ? 'bg-primary/10 text-primary font-bold'
-                                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                            }`}
-                          >
-                            <span className={isSubActive ? 'text-primary' : 'text-muted-foreground'}>{sub.icon}</span>
-                            <span>{sub.title}</span>
-                          </Link>
-                        );
-                      })}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            );
-          })}
+                {item.active && (
+                  <motion.div
+                    layoutId="activeNavIndicator"
+                    transition={{
+                      type: 'spring',
+                      stiffness: 450,
+                      damping: 35,
+                    }}
+                    className="absolute -left-1 top-3.5 bottom-3.5 w-2 rounded-full bg-accent z-10 shadow-sm"
+                  />
+                )}
+
+                <div className="relative z-10 flex items-center gap-3 min-w-0 flex-1">
+                  <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${
+                      item.active
+                        ? 'bg-primary-foreground/25 text-primary-foreground shadow-sm'
+                        : 'bg-primary-foreground/10 text-primary-foreground/90 group-hover:bg-primary-foreground/20 group-hover:scale-105'
+                    }`}
+                  >
+                    {item.icon}
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="font-extrabold text-xs text-primary-foreground leading-tight truncate">
+                      {item.title}
+                    </p>
+                    <p className="text-[10px] text-primary-foreground/75 font-medium truncate mt-0.5">
+                      {item.subtitle}
+                    </p>
+                  </div>
+                </div>
+
+                <ChevronRight
+                  className={`relative z-10 w-4 h-4 transition-transform duration-200 shrink-0 ${
+                    item.active
+                      ? 'text-accent translate-x-0.5'
+                      : 'text-primary-foreground/40 group-hover:text-primary-foreground/80 group-hover:translate-x-0.5'
+                  }`}
+                />
+              </Link>
+            ))}
+          </div>
         </div>
 
-        {/* footer admin profile & logout */}
-        <div className="p-4 pb-6 border-t border-border flex-shrink-0 space-y-3 bg-card">
-          <div className="p-3 rounded-2xl bg-muted/50 border border-border flex items-center justify-between">
-            <div className="flex items-center gap-2.5 min-w-0">
-              {admin?.avatar?.url ? (
-                <div className="relative w-9 h-9 rounded-full overflow-hidden border border-border flex-shrink-0">
-                  <Image
-                    src={admin.avatar.url}
-                    alt={admin.name}
-                    fill
-                    sizes="36px"
-                    className="object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-secondary text-primary-foreground font-bold text-xs flex items-center justify-center uppercase flex-shrink-0">
-                  {admin?.name?.charAt(0) || 'A'}
-                </div>
-              )}
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-foreground truncate leading-tight">
-                  {admin?.name || 'Administrator'}
-                </p>
-                <p className="text-[10px] text-muted-foreground truncate uppercase font-semibold mt-0.5">
-                  {admin?.role || 'admin'}
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => AuthService.logout()}
-              title="Sign Out"
-              className="p-1.5 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+        {/* profile & logout */}
+        <div className="relative z-10 pt-2 shrink-0">
+          <div className="p-3 rounded-2xl bg-primary-foreground/12 backdrop-blur-md border border-primary-foreground/20 shadow-xl shadow-black/10 space-y-2.5">
+            <Link
+              href="/profile"
+              onClick={() => {
+                if (window.innerWidth < 1024) onClose();
+              }}
+              className="flex items-center justify-between gap-2.5 p-1 rounded-xl group cursor-pointer hover:bg-primary-foreground/10 transition-colors"
+              title="View Profile & Settings"
             >
-              <LogOut className="w-4 h-4" />
-            </button>
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <div className="relative shrink-0">
+                  {admin?.avatar?.url ? (
+                    <div className="relative w-10 h-10 rounded-xl overflow-hidden border-2 border-primary-foreground/30 shadow-md group-hover:border-primary-foreground/60 transition-colors">
+                      <Image
+                        src={admin.avatar.url}
+                        alt={admin.name || 'Admin'}
+                        fill
+                        sizes="40px"
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-10 h-10 rounded-xl bg-primary-foreground/20 text-primary-foreground font-black text-xs flex items-center justify-center uppercase shadow-md border border-primary-foreground/30 group-hover:bg-primary-foreground/30 transition-colors">
+                      {admin?.name?.charAt(0) || 'A'}
+                    </div>
+                  )}
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-success border-2 border-primary" />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-black text-primary-foreground truncate leading-tight group-hover:text-accent transition-colors">
+                    {admin?.name || 'Super Admin'}
+                  </p>
+                  <p className="text-[10px] text-primary-foreground/75 truncate mt-0.5 font-medium">
+                    {admin?.email || 'admin@doctortracker.com'}
+                  </p>
+                </div>
+              </div>
+
+              <ChevronRight className="w-4 h-4 text-primary-foreground/50 group-hover:text-accent group-hover:translate-x-0.5 transition-all shrink-0" />
+            </Link>
+
+            {/* footer actions */}
+            <div className="pt-2 border-t border-primary-foreground/10 flex items-center justify-between gap-2">
+              <span className="text-[10px] text-primary-foreground/70 font-medium flex items-center gap-1.5 px-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-success animate-ping" />
+                Live Session
+              </span>
+
+              <button
+                type="button"
+                onClick={() => AuthService.logout()}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-all font-bold text-xs shadow-md shadow-destructive/25 cursor-pointer"
+                title="Sign Out"
+                aria-label="Sign Out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Sign Out</span>
+              </button>
+            </div>
           </div>
         </div>
       </aside>

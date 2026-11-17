@@ -2,12 +2,12 @@ import React from 'react';
 
 export interface ContainerProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
 }
 
 export const Container: React.FC<ContainerProps> = ({
   children,
-  size = 'lg',
+  size = '2xl',
   className = '',
   ...props
 }) => {
@@ -16,6 +16,7 @@ export const Container: React.FC<ContainerProps> = ({
     md: 'max-w-5xl',
     lg: 'max-w-7xl',
     xl: 'max-w-[1440px]',
+    '2xl': 'max-w-[1720px]',
     full: 'max-w-full',
   }[size];
 

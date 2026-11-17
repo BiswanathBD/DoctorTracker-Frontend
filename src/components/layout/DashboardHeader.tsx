@@ -2,11 +2,14 @@
 
 import React, { useSyncExternalStore } from 'react';
 import Image from 'next/image';
-import { Menu, Search, Bell, Moon, Sun } from 'lucide-react';
+import { Menu, Search, Moon, Sun, User, ChevronDown } from 'lucide-react';
 import { type AdminUser } from '@/server/auth.service';
+import { Logo } from '@/components/common/Logo';
 
 interface DashboardHeaderProps {
   onMenuToggle: () => void;
+  onProfileToggle: () => void;
+  isProfileOpen: boolean;
   admin: AdminUser | null;
 }
 
@@ -27,10 +30,15 @@ const getThemeSnapshot = (): boolean => {
 
 const getThemeServerSnapshot = (): boolean => false;
 
-export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onMenuToggle, admin }) => {
+export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
+  onMenuToggle,
+  onProfileToggle,
+  isProfileOpen,
+  admin,
+}) => {
   const isDark = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getThemeServerSnapshot);
 
-  // toggle theme and notify listeners
+  // toggle theme
   const handleThemeToggle = () => {
     const root = document.documentElement;
     const nextDark = !root.classList.contains('dark');
@@ -45,9 +53,9 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onMenuToggle, 
   };
 
   return (
-    <header className="sticky top-0 z-30 h-16 w-full bg-card/85 backdrop-blur-md border-b border-border px-4 sm:px-6 lg:px-8 flex items-center justify-between transition-colors">
-      {/* left: mobile menu toggle & search input */}
-      <div className="flex items-center gap-3 sm:gap-4 flex-1 max-w-md">
+    <header className="sticky top-3 z-10 w-full rounded-3xl bg-card/80 backdrop-blur-xl border border-border/80 shadow-lg shadow-black/5 py-2 px-3 flex items-center justify-between transition-all">
+      {/* brand & mobile toggle */}
+      <div className="flex items-center gap-3 sm:gap-4">
         <button
           type="button"
           onClick={onMenuToggle}
@@ -57,20 +65,25 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onMenuToggle, 
           <Menu className="w-5 h-5" />
         </button>
 
-        {/* search input */}
-        <div className="relative w-full max-w-xs hidden sm:block">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search doctors, patients..."
-            className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-input bg-card text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-ring/15 outline-none transition-all"
-          />
+        <div className="flex items-center">
+          <Logo size="md" />
         </div>
       </div>
 
-      {/* right: actions & admin badge */}
-      <div className="flex items-center gap-2.5 sm:gap-3">
-        {/* theme toggle button */}
+      {/* search & profile */}
+      <div className="flex items-center justify-end gap-2 sm:gap-3 grow">
+        <div className="flex-1 max-w-md mx-4 hidden md:block">
+          <div className="relative w-full">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search doctors, patients, conditions..."
+              className="w-full pl-9 pr-4 py-2 text-xs rounded-2xl border border-input bg-muted/40 text-foreground placeholder:text-muted-foreground focus:border-primary focus:bg-card focus:ring-4 focus:ring-ring/15 outline-none transition-all"
+            />
+          </div>
+        </div>
+
+        {/* theme toggle */}
         <button
           type="button"
           onClick={handleThemeToggle}
@@ -80,45 +93,47 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onMenuToggle, 
           {isDark ? <Sun className="w-4 h-4 text-warning" /> : <Moon className="w-4 h-4" />}
         </button>
 
-        {/* notifications button */}
-        <button
-          type="button"
-          className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors relative cursor-pointer"
-          title="Notifications"
-        >
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full animate-pulse" />
-        </button>
-
-        {/* divider */}
         <div className="h-6 w-px bg-border mx-1 hidden sm:block" />
 
-        {/* admin avatar pill */}
-        <div className="flex items-center gap-2 pl-1">
+        {/* profile trigger */}
+        <button
+          type="button"
+          onClick={onProfileToggle}
+          className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-2xl border transition-all cursor-pointer bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20"
+        >
           {admin?.avatar?.url ? (
-            <div className="relative w-8 h-8 rounded-full overflow-hidden border border-border flex-shrink-0">
+            <div className="relative w-8 h-8 rounded-xl overflow-hidden border-2 border-border shrink-0">
               <Image
                 src={admin.avatar.url}
-                alt={admin.name}
+                alt={admin.name || 'Admin'}
                 fill
-                sizes="32px"
+                sizes="28px"
                 className="object-cover"
               />
             </div>
           ) : (
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary text-primary-foreground font-bold text-xs flex items-center justify-center uppercase">
-              {admin?.name?.charAt(0) || 'A'}
+            <div
+              className={`w-7 h-7 rounded-full font-bold text-xs flex items-center justify-center uppercase shrink-0 ${
+                isProfileOpen
+                  ? 'bg-primary-foreground/20 text-primary-foreground'
+                  : 'bg-gradient-to-br from-primary to-secondary text-primary-foreground'
+              }`}
+            >
+              {admin?.name?.charAt(0) || <User className="w-3.5 h-3.5" />}
             </div>
           )}
-          <div className="hidden sm:block text-left">
-            <p className="text-xs font-bold text-foreground leading-none">
-              {admin?.name || 'Administrator'}
-            </p>
-            <p className="text-[10px] text-muted-foreground uppercase font-semibold mt-0.5">
-              {admin?.role || 'admin'}
-            </p>
+
+          <div className="hidden sm:flex flex-col items-start text-left">
+            <span className="text-sm font-bold leading-tight truncate max-w-25">
+              {admin?.name || 'Profile'}
+            </span>
+            <span className="text-xs leading-tight truncate max-w-25">{admin?.role}</span>
           </div>
-        </div>
+
+          <ChevronDown
+            className={`w-3.5 h-3.5 transition-transform duration-200 ${isProfileOpen && 'rotate-180'}`}
+          />
+        </button>
       </div>
     </header>
   );

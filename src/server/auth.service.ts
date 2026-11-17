@@ -78,6 +78,35 @@ export const AuthService = {
     return !!Cookies.get('token');
   },
 
+  // update avatar
+  async updateAvatar(file: File): Promise<AdminUser> {
+    const token = this.getToken();
+    if (!token) throw new Error('Not authenticated');
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const res = await fetch(`${API_URL}/auth/avatar`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || 'Failed to upload avatar');
+    }
+
+    const updatedUser = data.data;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      notifyAuthListeners();
+    }
+    return updatedUser;
+  },
+
   // fetch current profile from api
   async getProfile(): Promise<AdminUser> {
     const token = this.getToken();
