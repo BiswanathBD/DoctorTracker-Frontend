@@ -10,7 +10,6 @@ import {
   Calendar,
   Users,
   ChevronRight,
-  Eye,
   Edit2,
   Trash2,
 } from 'lucide-react';
@@ -22,43 +21,37 @@ export interface DoctorCardSkeletonProps {
 export const DoctorCardSkeleton: React.FC = () => {
   return (
     <Card className="relative overflow-hidden p-5 flex flex-col justify-between h-full space-y-4 border border-primary/25 bg-gradient-to-br from-primary/5 via-card to-secondary/5 animate-pulse shadow-sm">
-      {/* ambient colorful glow */}
+      {/* background glow */}
       <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/15 blur-2xl" />
 
-      {/* top section: avatar, name, specialization, actions */}
+      {/* header */}
       <div className="space-y-3 relative">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            {/* colorful doctor avatar */}
             <div className="w-12 h-12 rounded-2xl bg-primary/15 border-2 border-primary/30 flex items-center justify-center text-primary/50 shrink-0 shadow-xs">
               <Stethoscope className="w-6 h-6 animate-pulse" />
             </div>
 
             <div className="space-y-1.5 flex-1 min-w-0">
-              {/* doctor name bar */}
               <div className="h-4 bg-primary/25 rounded-md w-36" />
-              {/* specialization badge */}
               <div className="h-4.5 w-24 bg-primary/15 border border-primary/25 rounded-full flex items-center px-2">
                 <div className="h-2 bg-primary/35 rounded-full w-14" />
               </div>
             </div>
           </div>
 
-          {/* quick action icons placeholder */}
-          <div className="flex items-center gap-1 shrink-0 opacity-40">
-            <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
-              <Eye className="w-3.5 h-3.5" />
-            </div>
-            <div className="p-1.5 rounded-lg bg-muted text-muted-foreground">
+          {/* actions */}
+          <div className="flex items-center gap-1 shrink-0">
+            <div className="p-1.5 rounded-lg bg-muted/60 text-muted-foreground/60">
               <Edit2 className="w-3.5 h-3.5" />
             </div>
-            <div className="p-1.5 rounded-lg bg-destructive/10 text-destructive">
+            <div className="p-1.5 rounded-lg bg-destructive/15 text-destructive">
               <Trash2 className="w-3.5 h-3.5" />
             </div>
           </div>
         </div>
 
-        {/* hospital badge box */}
+        {/* hospital */}
         <div className="flex items-center gap-2 p-2.5 rounded-xl bg-muted/40 border border-primary/20">
           <Building2 className="w-3.5 h-3.5 text-primary shrink-0" />
           <div className="h-3 bg-primary/20 rounded w-44" />
@@ -81,7 +74,7 @@ export const DoctorCardSkeleton: React.FC = () => {
         </div>
       </div>
 
-      {/* bottom footer: patient count & view details button */}
+      {/* footer */}
       <div className="pt-3 border-t border-border/80 flex items-center justify-between gap-2 relative">
         <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/15 border border-secondary/25 text-secondary text-xs">
           <Users className="w-3.5 h-3.5" />

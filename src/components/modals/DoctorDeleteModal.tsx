@@ -47,7 +47,6 @@ export const DoctorDeleteModal: React.FC<DoctorDeleteModalProps> = ({
               size="sm"
               disabled={loading}
               onClick={onClose}
-              className="rounded-full px-4 cursor-pointer"
             >
               Cancel
             </Button>
@@ -57,7 +56,6 @@ export const DoctorDeleteModal: React.FC<DoctorDeleteModalProps> = ({
               loading={loading}
               onClick={onConfirm}
               leftIcon={<Trash2 className="w-3.5 h-3.5" />}
-              className="rounded-full px-5 cursor-pointer"
             >
               Confirm Delete
             </Button>

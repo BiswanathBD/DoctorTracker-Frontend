@@ -12,9 +12,12 @@ import { DoctorFilters } from '@/components/doctors/DoctorFilters';
 import { DoctorSkeletonGrid } from '@/components/skeletons/DoctorCardSkeleton';
 import { DoctorFormModal } from '@/components/modals/DoctorFormModal';
 import { DoctorDeleteModal } from '@/components/modals/DoctorDeleteModal';
-import { DoctorAssignPatientModal } from '@/components/modals/DoctorAssignPatientModal';
+import { PatientDeleteModal } from '@/components/modals/PatientDeleteModal';
+import { PatientFormModal } from '@/components/modals/PatientFormModal';
 import { DoctorDetailModal } from '@/components/modals/DoctorDetailModal';
 import { DoctorService, type Doctor, type DoctorFormData } from '@/server/doctor.service';
+import { PatientService } from '@/server/patient.service';
+import type { PatientFormData } from '@/types/patient.types';
 import {
   Stethoscope,
   Plus,
@@ -55,13 +58,17 @@ function DoctorsContent() {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isDetailCardOpen, setIsDetailCardOpen] = useState(false);
+  const [loadingDoctorDetails, setLoadingDoctorDetails] = useState(false);
   const [isAddPatientModalOpen, setIsAddPatientModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isPatientDeleteModalOpen, setIsPatientDeleteModalOpen] = useState(false);
 
   // active targets for modals
   const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [doctorToDelete, setDoctorToDelete] = useState<Doctor | null>(null);
+  const [patientToRemove, setPatientToRemove] = useState<{ id: string; name: string } | null>(null);
+  const [patientRemoveSubmitting, setPatientRemoveSubmitting] = useState(false);
 
   // form states
   const [doctorForm, setDoctorForm] = useState<DoctorFormData>({
@@ -86,15 +93,38 @@ function DoctorsContent() {
   }, [editingDoctor]);
 
   // nested patient form states
-  const [patientForm, setPatientForm] = useState({
+  const [patientForm, setPatientForm] = useState<PatientFormData>({
     name: '',
     age: '',
     gender: 'Male',
     phone: '',
     email: '',
     condition: '',
+    doctorId: '',
+    admissionDate: new Date().toISOString().split('T')[0],
   });
+  const [patientAvatarFile, setPatientAvatarFile] = useState<File | null>(null);
+  const [patientAvatarPreviewUrl, setPatientAvatarPreviewUrl] = useState<string | null>(null);
   const [patientSubmitting, setPatientSubmitting] = useState(false);
+
+  // open assign patient modal for doctor
+  const handleOpenAddPatientModal = useCallback((doc?: Doctor | null) => {
+    const targetDoc = doc || selectedDoctor;
+    if (!targetDoc) return;
+    setPatientAvatarFile(null);
+    setPatientAvatarPreviewUrl(null);
+    setPatientForm({
+      name: '',
+      age: '',
+      gender: 'Male',
+      phone: '',
+      email: '',
+      condition: '',
+      doctorId: targetDoc._id,
+      admissionDate: new Date().toISOString().split('T')[0],
+    });
+    setIsAddPatientModalOpen(true);
+  }, [selectedDoctor]);
 
   // open create modal
   const handleOpenCreateModal = useCallback(() => {
@@ -234,6 +264,21 @@ function DoctorsContent() {
     }
   }, [searchParams, handleOpenCreateModal]);
 
+  // view doctor details and fetch complete patient roster
+  const handleViewDoctorDetails = async (doc: Doctor) => {
+    setSelectedDoctor(doc);
+    setIsDetailCardOpen(true);
+    try {
+      setLoadingDoctorDetails(true);
+      const fullDoc = await DoctorService.getDoctorById(doc._id);
+      setSelectedDoctor(fullDoc);
+    } catch (err) {
+      console.error('failed to fetch doctor details:', err);
+    } finally {
+      setLoadingDoctorDetails(false);
+    }
+  };
+
   // handle open edit modal
   const handleOpenEditModal = (doctor: Doctor) => {
     setEditingDoctor(doctor);
@@ -269,7 +314,8 @@ function DoctorsContent() {
           updated.avatar = avatarRes.avatar;
         }
 
-        toast.success('Doctor Updated', `Dr. ${doctorForm.name} profile has been saved.`);
+        const docName = doctorForm.name.startsWith('Dr.') ? doctorForm.name : `Dr. ${doctorForm.name}`;
+        toast.success('Doctor Updated', `${docName} profile has been saved.`);
         setDoctors((prev) => prev.map((doc) => (doc._id === editingDoctor._id ? updated : doc)));
         if (selectedDoctor?._id === editingDoctor._id) {
           setSelectedDoctor(updated);
@@ -289,7 +335,8 @@ function DoctorsContent() {
           }
         }
 
-        toast.success('Doctor Registered', `Dr. ${doctorForm.name} has been added.`);
+        const docName = doctorForm.name.startsWith('Dr.') ? doctorForm.name : `Dr. ${doctorForm.name}`;
+        toast.success('Doctor Registered', `${docName} has been added.`);
         refreshDoctors();
       }
 
@@ -309,7 +356,8 @@ function DoctorsContent() {
     if (!doctorToDelete) return;
     try {
       await DoctorService.deleteDoctor(doctorToDelete._id);
-      toast.success('Doctor Deleted', `Dr. ${doctorToDelete.name} has been removed.`);
+      const docName = doctorToDelete.name.startsWith('Dr.') ? doctorToDelete.name : `Dr. ${doctorToDelete.name}`;
+      toast.success('Doctor Deleted', `${docName} has been removed.`);
       setIsDeleteModalOpen(false);
       setDoctorToDelete(null);
       if (selectedDoctor?._id === doctorToDelete._id) {
@@ -337,25 +385,40 @@ function DoctorsContent() {
 
     try {
       setPatientSubmitting(true);
-      await DoctorService.addPatientToDoctor(selectedDoctor._id, {
+      const payload = {
         name: patientForm.name,
         age: Number(patientForm.age),
         gender: patientForm.gender as 'Male' | 'Female' | 'Other',
         phone: patientForm.phone,
         email: patientForm.email || undefined,
         condition: patientForm.condition,
-      });
+        doctorId: selectedDoctor._id,
+        admissionDate: new Date(patientForm.admissionDate),
+      };
 
-      toast.success('Patient Assigned', `${patientForm.name} is now under Dr. ${selectedDoctor.name}.`);
+      const created = await PatientService.createPatient(payload);
+      if (patientAvatarFile) {
+        try {
+          await PatientService.updateAvatar(created._id, patientAvatarFile);
+        } catch (avatarErr) {
+          console.error('avatar upload failed:', avatarErr);
+        }
+      }
+
+      const doctorTitle = selectedDoctor.name.startsWith('Dr.') ? selectedDoctor.name : `Dr. ${selectedDoctor.name}`;
+      toast.success('Patient Assigned', `${patientForm.name} is now under ${doctorTitle}.`);
       setIsAddPatientModalOpen(false);
-      setPatientForm({
-        name: '',
-        age: '',
-        gender: 'Male',
-        phone: '',
-        email: '',
-        condition: '',
-      });
+      setPatientAvatarFile(null);
+      setPatientAvatarPreviewUrl(null);
+
+      // update doctor card in list immediately
+      setDoctors((prev) =>
+        prev.map((doc) =>
+          doc._id === selectedDoctor._id
+            ? { ...doc, patientCount: (doc.patientCount || 0) + 1 }
+            : doc
+        )
+      );
 
       // reload doctor details to reflect new patient
       const refreshedDoc = await DoctorService.getDoctorById(selectedDoctor._id);
@@ -370,16 +433,50 @@ function DoctorsContent() {
     }
   };
 
-  // handle remove patient from doctor
-  const handleRemovePatient = async (patientId: string, patientName: string) => {
+  // request remove patient from doctor
+  const handleRemovePatient = (patientId: string, patientName: string) => {
     if (!selectedDoctor) return;
-    if (!confirm(`Are you sure you want to remove patient "${patientName}" from Dr. ${selectedDoctor.name}?`)) {
-      return;
-    }
+    setPatientToRemove({ id: patientId, name: patientName });
+    setIsPatientDeleteModalOpen(true);
+  };
+
+  // confirm remove patient from doctor
+  const handleConfirmRemovePatient = async () => {
+    if (!selectedDoctor || !patientToRemove) return;
 
     try {
-      await DoctorService.removePatientFromDoctor(selectedDoctor._id, patientId);
-      toast.success('Patient Removed', `${patientName} was unlinked.`);
+      setPatientRemoveSubmitting(true);
+      await DoctorService.removePatientFromDoctor(selectedDoctor._id, patientToRemove.id);
+      toast.success('Patient Deleted', `${patientToRemove.name}'s record has been removed.`);
+      setIsPatientDeleteModalOpen(false);
+      const removedId = patientToRemove.id;
+      setPatientToRemove(null);
+
+      // update selected doctor drawer immediately
+      setSelectedDoctor((prev) => {
+        if (!prev) return prev;
+        const currentPatients = prev.assignedPatients || prev.patients || [];
+        const nextPatients = currentPatients.filter((p) => {
+          const id = typeof p === 'string' ? p : p._id;
+          return id !== removedId;
+        });
+        return {
+          ...prev,
+          patientCount: Math.max(0, (prev.patientCount ?? currentPatients.length) - 1),
+          patients: nextPatients,
+          assignedPatients: nextPatients,
+        };
+      });
+
+      // update doctor card in background list immediately
+      setDoctors((prev) =>
+        prev.map((doc) =>
+          doc._id === selectedDoctor._id
+            ? { ...doc, patientCount: Math.max(0, (doc.patientCount || 1) - 1) }
+            : doc
+        )
+      );
+
       const refreshedDoc = await DoctorService.getDoctorById(selectedDoctor._id);
       setSelectedDoctor(refreshedDoc);
       refreshDoctors();
@@ -387,6 +484,8 @@ function DoctorsContent() {
       console.error('remove patient error:', err);
       const message = err instanceof Error ? err.message : 'Could not remove patient.';
       toast.error('Removal Failed', message);
+    } finally {
+      setPatientRemoveSubmitting(false);
     }
   };
 
@@ -506,10 +605,7 @@ function DoctorsContent() {
                   key={doctor._id}
                   doctor={doctor}
                   index={idx}
-                  onViewDetails={(doc) => {
-                    setSelectedDoctor(doc);
-                    setIsDetailCardOpen(true);
-                  }}
+                  onViewDetails={handleViewDoctorDetails}
                   onEdit={handleOpenEditModal}
                   onDelete={(doc) => {
                     setDoctorToDelete(doc);
@@ -625,6 +721,7 @@ function DoctorsContent() {
       <DoctorDetailCard
         doctor={selectedDoctor}
         isOpen={isDetailCardOpen}
+        loadingPatients={loadingDoctorDetails}
         onClose={() => setIsDetailCardOpen(false)}
         onAvatarUpdated={(updatedDoc) => {
           setSelectedDoctor(updatedDoc);
@@ -636,9 +733,11 @@ function DoctorsContent() {
           setIsDetailCardOpen(false);
           handleOpenEditModal(doc);
         }}
-        onAddPatient={() => {
-          setIsAddPatientModalOpen(true);
+        onDelete={(doc) => {
+          setDoctorToDelete(doc);
+          setIsDeleteModalOpen(true);
         }}
+        onAddPatient={() => handleOpenAddPatientModal(selectedDoctor)}
         onRemovePatient={handleRemovePatient}
       />
 
@@ -660,19 +759,28 @@ function DoctorsContent() {
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
         doctor={selectedDoctor}
-        onAddPatient={() => setIsAddPatientModalOpen(true)}
+        onAddPatient={() => handleOpenAddPatientModal(selectedDoctor)}
         onRemovePatient={handleRemovePatient}
       />
 
       {/* modal: add patient directly under selected doctor */}
-      <DoctorAssignPatientModal
+      <PatientFormModal
         isOpen={isAddPatientModalOpen}
         onClose={() => setIsAddPatientModalOpen(false)}
-        doctor={selectedDoctor}
+        editingPatient={null}
         patientForm={patientForm}
         setPatientForm={setPatientForm}
+        doctorsList={selectedDoctor ? [selectedDoctor] : doctors}
+        avatarPreviewUrl={patientAvatarPreviewUrl}
+        onAvatarChange={(file) => {
+          setPatientAvatarFile(file);
+          setPatientAvatarPreviewUrl(file ? URL.createObjectURL(file) : null);
+        }}
         onSubmit={handleAddPatientSubmit}
         submitting={patientSubmitting}
+        disableDoctorSelect={true}
+        title={`Add Patient under ${selectedDoctor ? (selectedDoctor.name.startsWith('Dr.') ? selectedDoctor.name : `Dr. ${selectedDoctor.name}`) : 'Doctor'}`}
+        description="Create and assign a patient directly to this specialist."
       />
 
       {/* modal: delete doctor confirmation */}
@@ -682,13 +790,43 @@ function DoctorsContent() {
         doctor={doctorToDelete}
         onConfirm={handleDeleteDoctor}
       />
+
+      {/* modal: confirm remove patient from doctor */}
+      <PatientDeleteModal
+        isOpen={isPatientDeleteModalOpen}
+        onClose={() => {
+          setIsPatientDeleteModalOpen(false);
+          setPatientToRemove(null);
+        }}
+        patient={patientToRemove ? { name: patientToRemove.name, _id: patientToRemove.id } : null}
+        onConfirm={handleConfirmRemovePatient}
+        loading={patientRemoveSubmitting}
+        title="Delete Patient Record"
+        description="Are you sure you want to permanently delete this patient record?"
+        confirmLabel="Delete Patient"
+        warningText={
+          <p>
+            Deleting <strong>{patientToRemove?.name}</strong> will permanently remove their record and admission history from{' '}
+            {selectedDoctor?.name.startsWith('Dr.') ? selectedDoctor.name : `Dr. ${selectedDoctor?.name || 'Doctor'}`}{' '}
+            and the patient directory. This action cannot be reversed.
+          </p>
+        }
+      />
     </div>
   );
 }
 
 export default function DoctorsPage() {
   return (
-    <Suspense fallback={<div className="py-20 text-center text-xs text-muted-foreground">Loading doctor directory...</div>}>
+    <Suspense
+      fallback={
+        <div className="w-full space-y-7 animate-pulse">
+          <div className="h-24 rounded-3xl bg-card/60 border border-border/80" />
+          <div className="h-28 rounded-3xl bg-card/60 border border-border/80" />
+          <DoctorSkeletonGrid count={6} />
+        </div>
+      }
+    >
       <DoctorsContent />
     </Suspense>
   );

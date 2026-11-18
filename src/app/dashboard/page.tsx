@@ -1,9 +1,14 @@
 'use client';
 
-import React, { useEffect, useState, useSyncExternalStore } from 'react';
+import React, { useEffect, useState, useCallback, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { MotionWrapper } from '@/components/common/MotionWrapper';
-import { Card, Badge, Button, PageHeader } from '@/components/ui';
+import { Card, Badge, Button, PageHeader, toast } from '@/components/ui';
+import { DoctorFormModal } from '@/components/modals/DoctorFormModal';
+import { PatientFormModal } from '@/components/modals/PatientFormModal';
+import { DoctorService, type Doctor, type DoctorFormData } from '@/server/doctor.service';
+import { PatientService } from '@/server/patient.service';
+import type { PatientFormData } from '@/types/patient.types';
 import {
   AuthService,
   subscribeAuth,
@@ -34,16 +39,172 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [timelineView, setTimelineView] = useState<'all' | 'patients' | 'doctors'>('all');
 
+  // modal states
+  const [isDoctorModalOpen, setIsDoctorModalOpen] = useState(false);
+  const [doctorForm, setDoctorForm] = useState<DoctorFormData>({
+    name: '',
+    specialization: '',
+    hospital: '',
+    phone: '',
+    email: '',
+  });
+  const [doctorAvatarFile, setDoctorAvatarFile] = useState<File | null>(null);
+  const [doctorAvatarPreviewUrl, setDoctorAvatarPreviewUrl] = useState<string | null>(null);
+  const [doctorSubmitting, setDoctorSubmitting] = useState(false);
+
+  const [isPatientModalOpen, setIsPatientModalOpen] = useState(false);
+  const [doctorsList, setDoctorsList] = useState<Doctor[]>([]);
+  const [patientForm, setPatientForm] = useState<PatientFormData>({
+    name: '',
+    age: '',
+    gender: 'Male',
+    phone: '',
+    email: '',
+    condition: '',
+    doctorId: '',
+    admissionDate: new Date().toISOString().split('T')[0],
+  });
+  const [patientAvatarFile, setPatientAvatarFile] = useState<File | null>(null);
+  const [patientAvatarPreviewUrl, setPatientAvatarPreviewUrl] = useState<string | null>(null);
+  const [patientSubmitting, setPatientSubmitting] = useState(false);
+
+  // refresh dashboard statistics
+  const fetchStats = useCallback(() => {
+    DashboardService.getStats()
+      .then((data) => setStats(data))
+      .catch((err) => console.error('failed to fetch dashboard statistics:', err));
+  }, []);
+
+  // load doctors for patient form
+  const loadDoctors = useCallback(async () => {
+    try {
+      const res = await DoctorService.getAllDoctors({ page: 1, limit: 100 });
+      setDoctorsList(res.data);
+      return res.data;
+    } catch (err) {
+      console.error('failed to fetch doctors for modal:', err);
+      return [];
+    }
+  }, []);
+
+  // initial data load
   useEffect(() => {
+    let isMounted = true;
     AuthService.getProfile().catch((err) => {
       console.error('failed to fetch admin profile:', err);
     });
 
     DashboardService.getStats()
-      .then((data) => setStats(data))
+      .then((data) => {
+        if (isMounted) setStats(data);
+      })
       .catch((err) => console.error('failed to fetch dashboard statistics:', err))
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
+
+  // open doctor modal
+  const handleOpenDoctorModal = () => {
+    setDoctorAvatarFile(null);
+    setDoctorAvatarPreviewUrl(null);
+    setDoctorForm({
+      name: '',
+      specialization: '',
+      hospital: '',
+      phone: '',
+      email: '',
+    });
+    setIsDoctorModalOpen(true);
+  };
+
+  // submit doctor creation
+  const handleDoctorSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!doctorForm.name || !doctorForm.specialization || !doctorForm.hospital || !doctorForm.phone || !doctorForm.email) {
+      toast.error('Validation Error', 'Please fill out all required fields.');
+      return;
+    }
+    try {
+      setDoctorSubmitting(true);
+      const created = await DoctorService.createDoctor(doctorForm);
+      if (doctorAvatarFile) {
+        try {
+          await DoctorService.updateAvatar(created._id, doctorAvatarFile);
+        } catch (avatarErr) {
+          console.error('avatar upload failed:', avatarErr);
+        }
+      }
+      const docName = doctorForm.name.startsWith('Dr.') ? doctorForm.name : `Dr. ${doctorForm.name}`;
+      toast.success('Doctor Registered', `${docName} has been added.`);
+      setIsDoctorModalOpen(false);
+      fetchStats();
+      loadDoctors();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Could not save doctor.';
+      toast.error('Registration Failed', message);
+    } finally {
+      setDoctorSubmitting(false);
+    }
+  };
+
+  // open patient modal
+  const handleOpenPatientModal = async () => {
+    setPatientAvatarFile(null);
+    setPatientAvatarPreviewUrl(null);
+    let docs = doctorsList;
+    if (docs.length === 0) {
+      docs = await loadDoctors();
+    }
+    setPatientForm({
+      name: '',
+      age: '',
+      gender: 'Male',
+      phone: '',
+      email: '',
+      condition: '',
+      doctorId: docs[0]?._id || '',
+      admissionDate: new Date().toISOString().split('T')[0],
+    });
+    setIsPatientModalOpen(true);
+  };
+
+  // submit patient admission
+  const handlePatientSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!patientForm.name || !patientForm.age || !patientForm.phone || !patientForm.condition || !patientForm.doctorId) {
+      toast.error('Missing fields', 'Please enter patient name, age, phone, condition, and select an attending doctor.');
+      return;
+    }
+    try {
+      setPatientSubmitting(true);
+      const payload = {
+        ...patientForm,
+        age: Number(patientForm.age),
+        admissionDate: new Date(patientForm.admissionDate),
+      };
+      const created = await PatientService.createPatient(payload);
+      if (patientAvatarFile) {
+        try {
+          await PatientService.updateAvatar(created._id, patientAvatarFile);
+        } catch (avatarErr) {
+          console.error('avatar upload failed:', avatarErr);
+        }
+      }
+      toast.success('Patient Registered', `${patientForm.name} has been admitted and assigned.`);
+      setIsPatientModalOpen(false);
+      fetchStats();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Could not register patient.';
+      toast.error('Admit Failed', message);
+    } finally {
+      setPatientSubmitting(false);
+    }
+  };
 
   const overview = stats?.overview || {
     totalDoctors: 0,
@@ -91,29 +252,25 @@ export default function DashboardPage() {
       <PageHeader
         icon={<UserRoundShield size={42} strokeWidth={1.2} />}
         title={`Welcome back, ${admin?.name || 'Super Admin'}!`}
-        subtitle="Real-time analytics, specialist workload tracking, and patient monitoring."
+        subtitle="Real-time analytics, specialist patient assignments, and clinical monitoring."
         actions={
           <div className="flex items-center gap-2.5">
-            <Link href="/doctors?action=create">
-              <Button
-                variant="primary"
-                size="md"
-                leftIcon={<PlusCircle className="w-4 h-4" />}
-                className="font-bold cursor-pointer"
-              >
-                Add Doctor
-              </Button>
-            </Link>
-            <Link href="/patients?action=create">
-              <Button
-                variant="secondary"
-                size="md"
-                leftIcon={<Users className="w-4 h-4" />}
-                className="font-bold cursor-pointer"
-              >
-                Admit Patient
-              </Button>
-            </Link>
+            <Button
+              variant="primary"
+              size="md"
+              leftIcon={<PlusCircle className="w-4 h-4" />}
+              onClick={handleOpenDoctorModal}
+            >
+              Add Doctor
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
+              leftIcon={<Users className="w-4 h-4" />}
+              onClick={handleOpenPatientModal}
+            >
+              Admit Patient
+            </Button>
           </div>
         }
       />
@@ -301,7 +458,7 @@ export default function DashboardPage() {
         </Card>
       </MotionWrapper>
 
-      {/* workload & conditions */}
+      {/* patient distribution & conditions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <MotionWrapper delay={0.3} direction="up">
           <Card className="p-6 space-y-5 h-full">
@@ -309,13 +466,13 @@ export default function DashboardPage() {
               <div>
                 <h3 className="font-bold text-base text-foreground flex items-center gap-2">
                   <BarChart3 className="w-4 h-4 text-primary" />
-                  Doctor Workload Distribution
+                  Doctor Patient Distribution
                 </h3>
                 <p className="text-xs text-muted-foreground">Patients assigned per doctor</p>
               </div>
-              <Link href="/doctors/workload">
+              <Link href="/doctors">
                 <Badge variant="primary" className="cursor-pointer hover:opacity-80">
-                  Full Workload &rarr;
+                  View Doctors &rarr;
                 </Badge>
               </Link>
             </div>
@@ -326,7 +483,7 @@ export default function DashboardPage() {
               </div>
             ) : !stats?.patientsPerDoctor || stats.patientsPerDoctor.length === 0 ? (
               <div className="py-10 text-center text-xs text-muted-foreground">
-                No doctor workload data recorded yet.
+                No doctor patient data recorded yet.
               </div>
             ) : (
               <div className="space-y-4">
@@ -364,9 +521,9 @@ export default function DashboardPage() {
                 </h3>
                 <p className="text-xs text-muted-foreground">Distribution of active diagnoses</p>
               </div>
-              <Link href="/patients/conditions">
+              <Link href="/patients">
                 <Badge variant="secondary" className="cursor-pointer hover:opacity-80">
-                  All Conditions &rarr;
+                  View Patients &rarr;
                 </Badge>
               </Link>
             </div>
@@ -495,6 +652,39 @@ export default function DashboardPage() {
           </Link>
         </MotionWrapper>
       </div>
+
+      {/* modal: create doctor in-page */}
+      <DoctorFormModal
+        isOpen={isDoctorModalOpen}
+        onClose={() => setIsDoctorModalOpen(false)}
+        editingDoctor={null}
+        doctorForm={doctorForm}
+        setDoctorForm={setDoctorForm}
+        avatarPreviewUrl={doctorAvatarPreviewUrl}
+        onAvatarChange={(file) => {
+          setDoctorAvatarFile(file);
+          setDoctorAvatarPreviewUrl(file ? URL.createObjectURL(file) : null);
+        }}
+        onSubmit={handleDoctorSubmit}
+        submitting={doctorSubmitting}
+      />
+
+      {/* modal: admit patient in-page */}
+      <PatientFormModal
+        isOpen={isPatientModalOpen}
+        onClose={() => setIsPatientModalOpen(false)}
+        editingPatient={null}
+        patientForm={patientForm}
+        setPatientForm={setPatientForm}
+        doctorsList={doctorsList}
+        avatarPreviewUrl={patientAvatarPreviewUrl}
+        onAvatarChange={(file) => {
+          setPatientAvatarFile(file);
+          setPatientAvatarPreviewUrl(file ? URL.createObjectURL(file) : null);
+        }}
+        onSubmit={handlePatientSubmit}
+        submitting={patientSubmitting}
+      />
     </div>
   );
 }

@@ -79,11 +79,9 @@ flowchart TD
 
 ### Key Application Routes
 - **`/login`**: Animated authentication portal with secure cookie storage and 1-click credentials filler.
-- **`/dashboard`**: Real-time KPI summary, 14-day date-based activity timeline chart, doctor workload meters, and condition breakdown.
+- **`/dashboard`**: Real-time KPI summary, 14-day date-based activity timeline chart, doctor patient distribution meters, and condition breakdown.
 - **`/doctors`**: Directory table with multi-field search, specialization & hospital filters, date range filters, pagination, doctor creation/editing, and assigned patient management.
-- **`/doctors/workload`**: Dedicated clinical workload capacity analytics page.
 - **`/patients`**: Dedicated patient management page with search, condition, doctor, gender, and date-wise filtering, modal registration, and deletion.
-- **`/patients/conditions`**: Dedicated patient diagnostic breakdown page.
 - **`/profile`**: Administrator settings, credential overview, and Cloudinary avatar photo uploader.
 
 ---

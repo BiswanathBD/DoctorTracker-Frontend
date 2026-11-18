@@ -29,6 +29,9 @@ export interface PatientFormModalProps {
   onAvatarChange: (file: File | null) => void;
   onSubmit: (e: React.FormEvent) => void;
   submitting: boolean;
+  disableDoctorSelect?: boolean;
+  title?: string;
+  description?: string;
 }
 
 export const PatientFormModal: React.FC<PatientFormModalProps> = ({
@@ -42,19 +45,25 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
   onAvatarChange,
   onSubmit,
   submitting,
+  disableDoctorSelect = false,
+  title,
+  description,
 }) => {
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const modalTitle = title || (editingPatient ? 'Edit Patient' : 'Register Patient');
+  const modalDescription =
+    description ||
+    (editingPatient
+      ? 'Update clinical record, assigned specialist, or contact information'
+      : 'Admit a new patient into clinical care and specialist tracking');
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={editingPatient ? 'Edit Patient' : 'Register Patient'}
-      description={
-        editingPatient
-          ? 'Update clinical record, assigned specialist, or contact information'
-          : 'Admit a new patient into clinical care and specialist tracking'
-      }
+      title={modalTitle}
+      description={modalDescription}
       icon={<Users className="w-5 h-5" />}
       maxWidth="xl"
     >
@@ -113,17 +122,21 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
 
               {/* remove photo trigger */}
               {avatarPreviewUrl && !submitting && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onAvatarChange(null);
-                    if (avatarInputRef.current) avatarInputRef.current.value = '';
-                  }}
-                  className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow-md hover:scale-110 transition-transform cursor-pointer"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
+                <div className="absolute -top-1.5 -right-1.5 z-10">
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAvatarChange(null);
+                      if (avatarInputRef.current) avatarInputRef.current.value = '';
+                    }}
+                    title="Remove Photo"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
               )}
             </div>
           </MotionWrapper>
@@ -208,7 +221,7 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
             <label className="text-xs font-semibold text-foreground flex items-center justify-between">
               <span>Attending Specialist</span>
               <span className="text-[11px] text-muted-foreground font-normal">
-                Required for clinical tracking
+                {disableDoctorSelect ? 'Assigned doctor' : 'Required for clinical tracking'}
               </span>
             </label>
             <Select
@@ -219,7 +232,7 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
                 value: doc._id,
                 icon: <Stethoscope className="w-3.5 h-3.5 text-primary" />,
               }))}
-              disabled={submitting}
+              disabled={submitting || disableDoctorSelect}
               placeholder="Choose attending doctor..."
               icon={<Stethoscope className="w-3.5 h-3.5 text-primary" />}
             />
@@ -261,7 +274,6 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
               variant="outline"
               disabled={submitting}
               onClick={onClose}
-              className="rounded-full px-5 cursor-pointer"
             >
               Cancel
             </Button>
@@ -269,7 +281,6 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
               type="submit"
               variant="secondary"
               loading={submitting}
-              className="rounded-full px-6 cursor-pointer"
             >
               {editingPatient ? 'Save Changes' : 'Register Patient'}
             </Button>

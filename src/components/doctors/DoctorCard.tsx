@@ -12,7 +12,6 @@ import {
   Mail,
   Calendar,
   Users,
-  Eye,
   Edit2,
   Trash2,
   ChevronRight,
@@ -41,14 +40,13 @@ export const DoctorCard: React.FC<DoctorCardProps> = ({
       duration={0.3}
     >
       <Card className="relative overflow-hidden group hover:shadow-xl hover:border-primary/40 transition-all duration-300 p-5 flex flex-col justify-between h-full space-y-4">
-        {/* ambient hover glow */}
+        {/* hover glow */}
         <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-        {/* top section: avatar, name, specialization, actions */}
+        {/* header */}
         <div className="space-y-3 relative">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
-              {/* doctor avatar */}
               <div className="relative w-12 h-12 rounded-2xl bg-primary/10 text-primary overflow-hidden flex items-center justify-center font-bold text-sm shrink-0 border border-primary/20 shadow-xs group-hover:scale-105 transition-transform duration-300">
                 {doctor.avatar?.url ? (
                   <Image
@@ -77,16 +75,8 @@ export const DoctorCard: React.FC<DoctorCardProps> = ({
               </div>
             </div>
 
-            {/* quick action icons */}
+            {/* actions */}
             <div className="flex items-center gap-1 shrink-0">
-              <button
-                type="button"
-                onClick={() => onViewDetails(doctor)}
-                className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer"
-                title="View Details"
-              >
-                <Eye className="w-3.5 h-3.5" />
-              </button>
               <button
                 type="button"
                 onClick={() => onEdit(doctor)}
@@ -98,7 +88,7 @@ export const DoctorCard: React.FC<DoctorCardProps> = ({
               <button
                 type="button"
                 onClick={() => onDelete(doctor)}
-                className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
                 title="Delete Doctor"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -106,7 +96,7 @@ export const DoctorCard: React.FC<DoctorCardProps> = ({
             </div>
           </div>
 
-          {/* hospital badge box */}
+          {/* hospital */}
           <div className="flex items-center gap-2 text-xs font-medium text-foreground bg-muted/40 px-3 py-2 rounded-xl border border-border/50">
             <Building2 className="w-3.5 h-3.5 text-primary shrink-0" />
             <span className="truncate">{doctor.hospital}</span>
@@ -129,7 +119,7 @@ export const DoctorCard: React.FC<DoctorCardProps> = ({
           </div>
         </div>
 
-        {/* bottom footer: patient count & view details button */}
+        {/* footer */}
         <div className="pt-3 border-t border-border flex items-center justify-between gap-2 relative">
           <Button
             type="button"

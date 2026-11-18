@@ -3,7 +3,8 @@
 import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import { DoctorService, type Doctor, type DoctorPatient } from '@/server/doctor.service';
-import { Button, Badge, SideSheet, toast } from '@/components/ui';
+import { Button, SideSheet, toast } from '@/components/ui';
+import { MotionWrapper } from '@/components/common/MotionWrapper';
 import {
   Stethoscope,
   Building2,
@@ -24,9 +25,11 @@ interface DoctorDetailCardProps {
   isOpen: boolean;
   onClose: () => void;
   onEdit: (doctor: Doctor) => void;
+  onDelete?: (doctor: Doctor) => void;
   onAddPatient: () => void;
   onRemovePatient: (patientId: string, patientName: string) => void;
   onAvatarUpdated?: (doctor: Doctor) => void;
+  loadingPatients?: boolean;
 }
 
 export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
@@ -34,9 +37,11 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
   isOpen,
   onClose,
   onEdit,
+  onDelete,
   onAddPatient,
   onRemovePatient,
   onAvatarUpdated,
+  loadingPatients = false,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -44,6 +49,9 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
   if (!doctor) return null;
 
   const assignedPatients: DoctorPatient[] = doctor.assignedPatients || doctor.patients || [];
+  const displayPatientCount =
+    doctor.patientCount !== undefined ? doctor.patientCount : assignedPatients.length;
+  const doctorDisplayName = doctor.name.startsWith('Dr.') ? doctor.name : `Dr. ${doctor.name}`;
 
   // upload doctor avatar
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,7 +66,7 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
     try {
       setIsUploading(true);
       const updated = await DoctorService.updateAvatar(doctor._id, file);
-      toast.success('Avatar Updated', `Avatar updated for Dr. ${doctor.name}.`);
+      toast.success('Avatar Updated', `Avatar updated for ${doctorDisplayName}.`);
       onAvatarUpdated?.(updated);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'failed to upload avatar';
@@ -85,29 +93,30 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
           </div>
         </div>
 
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="sm"
           onClick={onClose}
-          className="w-8 h-8 rounded-full bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground flex items-center justify-center shadow-xs transition-all cursor-pointer"
           title="Close details"
         >
           <X className="w-4 h-4" />
-        </button>
+        </Button>
       </div>
 
-      {/* scrollable body */}
-      <div className="flex-1 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-5 space-y-5">
-        {/* hero doctor card */}
-        <div className="relative rounded-3xl bg-gradient-to-br from-primary/10 via-card to-secondary/10 border border-border/80 p-5 space-y-4 shadow-sm overflow-hidden">
-          {/* subtle decorative background circles */}
-          <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/15 blur-2xl" />
-          <div className="pointer-events-none absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-secondary/15 blur-2xl" />
+      {/* body */}
+      <div className="flex-1 overflow-y-auto scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-5 space-y-5">
+        {/* full colored gradient top card */}
+        <div className="relative rounded-3xl bg-linear-to-br from-primary via-primary-hover to-primary p-5 space-y-4 shadow-xl border border-white/20 text-white overflow-hidden">
+          {/* background glows */}
+          <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+          <div className="pointer-events-none absolute -left-8 -bottom-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
 
           <div className="flex items-start gap-4 relative z-10">
-            {/* avatar with update trigger */}
+            {/* avatar */}
             <div className="relative group shrink-0">
               {doctor.avatar?.url ? (
-                <div className="relative w-18 h-18 rounded-2xl overflow-hidden border-2 border-primary/30 shadow-md">
+                <div className="relative w-18 h-18 rounded-2xl overflow-hidden border-2 border-white/40 shadow-lg bg-white/10">
                   <Image
                     src={doctor.avatar.url}
                     alt={doctor.name}
@@ -117,7 +126,7 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
                   />
                 </div>
               ) : (
-                <div className="w-18 h-18 rounded-2xl bg-primary/15 text-primary flex items-center justify-center font-black text-2xl uppercase border-2 border-primary/30 shadow-md">
+                <div className="w-18 h-18 rounded-2xl bg-white/20 text-white flex items-center justify-center font-black text-2xl uppercase border-2 border-white/40 shadow-lg backdrop-blur-sm">
                   {doctor.name ? doctor.name.replace(/^dr\.?\s+/i, '').charAt(0) : 'D'}
                 </div>
               )}
@@ -143,29 +152,29 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
             </div>
 
             <div className="min-w-0 flex-1 space-y-1.5">
-              <div className="flex items-center gap-1.5">
-                <Badge variant="primary" className="text-[10px] font-bold">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="inline-flex items-center text-[10px] font-bold bg-white/20 text-white border border-white/30 backdrop-blur-md px-2.5 py-0.5 rounded-full">
                   {doctor.specialization}
-                </Badge>
-                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                  <ShieldCheck className="w-3 h-3" />
-                  Verified
+                </span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-white bg-white/20 border border-white/30 backdrop-blur-md px-2 py-0.5 rounded-full">
+                  <ShieldCheck className="w-3 h-3 text-white" />
+                  Verified Specialist
                 </span>
               </div>
 
-              <h3 className="font-black text-foreground text-lg tracking-tight truncate">
+              <h3 className="font-black text-white text-xl tracking-tight truncate drop-shadow-xs">
                 {doctor.name}
               </h3>
 
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Building2 className="w-3.5 h-3.5 text-primary shrink-0" />
+              <div className="flex items-center gap-1.5 text-xs text-white/90">
+                <Building2 className="w-3.5 h-3.5 text-white/90 shrink-0" />
                 <span className="truncate font-medium">{doctor.hospital}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* metric cards grid */}
+        {/* metrics */}
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/70 space-y-1">
             <div className="flex items-center justify-between text-muted-foreground">
@@ -173,7 +182,7 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
               <Users className="w-3.5 h-3.5 text-secondary" />
             </div>
             <p className="text-xl font-black text-foreground tracking-tight">
-              {assignedPatients.length}
+              {displayPatientCount}
             </p>
           </div>
 
@@ -188,11 +197,11 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
           </div>
         </div>
 
-        {/* direct contact cards */}
+        {/* contact info */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-foreground">Direct Contact Information</span>
-          </div>
+          <span className="text-xs font-bold text-foreground block">
+            Direct Contact Information
+          </span>
 
           <div className="p-3.5 rounded-2xl bg-muted/30 border border-border/70 space-y-2.5 text-xs">
             <div className="flex items-center justify-between gap-2">
@@ -227,88 +236,121 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
           </div>
         </div>
 
-        {/* assigned patients roster */}
+        {/* patient roster */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Users className="w-3.5 h-3.5 text-primary" />
               <span className="text-xs font-bold text-foreground">
-                Patient Roster ({assignedPatients.length})
+                Patient Roster ({displayPatientCount})
               </span>
             </div>
             <Button
+              type="button"
               size="sm"
               variant="outline"
               onClick={onAddPatient}
               leftIcon={<UserPlus className="w-3.5 h-3.5 text-primary" />}
-              className="text-[11px] py-1 px-2.5 h-auto rounded-xl border-dashed cursor-pointer"
             >
               Assign Patient
             </Button>
           </div>
 
-          <div className="space-y-2 max-h-64 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pr-0.5">
-            {assignedPatients.length === 0 ? (
+          <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pr-0.5">
+            {loadingPatients || (assignedPatients.length === 0 && displayPatientCount > 0) ? (
+              <div className="space-y-2">
+                {Array.from({ length: Math.max(1, Math.min(3, displayPatientCount || 2)) }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="p-3 rounded-2xl bg-linear-to-r from-primary/10 via-card to-secondary/10 border border-primary/25 flex items-center justify-between gap-3 animate-pulse shadow-xs"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <div className="w-8 h-8 rounded-xl bg-secondary/20 border border-secondary/30 text-secondary flex items-center justify-center font-bold text-xs shrink-0">
+                        <Users className="w-3.5 h-3.5 opacity-50" />
+                      </div>
+                      <div className="space-y-1.5 flex-1 min-w-0">
+                        <div className="h-3.5 bg-primary/25 border border-primary/20 rounded-md w-28" />
+                        <div className="flex items-center gap-2">
+                          <div className="h-2.5 bg-secondary/25 rounded-md w-16" />
+                          <div className="h-2 bg-primary/15 rounded-md w-20" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="w-7 h-7 rounded-xl bg-destructive/15 border border-destructive/20 text-destructive/40 flex items-center justify-center shrink-0">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : assignedPatients.length === 0 ? (
               <div className="text-center py-8 border border-dashed border-border rounded-2xl bg-muted/20 p-4 space-y-2">
                 <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center mx-auto text-muted-foreground">
                   <Users className="w-5 h-5" />
                 </div>
                 <p className="text-xs font-semibold text-muted-foreground">No patients assigned yet</p>
                 <p className="text-[11px] text-muted-foreground/70 max-w-xs mx-auto">
-                  Assign a patient directly to Dr. {doctor.name} to start tracking consultations.
+                  Assign a patient directly to {doctorDisplayName} to start tracking consultations.
                 </p>
-                <Button
-                  size="sm"
-                  variant="primary"
-                  onClick={onAddPatient}
-                  leftIcon={<UserPlus className="w-3.5 h-3.5" />}
-                  className="mt-2 text-xs font-bold"
-                >
-                  Assign First Patient
-                </Button>
+                <div className="pt-2 flex justify-center">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="primary"
+                    onClick={onAddPatient}
+                    leftIcon={<UserPlus className="w-3.5 h-3.5" />}
+                  >
+                    Assign First Patient
+                  </Button>
+                </div>
               </div>
             ) : (
-              assignedPatients.map((p) => {
+              assignedPatients.map((p, idx) => {
                 const patientId = typeof p === 'string' ? p : p._id;
                 const patientName = typeof p === 'string' ? 'Patient record' : p.name;
                 const patientCondition = typeof p === 'string' ? '' : p.condition;
                 const patientPhone = typeof p === 'string' ? '' : p.phone;
 
                 return (
-                  <div
+                  <MotionWrapper
                     key={patientId}
-                    className="p-3 rounded-2xl bg-card border border-border/80 hover:border-primary/40 flex items-center justify-between gap-3 transition-all shadow-xs group"
+                    animationType="fade"
+                    delay={idx * 0.1}
+                    duration={0.3}
                   >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-8 h-8 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center font-bold text-xs shrink-0">
-                        {patientName.charAt(0)}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                          {patientName}
-                        </p>
-                        <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-0.5">
-                          {patientCondition && (
-                            <span className="font-medium text-secondary truncate">
-                              {patientCondition}
-                            </span>
-                          )}
-                          {patientPhone && (
-                            <span className="truncate">{patientPhone}</span>
-                          )}
+                    <div className="p-3 rounded-2xl bg-card border border-border/80 hover:border-primary/40 flex items-center justify-between gap-3 transition-all shadow-xs group">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-8 h-8 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center font-bold text-xs shrink-0">
+                          {patientName.charAt(0)}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
+                            {patientName}
+                          </p>
+                          <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-0.5">
+                            {patientCondition && (
+                              <span className="font-medium text-secondary truncate">
+                                {patientCondition}
+                              </span>
+                            )}
+                            {patientPhone && (
+                              <span className="truncate">{patientPhone}</span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <button
-                      type="button"
-                      onClick={() => onRemovePatient(patientId, patientName)}
-                      className="p-1.5 text-muted-foreground hover:text-destructive rounded-lg hover:bg-destructive/10 transition-colors shrink-0 cursor-pointer"
-                      title={`Remove ${patientName}`}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        capsule={false}
+                        onClick={() => onRemovePatient(patientId, patientName)}
+                        title={`Delete ${patientName}`}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </MotionWrapper>
                 );
               })
             )}
@@ -316,26 +358,29 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
         </div>
       </div>
 
-      {/* action footer */}
-      <div className="p-4 border-t border-border/70 flex items-center gap-2.5 bg-card/60 backdrop-blur-md shrink-0">
+      {/* footer */}
+      <div className="p-4 border-t border-border/70 flex items-center justify-end gap-2.5 bg-card/60 backdrop-blur-md shrink-0">
         <Button
+          type="button"
           variant="outline"
           size="sm"
           onClick={() => onEdit(doctor)}
           leftIcon={<Edit2 className="w-3.5 h-3.5" />}
-          className="flex-1 text-xs font-bold cursor-pointer"
         >
           Edit Doctor
         </Button>
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={onAddPatient}
-          leftIcon={<UserPlus className="w-3.5 h-3.5" />}
-          className="flex-1 text-xs font-bold cursor-pointer"
-        >
-          Assign Patient
-        </Button>
+        
+        {onDelete && (
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            onClick={() => onDelete(doctor)}
+            leftIcon={<Trash2 className="w-3.5 h-3.5" />}
+          >
+            Delete Doctor
+          </Button>
+        )}
       </div>
     </SideSheet>
   );
