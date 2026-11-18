@@ -81,7 +81,7 @@ export const PatientFilters: React.FC<PatientFiltersProps> = ({
   );
 
   return (
-    <Card className="p-4 sm:p-5 space-y-4 overflow-visible relative z-30 shadow-lg border border-border/80 bg-card/85 backdrop-blur-xl">
+    <Card className="p-4 sm:p-5 space-y-4 overflow-visible relative z-10 shadow-lg border border-border/80 bg-card/85 backdrop-blur-xl">
       {/* background glow */}
       <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-secondary/10 blur-2xl" />
 

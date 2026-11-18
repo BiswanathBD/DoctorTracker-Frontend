@@ -81,7 +81,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       duration={0.35}
       className="w-full"
     >
-      <header className="sticky top-3 z-10 w-full rounded-3xl bg-card shadow-xl shadow-black/5 dark:shadow-primary/5 p-2.5 sm:p-3 md:py-2.5 md:px-3 flex flex-col md:flex-row md:items-center justify-between gap-2.5 md:gap-0 transition-all overflow-hidden">
+      <header className="w-full rounded-3xl bg-card shadow-xl shadow-black/5 dark:shadow-primary/5 p-2.5 sm:p-3 md:py-2.5 md:px-3 flex flex-col md:flex-row md:items-center justify-between gap-2.5 md:gap-0 transition-all overflow-hidden relative">
         {/* stylish angled gradient background covering right portion with \ slant cut (desktop only) */}
         <div
           style={{

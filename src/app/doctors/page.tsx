@@ -46,7 +46,7 @@ function DoctorsContent() {
         </MotionWrapper>
 
         {/* modern filter & search station */}
-        <MotionWrapper delay={0.1} direction="up" className="relative z-30">
+        <MotionWrapper delay={0.1} direction="up" className="relative z-10">
           <DoctorFilters {...doctorsState.filterProps} />
         </MotionWrapper>
 

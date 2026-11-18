@@ -45,7 +45,7 @@ function PatientsContent() {
         </MotionWrapper>
 
         {/* modern directory filter station */}
-        <MotionWrapper delay={0.1} direction="up" className="relative z-30">
+        <MotionWrapper delay={0.1} direction="up" className="relative z-10">
           <PatientFilters {...patientsState.filterProps} />
         </MotionWrapper>
 

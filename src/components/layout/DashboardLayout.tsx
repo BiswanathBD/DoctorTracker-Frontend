@@ -34,7 +34,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
       </div>
 
       {/* header */}
-      <div className="sticky top-0 z-20 w-full pt-3 pb-2">
+      <div className="sticky top-0 z-40 w-full pt-3 pb-2">
         <Container size="2xl">
           <DashboardHeader
             onMenuToggle={() => setSidebarOpen((prev) => !prev)}
