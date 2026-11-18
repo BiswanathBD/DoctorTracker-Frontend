@@ -15,7 +15,8 @@ import {
   LogOut,
   X,
   Compass,
-  ChevronRight
+  ChevronRight,
+  User,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -233,8 +234,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, admin }) => {
                       />
                     </div>
                   ) : (
-                    <div className="w-10 h-10 rounded-xl bg-primary-foreground/20 text-primary-foreground font-black text-xs flex items-center justify-center uppercase shadow-md border border-primary-foreground/30 group-hover:bg-primary-foreground/30 transition-colors">
-                      {admin?.name?.charAt(0) || 'A'}
+                    <div className="w-10 h-10 rounded-xl bg-primary-foreground/20 text-primary-foreground flex items-center justify-center shadow-md border border-primary-foreground/30 group-hover:bg-primary-foreground/30 transition-colors">
+                      <User className="w-5 h-5 text-primary-foreground" />
                     </div>
                   )}
                   <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-success border-2 border-primary" />

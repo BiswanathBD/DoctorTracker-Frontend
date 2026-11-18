@@ -23,6 +23,7 @@ export interface Doctor {
     url: string;
     key: string;
   };
+  note?: string;
   patientCount?: number;
   patients?: DoctorPatient[];
   assignedPatients?: DoctorPatient[];
@@ -58,5 +59,6 @@ export interface DoctorFormData {
   hospital: string;
   phone: string;
   email: string;
+  note?: string;
 }
 

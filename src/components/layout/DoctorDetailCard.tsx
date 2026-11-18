@@ -18,6 +18,7 @@ import {
   Edit2,
   Camera,
   ShieldCheck,
+  FileText,
 } from 'lucide-react';
 
 interface DoctorDetailCardProps {
@@ -125,8 +126,8 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
                   />
                 </div>
               ) : (
-                <div className="w-18 h-18 rounded-2xl bg-white/20 text-white flex items-center justify-center font-black text-2xl uppercase border-2 border-white/40 shadow-lg backdrop-blur-sm">
-                  {doctor.name ? doctor.name.replace(/^dr\.?\s+/i, '').charAt(0) : 'D'}
+                <div className="w-18 h-18 rounded-2xl bg-white/20 text-white flex items-center justify-center border-2 border-white/40 shadow-lg backdrop-blur-sm">
+                  <Stethoscope className="w-8 h-8 text-white" />
                 </div>
               )}
               <input
@@ -235,6 +236,19 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
           </div>
         </div>
 
+        {/* clinical notes */}
+        {doctor.note && (
+          <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/80 space-y-1.5">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+              <FileText className="w-3.5 h-3.5 text-primary" />
+              <span>Clinical / Professional Notes</span>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
+              {doctor.note}
+            </p>
+          </div>
+        )}
+
         {/* patient roster */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
@@ -318,8 +332,8 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
                   >
                     <div className="p-3 rounded-2xl bg-card border border-border/80 hover:border-primary/40 flex items-center justify-between gap-3 transition-all shadow-xs group">
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-8 h-8 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center font-bold text-xs shrink-0">
-                          {patientName.charAt(0)}
+                        <div className="w-8 h-8 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shrink-0">
+                          <Users className="w-4 h-4 text-secondary" />
                         </div>
                         <div className="min-w-0">
                           <p className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">

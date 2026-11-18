@@ -15,7 +15,8 @@ import {
   X,
   ChevronRight,
   Mail,
-  Building2
+  Building2,
+  User,
 } from 'lucide-react';
 
 interface ProfileCardProps {
@@ -77,8 +78,8 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
                   />
                 </div>
               ) : (
-                <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-primary via-primary-hover to-secondary text-primary-foreground font-black text-xl flex items-center justify-center uppercase shadow-lg shadow-primary/20">
-                  {admin?.name?.charAt(0) || 'A'}
+                <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-primary via-primary-hover to-secondary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/20">
+                  <User className="w-8 h-8" />
                 </div>
               )}
               <div

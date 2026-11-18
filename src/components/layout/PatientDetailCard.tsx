@@ -18,6 +18,7 @@ import {
   Users,
   Clock,
   Sparkles,
+  FileText,
 } from 'lucide-react';
 
 interface PatientDetailCardProps {
@@ -137,8 +138,8 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
                   />
                 </div>
               ) : (
-                <div className="w-18 h-18 rounded-2xl bg-white/20 text-white flex items-center justify-center font-black text-2xl uppercase border-2 border-white/40 shadow-lg backdrop-blur-sm">
-                  {patient.name?.charAt(0) || 'P'}
+                <div className="w-18 h-18 rounded-2xl bg-white/20 text-white flex items-center justify-center border-2 border-white/40 shadow-lg backdrop-blur-sm">
+                  <Users className="w-8 h-8 text-white" />
                 </div>
               )}
               <input
@@ -227,6 +228,19 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
           </div>
         </div>
 
+        {/* medical notes / remarks */}
+        {patient.note && (
+          <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/70 space-y-1.5">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+              <FileText className="w-3.5 h-3.5 text-secondary" />
+              <span>Medical Notes / Remarks</span>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
+              {patient.note}
+            </p>
+          </div>
+        )}
+
         {/* attending specialist section */}
         <div className="space-y-2.5">
           <div className="flex items-center justify-between">
@@ -256,10 +270,8 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
                       />
                     </div>
                   ) : (
-                    <div className="w-11 h-11 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center font-bold text-sm shrink-0 border border-secondary/20">
-                      {attendingDoctor.name
-                        ? attendingDoctor.name.replace(/^dr\.?\s+/i, '').charAt(0)
-                        : 'D'}
+                    <div className="w-11 h-11 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shrink-0 border border-secondary/20">
+                      <Stethoscope className="w-5 h-5 text-secondary" />
                     </div>
                   )}
                   <div className="min-w-0">

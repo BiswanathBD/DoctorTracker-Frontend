@@ -18,6 +18,7 @@ import {
   Trash2,
   Check,
   Plus,
+  FileText,
 } from 'lucide-react';
 
 export interface PatientFormModalProps {
@@ -275,6 +276,19 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
             />
           </MotionWrapper>
         </div>
+
+        {/* row 5: medical notes / remarks */}
+        <MotionWrapper animationType="fadeUp" delay={0.52} duration={0.3}>
+          <Input
+            label="Medical Notes / Observations (Optional)"
+            placeholder="Add observations, allergy alerts, or clinical notes..."
+            variant="secondary"
+            disabled={submitting}
+            value={patientForm.note || ''}
+            onChange={(e) => setPatientForm({ ...patientForm, note: e.target.value })}
+            leftIcon={<FileText className="w-4 h-4" />}
+          />
+        </MotionWrapper>
 
         {/* action footer */}
         <MotionWrapper animationType="fadeUp" delay={0.55} duration={0.3}>

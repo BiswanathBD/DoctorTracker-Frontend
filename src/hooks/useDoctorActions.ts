@@ -44,6 +44,7 @@ export function useDoctorActions({
     hospital: '',
     phone: '',
     email: '',
+    note: '',
   });
   const [doctorAvatarFile, setDoctorAvatarFile] = useState<File | null>(null);
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
@@ -72,6 +73,7 @@ export function useDoctorActions({
     condition: '',
     doctorId: '',
     admissionDate: new Date().toISOString().split('T')[0],
+    note: '',
   });
   const [patientAvatarFile, setPatientAvatarFile] = useState<File | null>(null);
   const [patientAvatarPreviewUrl, setPatientAvatarPreviewUrl] = useState<string | null>(null);
@@ -93,6 +95,7 @@ export function useDoctorActions({
         condition: '',
         doctorId: targetDoc._id,
         admissionDate: new Date().toISOString().split('T')[0],
+        note: '',
       });
       setIsAddPatientModalOpen(true);
     },
@@ -111,6 +114,7 @@ export function useDoctorActions({
       hospital: '',
       phone: '',
       email: '',
+      note: '',
     });
     setIsFormModalOpen(true);
   }, []);
@@ -160,6 +164,7 @@ export function useDoctorActions({
       hospital: doctor.hospital,
       phone: doctor.phone,
       email: doctor.email,
+      note: doctor.note || '',
     });
     setIsFormModalOpen(true);
   };

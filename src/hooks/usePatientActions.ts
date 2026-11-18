@@ -40,6 +40,7 @@ export function usePatientActions({
     condition: '',
     doctorId: '',
     admissionDate: new Date().toISOString().split('T')[0],
+    note: '',
   });
   const [patientAvatarFile, setPatientAvatarFile] = useState<File | null>(null);
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
@@ -61,6 +62,7 @@ export function usePatientActions({
       condition: '',
       doctorId: doctorsList[0]?._id || '',
       admissionDate: new Date().toISOString().split('T')[0],
+      note: '',
     });
     setIsFormModalOpen(true);
   }, [doctorsList]);
@@ -97,6 +99,7 @@ export function usePatientActions({
       admissionDate: patient.admissionDate
         ? new Date(patient.admissionDate).toISOString().split('T')[0]
         : new Date().toISOString().split('T')[0],
+      note: patient.note || '',
     });
     setIsFormModalOpen(true);
   };

@@ -14,6 +14,7 @@ import {
   Edit2,
   Trash2,
   ChevronRight,
+  Users,
 } from 'lucide-react';
 
 export interface PatientCardProps {
@@ -62,9 +63,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({
                     className="object-cover"
                   />
                 ) : (
-                  <span className="text-base font-black uppercase">
-                    {patient.name?.charAt(0) || 'P'}
-                  </span>
+                  <Users className="w-6 h-6 text-secondary" />
                 )}
               </div>
 
@@ -137,7 +136,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({
                   </div>
                 ) : (
                   <div className="w-6 h-6 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center font-bold text-[10px] shrink-0">
-                    {docObj.name ? docObj.name.replace(/^dr\.?\s+/i, '').charAt(0) : 'D'}
+                    <Stethoscope className="w-3.5 h-3.5 text-secondary" />
                   </div>
                 )}
                 <div className="min-w-0 flex-1">

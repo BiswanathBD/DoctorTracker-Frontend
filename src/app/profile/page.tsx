@@ -29,6 +29,7 @@ import {
   KeyRound,
   Loader2,
   Sparkles,
+  User,
 } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -142,8 +143,8 @@ export default function ProfilePage() {
                   />
                 </div>
               ) : (
-                <div className="w-28 h-28 rounded-3xl bg-gradient-to-br from-primary via-primary/80 to-secondary text-primary-foreground font-black text-4xl flex items-center justify-center uppercase shadow-2xl border-2 border-primary/30 group-hover:scale-105 transition-transform duration-300">
-                  {admin?.name?.charAt(0) || 'A'}
+                <div className="w-28 h-28 rounded-3xl bg-linear-to-br from-primary via-primary/80 to-secondary text-primary-foreground flex items-center justify-center shadow-2xl border-2 border-primary/30 group-hover:scale-105 transition-transform duration-300">
+                  <User className="w-12 h-12" />
                 </div>
               )}
 

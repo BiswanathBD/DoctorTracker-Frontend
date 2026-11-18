@@ -47,6 +47,7 @@ export default function DashboardPage() {
     hospital: '',
     phone: '',
     email: '',
+    note: '',
   });
   const [doctorAvatarFile, setDoctorAvatarFile] = useState<File | null>(null);
   const [doctorAvatarPreviewUrl, setDoctorAvatarPreviewUrl] = useState<string | null>(null);
@@ -63,6 +64,7 @@ export default function DashboardPage() {
     condition: '',
     doctorId: '',
     admissionDate: new Date().toISOString().split('T')[0],
+    note: '',
   });
   const [patientAvatarFile, setPatientAvatarFile] = useState<File | null>(null);
   const [patientAvatarPreviewUrl, setPatientAvatarPreviewUrl] = useState<string | null>(null);

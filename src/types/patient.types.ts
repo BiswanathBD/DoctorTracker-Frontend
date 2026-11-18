@@ -25,6 +25,7 @@ export interface Patient {
   };
   doctorId: PatientDoctorInfo | string;
   admissionDate: string;
+  note?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -61,4 +62,5 @@ export interface PatientFormData {
   condition: string;
   doctorId: string;
   admissionDate: string;
+  note?: string;
 }

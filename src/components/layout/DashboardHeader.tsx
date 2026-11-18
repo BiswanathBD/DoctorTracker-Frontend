@@ -148,13 +148,13 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 </div>
               ) : (
                 <div
-                  className={`w-8 h-8 rounded-xl font-black text-xs flex items-center justify-center uppercase shadow-xs ${
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-xs ${
                     isProfileOpen
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-primary-foreground/25 text-primary-foreground'
                   }`}
                 >
-                  {admin?.name?.charAt(0) || <User className="w-3.5 h-3.5" />}
+                  <User className="w-4 h-4" />
                 </div>
               )}
               <div
