@@ -85,9 +85,10 @@ export const PatientFilters: React.FC<PatientFiltersProps> = ({
       {/* background glow */}
       <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-secondary/10 blur-2xl" />
 
-      {/* header and summary */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-1 border-b border-border/50">
-        <div className="flex items-center gap-2 text-xs">
+      {/* header, title and top-row search */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-border/50">
+        {/* title & count */}
+        <div className="flex items-center gap-2 text-xs shrink-0">
           <div className="w-6 h-6 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center font-bold">
             <SlidersHorizontal className="w-3.5 h-3.5" />
           </div>
@@ -103,25 +104,10 @@ export const PatientFilters: React.FC<PatientFiltersProps> = ({
           )}
         </div>
 
-        {hasActiveFilters && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={onResetFilters}
-            leftIcon={<RotateCcw className="w-3 h-3" />}
-          >
-            Reset Filters
-          </Button>
-        )}
-      </div>
-
-      {/* filter controls grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
-        {/* search input */}
-        <div className="lg:col-span-3 relative">
-          <div className="relative flex items-center w-full h-10 rounded-2xl border border-border/80 bg-card transition-all hover:border-secondary/50 focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/15">
-            <div className="pl-3.5 pr-2 flex items-center justify-center text-muted-foreground pointer-events-none">
+        {/* search input side-by-side with title */}
+        <div className="flex items-center gap-2.5 w-full md:w-auto md:max-w-md md:flex-1 md:justify-end">
+          <div className="relative w-full max-w-sm">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
               {isDebouncing ? (
                 <Loader2 className="w-3.5 h-3.5 text-secondary animate-spin" />
               ) : (
@@ -132,50 +118,39 @@ export const PatientFilters: React.FC<PatientFiltersProps> = ({
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search by patient, condition, phone..."
-              className="w-full h-full pr-8 text-xs bg-transparent text-foreground placeholder:text-muted-foreground/60 outline-none font-medium"
+              placeholder="Search by patient name, condition, phone..."
+              className="w-full h-10 pl-9 pr-9 text-xs rounded-2xl border border-border/80 bg-card text-foreground placeholder:text-muted-foreground/60 outline-none hover:border-secondary/50 focus:border-secondary focus:ring-2 focus:ring-secondary/15 transition-all shadow-2xs font-medium"
             />
             {searchInput && (
               <button
                 type="button"
                 onClick={() => setSearchInput('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground rounded-md transition-colors cursor-pointer"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 title="Clear search"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
-        </div>
 
-        {/* condition select */}
-        <div className="lg:col-span-2">
-          <Select
-            value={condition}
-            onChange={(val) => {
-              setCondition(val);
-              setPage(1);
-            }}
-            options={[
-              { label: 'All Conditions', value: '' },
-              ...conditionsList.map((cond) => ({
-                label: cond,
-                value: cond,
-                icon: <HeartPulse className="w-3.5 h-3.5 text-secondary" />,
-              })),
-            ]}
-            placeholder={
-              conditionsList.length > 0
-                ? `Condition (${conditionsList.length})`
-                : 'All Conditions'
-            }
-            icon={<HeartPulse className="w-3.5 h-3.5 text-secondary" />}
-            clearable
-          />
+          {hasActiveFilters && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={onResetFilters}
+              leftIcon={<RotateCcw className="w-3 h-3 text-secondary" />}
+            >
+              Reset
+            </Button>
+          )}
         </div>
+      </div>
 
+      {/* filter controls grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
         {/* attending doctor select */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-3">
           <Select
             value={doctorId}
             onChange={(val) => {
@@ -200,6 +175,32 @@ export const PatientFilters: React.FC<PatientFiltersProps> = ({
           />
         </div>
 
+        {/* condition select */}
+        <div className="lg:col-span-3">
+          <Select
+            value={condition}
+            onChange={(val) => {
+              setCondition(val);
+              setPage(1);
+            }}
+            options={[
+              { label: 'All Conditions', value: '' },
+              ...conditionsList.map((cond) => ({
+                label: cond,
+                value: cond,
+                icon: <HeartPulse className="w-3.5 h-3.5 text-secondary" />,
+              })),
+            ]}
+            placeholder={
+              conditionsList.length > 0
+                ? `Condition (${conditionsList.length})`
+                : 'All Conditions'
+            }
+            icon={<HeartPulse className="w-3.5 h-3.5 text-secondary" />}
+            clearable
+          />
+        </div>
+
         {/* admission date range filter */}
         <div className="lg:col-span-2">
           <DateRangeFilter
@@ -215,7 +216,7 @@ export const PatientFilters: React.FC<PatientFiltersProps> = ({
         </div>
 
         {/* gender select */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-2">
           <Select
             value={gender}
             onChange={(val) => {
@@ -223,13 +224,13 @@ export const PatientFilters: React.FC<PatientFiltersProps> = ({
               setPage(1);
             }}
             options={[
-              { label: 'All', value: '' },
+              { label: 'All Genders', value: '' },
               { label: 'Male', value: 'Male' },
               { label: 'Female', value: 'Female' },
               { label: 'Other', value: 'Other' },
             ]}
             placeholder="Gender"
-            icon={<Users className="w-3.5 h-3.5 text-muted-foreground" />}
+            icon={<Users className="w-3.5 h-3.5 text-secondary" />}
             clearable
           />
         </div>

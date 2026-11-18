@@ -78,9 +78,10 @@ export const DoctorFilters: React.FC<DoctorFiltersProps> = ({
       {/* background glow */}
       <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-primary/10 blur-2xl" />
 
-      {/* header and summary */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-1 border-b border-border/50">
-        <div className="flex items-center gap-2 text-xs">
+      {/* header, title and top-row search */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-border/50">
+        {/* title & count */}
+        <div className="flex items-center gap-2 text-xs shrink-0">
           <div className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold">
             <SlidersHorizontal className="w-3.5 h-3.5" />
           </div>
@@ -96,24 +97,9 @@ export const DoctorFilters: React.FC<DoctorFiltersProps> = ({
           )}
         </div>
 
-        {hasActiveFilters && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={onResetFilters}
-            leftIcon={<RotateCcw className="w-3 h-3 text-primary" />}
-          >
-            Reset All Filters
-          </Button>
-        )}
-      </div>
-
-      {/* filter grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
-        {/* search */}
-        <div className="lg:col-span-3">
-          <div className="relative w-full">
+        {/* search input side-by-side with title */}
+        <div className="flex items-center gap-2.5 w-full md:w-auto md:max-w-md md:flex-1 md:justify-end">
+          <div className="relative w-full max-w-sm">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
               {isDebouncing ? (
                 <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
@@ -125,7 +111,7 @@ export const DoctorFilters: React.FC<DoctorFiltersProps> = ({
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search by name, specialization, hospital, email..."
+              placeholder="Search by doctor name, specialization, hospital..."
               className="w-full h-10 pl-9 pr-9 text-xs rounded-2xl border border-border/80 bg-card text-foreground placeholder:text-muted-foreground/60 outline-none hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all shadow-2xs font-medium"
             />
             {searchInput && (
@@ -139,8 +125,23 @@ export const DoctorFilters: React.FC<DoctorFiltersProps> = ({
               </button>
             )}
           </div>
-        </div>
 
+          {hasActiveFilters && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={onResetFilters}
+              leftIcon={<RotateCcw className="w-3 h-3 text-primary" />}
+            >
+              Reset
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* filter grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-9 gap-3">
         {/* specialization */}
         <div className="lg:col-span-2">
           <Select
@@ -167,7 +168,7 @@ export const DoctorFilters: React.FC<DoctorFiltersProps> = ({
           />
         </div>
 
-        {/* hospital */}
+        {/* hospital (expanded width for long hospital names) */}
         <div className="lg:col-span-3">
           <Select
             value={hospital}
