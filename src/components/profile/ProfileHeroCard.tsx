@@ -132,15 +132,15 @@ export const ProfileHeroCard: React.FC<ProfileHeroCardProps> = ({ admin, onSignO
 
           {/* admin name and roles */}
           <div className="space-y-1.5">
-            <h2 className="text-xl font-black text-foreground tracking-tight truncate">
+            <h2 className="text-xl font-semibold text-foreground tracking-tight truncate">
               {admin?.name || 'System Administrator'}
             </h2>
             <div className="flex items-center justify-center gap-2 flex-wrap">
-              <Badge variant="primary" className="text-[10px] font-black uppercase px-2.5 py-0.5 shadow-2xs">
+              <Badge variant="primary" className="text-xs font-semibold uppercase px-2.5 py-0.5 shadow-2xs">
                 <Shield className="w-3 h-3 mr-1" />
                 {admin?.role || 'admin'} Privileges
               </Badge>
-              <span className="text-[10px] font-bold text-success flex items-center gap-1 bg-success/10 px-2 py-0.5 rounded-full border border-success/20">
+              <span className="text-xs font-medium text-success flex items-center gap-1 bg-success/10 px-2 py-0.5 rounded-full border border-success/20">
                 <span className="w-1.5 h-1.5 rounded-full bg-success inline-block" />
                 Active Session
               </span>

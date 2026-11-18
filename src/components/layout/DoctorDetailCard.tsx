@@ -87,10 +87,10 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
             <Stethoscope className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-xs font-black uppercase tracking-wider text-foreground">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-foreground">
               Doctor Dossier
             </h2>
-            <p className="text-[11px] text-muted-foreground">Comprehensive specialist profile</p>
+            <p className="text-xs text-muted-foreground font-medium">Comprehensive specialist profile</p>
           </div>
         </div>
 
@@ -162,7 +162,7 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
                 </span>
               </div>
 
-              <h3 className="font-black text-white text-xl tracking-tight truncate drop-shadow-xs">
+              <h3 className="font-semibold text-white text-xl tracking-tight truncate drop-shadow-xs">
                 {doctor.name}
               </h3>
 
@@ -181,7 +181,7 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
               <span className="text-[11px] font-medium">Assigned Patients</span>
               <Users className="w-3.5 h-3.5 text-secondary" />
             </div>
-            <p className="text-xl font-black text-foreground tracking-tight">
+            <p className="text-xl font-semibold text-foreground tracking-tight">
               {displayPatientCount}
             </p>
           </div>

@@ -118,7 +118,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, admin }) => {
           >
             <div className="flex items-center gap-2">
               <Compass className="w-4 h-4 text-accent" />
-              <p className="text-[10px] font-black uppercase tracking-widest text-primary-foreground/85 select-none">
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary-foreground/85 select-none">
                 Navigation
               </p>
             </div>
@@ -184,10 +184,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, admin }) => {
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className="font-extrabold text-xs text-primary-foreground leading-tight truncate">
+                      <p className="font-semibold text-sm text-primary-foreground truncate">
                         {item.title}
                       </p>
-                      <p className="text-[10px] text-primary-foreground/75 font-medium truncate mt-0.5">
+                      <p className="text-xs text-primary-foreground/75 font-medium truncate mt-0.5">
                         {item.subtitle}
                       </p>
                     </div>
@@ -242,10 +242,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, admin }) => {
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-black text-primary-foreground truncate leading-tight group-hover:text-accent transition-colors">
+                  <p className="text-sm font-semibold text-primary-foreground truncate transition-colors">
                     {admin?.name || 'Super Admin'}
                   </p>
-                  <p className="text-[10px] text-primary-foreground/75 truncate mt-0.5 font-medium">
+                  <p className="text-xs text-primary-foreground/75 truncate mt-0.5 font-medium">
                     {admin?.email || 'admin@doctortracker.com'}
                   </p>
                 </div>
@@ -255,16 +255,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, admin }) => {
             </Link>
 
             {/* footer actions */}
-            <div className="pt-2 border-t border-primary-foreground/10 flex items-center justify-between gap-2">
-              <span className="text-[10px] text-primary-foreground/70 font-medium flex items-center gap-1.5 px-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-success animate-ping" />
-                Live Session
-              </span>
-
+            <div className="pt-2 border-t border-primary-foreground/10 flex items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={() => AuthService.logout()}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-all font-bold text-xs shadow-md shadow-destructive/25 cursor-pointer active:scale-95"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-all font-semibold text-xs shadow-md shadow-destructive/25 cursor-pointer active:scale-95"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Sign Out</span>

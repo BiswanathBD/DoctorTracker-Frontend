@@ -44,7 +44,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
       <div className="shrink-0 px-6 py-4 border-b border-border/80 flex items-center justify-between bg-card/90">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
-          <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Account Center
           </span>
         </div>
@@ -89,7 +89,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
 
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <h3 className="font-black text-foreground text-base tracking-tight truncate">
+                <h3 className="font-semibold text-foreground text-base tracking-tight truncate">
                   {admin?.name || 'Super Admin'}
                 </h3>
               </div>
@@ -100,10 +100,10 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
               </p>
 
               <div className="mt-2 flex items-center gap-1.5">
-                <Badge variant="primary" className="text-[10px] py-0.5 px-2 font-bold">
+                <Badge variant="primary" className="text-xs py-0.5 px-2 font-medium">
                   {admin?.role || 'Super Admin'}
                 </Badge>
-                <span className="text-[10px] text-muted-foreground font-semibold flex items-center gap-1">
+                <span className="text-xs text-muted-foreground font-medium flex items-center gap-1">
                   <Shield className="w-3 h-3 text-success" />
                   Verified Access
                 </span>
@@ -115,10 +115,10 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
         {/* platform impact metrics */}
         <div className="space-y-3">
           <div className="flex items-center justify-between px-1">
-            <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Platform Directory
             </p>
-            <span className="text-[10px] text-primary font-bold flex items-center gap-1">
+            <span className="text-xs text-primary font-medium flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
               Live Sync
             </span>
@@ -138,10 +138,10 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
                 <ChevronRight className="w-3 h-3 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
               </div>
               <div className="mt-3">
-                <p className="text-xl font-black text-foreground tracking-tight leading-none group-hover:text-primary transition-colors">
+                <p className="text-xl font-semibold text-foreground tracking-tight leading-none group-hover:text-primary transition-colors">
                   {totalDoctors}
                 </p>
-                <p className="text-[10px] font-bold text-muted-foreground mt-1">Specialists</p>
+                <p className="text-xs font-medium text-muted-foreground mt-1">Specialists</p>
               </div>
             </Link>
 
@@ -158,10 +158,10 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
                 <ChevronRight className="w-3 h-3 text-muted-foreground/40 group-hover:text-secondary group-hover:translate-x-0.5 transition-all" />
               </div>
               <div className="mt-3">
-                <p className="text-xl font-black text-foreground tracking-tight leading-none group-hover:text-secondary transition-colors">
+                <p className="text-xl font-semibold text-foreground tracking-tight leading-none group-hover:text-secondary transition-colors">
                   {totalPatients}
                 </p>
-                <p className="text-[10px] font-bold text-muted-foreground mt-1">Admissions</p>
+                <p className="text-xs font-medium text-muted-foreground mt-1">Admissions</p>
               </div>
             </Link>
 
@@ -178,10 +178,10 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
                 <ChevronRight className="w-3 h-3 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
               </div>
               <div className="mt-3">
-                <p className="text-xl font-black text-foreground tracking-tight leading-none group-hover:text-primary transition-colors">
+                <p className="text-xl font-semibold text-foreground tracking-tight leading-none group-hover:text-primary transition-colors">
                   {totalHospitals}
                 </p>
-                <p className="text-[10px] font-bold text-muted-foreground mt-1">Hospitals</p>
+                <p className="text-xs font-medium text-muted-foreground mt-1">Hospitals</p>
               </div>
             </Link>
           </div>
@@ -189,7 +189,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
 
         {/* navigation & settings options */}
         <div className="space-y-2">
-          <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground px-1">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">
             Preferences
           </p>
 
@@ -203,10 +203,10 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
                 <Settings className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-xs font-black text-foreground group-hover:text-primary transition-colors leading-tight">
+                <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
                   Admin Settings
                 </p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">Edit profile, credentials & avatar</p>
+                <p className="text-xs text-muted-foreground mt-0.5 font-medium">Edit profile, credentials & avatar</p>
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
@@ -219,7 +219,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
         <button
           type="button"
           onClick={() => AuthService.logout()}
-          className="w-full py-3 px-4 rounded-2xl bg-destructive hover:bg-destructive/90 text-destructive-foreground font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-destructive/25 transition-all cursor-pointer active:scale-[0.99]"
+          className="w-full py-3 px-4 rounded-2xl bg-destructive hover:bg-destructive/90 text-destructive-foreground font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-destructive/25 transition-all cursor-pointer active:scale-[0.99]"
         >
           <LogOut className="w-4 h-4" />
           <span>Sign Out</span>

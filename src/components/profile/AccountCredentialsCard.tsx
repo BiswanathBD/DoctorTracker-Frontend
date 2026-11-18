@@ -43,8 +43,8 @@ export const AccountCredentialsCard: React.FC<AccountCredentialsCardProps> = ({ 
               <User className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
-              <h3 className="font-black text-sm text-primary-foreground tracking-tight">Account Identity & Credentials</h3>
-              <p className="text-[11px] text-primary-foreground/80">Verified administrator attributes and access privileges</p>
+              <h3 className="font-semibold text-sm text-primary-foreground tracking-tight">Account Identity & Credentials</h3>
+              <p className="text-xs text-primary-foreground/80 font-medium">Verified administrator attributes and access privileges</p>
             </div>
           </div>
         </div>
@@ -54,7 +54,7 @@ export const AccountCredentialsCard: React.FC<AccountCredentialsCardProps> = ({ 
           {/* name block */}
           <div className="p-4 rounded-2xl bg-primary-foreground/12 backdrop-blur-md border border-primary-foreground/20 hover:bg-primary-foreground/18 transition-all space-y-1.5 shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary-foreground/85 flex items-center gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary-foreground/85 flex items-center gap-1.5">
                 <User className="w-3.5 h-3.5" />
                 Administrator Name
               </span>
@@ -62,21 +62,21 @@ export const AccountCredentialsCard: React.FC<AccountCredentialsCardProps> = ({ 
                 KEY-ADMIN
               </span>
             </div>
-            <p className="font-black text-primary-foreground text-sm tracking-tight">{admin?.name || 'System Administrator'}</p>
-            <p className="text-[11px] text-primary-foreground/75">Primary identity bound to audit and action logs</p>
+            <p className="font-semibold text-primary-foreground text-sm tracking-tight">{admin?.name || 'System Administrator'}</p>
+            <p className="text-xs text-primary-foreground/75 font-medium">Primary identity bound to audit and action logs</p>
           </div>
 
           {/* email block */}
           <div className="p-4 rounded-2xl bg-primary-foreground/12 backdrop-blur-md border border-primary-foreground/20 hover:bg-primary-foreground/18 transition-all space-y-1.5 shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary-foreground/85 flex items-center gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary-foreground/85 flex items-center gap-1.5">
                 <Mail className="w-3.5 h-3.5" />
                 Email Address
               </span>
               <button
                 type="button"
                 onClick={() => handleCopyText(admin?.email || '', 'Email')}
-                className="text-primary-foreground/80 hover:text-primary-foreground text-[10px] font-mono flex items-center gap-1 px-1.5 py-0.5 rounded-md hover:bg-primary-foreground/20 transition-colors cursor-pointer"
+                className="text-primary-foreground/80 hover:text-primary-foreground text-xs font-mono flex items-center gap-1 px-1.5 py-0.5 rounded-md hover:bg-primary-foreground/20 transition-colors cursor-pointer"
                 title="Copy email address"
               >
                 {copiedField === 'Email' ? (
@@ -87,16 +87,16 @@ export const AccountCredentialsCard: React.FC<AccountCredentialsCardProps> = ({ 
                 <span>Copy</span>
               </button>
             </div>
-            <p className="font-black text-primary-foreground text-sm font-mono truncate">
+            <p className="font-semibold text-primary-foreground text-sm font-mono truncate">
               {admin?.email || 'admin@doctortracker.com'}
             </p>
-            <p className="text-[11px] text-primary-foreground/75">Primary administrative authentication channel</p>
+            <p className="text-xs text-primary-foreground/75 font-medium">Primary administrative authentication channel</p>
           </div>
 
           {/* authorization role block */}
           <div className="p-4 rounded-2xl bg-primary-foreground/12 backdrop-blur-md border border-primary-foreground/20 hover:bg-primary-foreground/18 transition-all space-y-1.5 shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary-foreground/85 flex items-center gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary-foreground/85 flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-accent" />
                 Authorization Level
               </span>
@@ -104,7 +104,7 @@ export const AccountCredentialsCard: React.FC<AccountCredentialsCardProps> = ({ 
                 Full Access
               </span>
             </div>
-            <p className="font-black text-primary-foreground text-sm capitalize">{admin?.role || 'Root Administrator'}</p>
+            <p className="font-semibold text-primary-foreground text-sm capitalize">{admin?.role || 'Root Administrator'}</p>
             <div className="flex items-center gap-1.5 pt-0.5 flex-wrap">
               <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-primary-foreground/15 text-primary-foreground/90 font-semibold">CRUD</span>
               <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-primary-foreground/15 text-primary-foreground/90 font-semibold">Media Pipeline</span>
@@ -115,7 +115,7 @@ export const AccountCredentialsCard: React.FC<AccountCredentialsCardProps> = ({ 
           {/* platform tenant block */}
           <div className="p-4 rounded-2xl bg-primary-foreground/12 backdrop-blur-md border border-primary-foreground/20 hover:bg-primary-foreground/18 transition-all space-y-1.5 shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary-foreground/85 flex items-center gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary-foreground/85 flex items-center gap-1.5">
                 <Building2 className="w-3.5 h-3.5 text-primary-foreground" />
                 Platform Tenant
               </span>
@@ -123,15 +123,15 @@ export const AccountCredentialsCard: React.FC<AccountCredentialsCardProps> = ({ 
                 v1.0.0
               </span>
             </div>
-            <p className="font-black text-primary-foreground text-sm">Doctor Tracker</p>
-            <p className="text-[11px] text-primary-foreground/75">Clinical specialist directory & in-patient portal</p>
+            <p className="font-semibold text-primary-foreground text-sm">Doctor Tracker</p>
+            <p className="text-xs text-primary-foreground/75 font-medium">Clinical specialist directory & in-patient portal</p>
           </div>
         </div>
 
         {/* bottom verification footer */}
-        <div className="relative z-10 pt-2 flex items-center justify-between text-[11px] text-primary-foreground/80 border-t border-primary-foreground/20">
-          <span className="font-mono text-[10px]">AUTH_MODE: <strong>TOKEN_BEARER_STRICT</strong></span>
-          <span className="text-primary-foreground font-semibold flex items-center gap-1 text-[11px]">
+        <div className="relative z-10 pt-2 flex items-center justify-between text-xs text-primary-foreground/80 border-t border-primary-foreground/20">
+          <span className="font-mono text-xs">AUTH_MODE: <strong>TOKEN_BEARER_STRICT</strong></span>
+          <span className="text-primary-foreground font-semibold flex items-center gap-1 text-xs">
             <CheckCircle2 className="w-3.5 h-3.5 text-accent" />
             Synchronized with Database
           </span>

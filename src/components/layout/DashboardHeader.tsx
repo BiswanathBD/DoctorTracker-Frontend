@@ -60,7 +60,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       duration={0.35}
       className="w-full"
     >
-      <header className="sticky top-3 z-10 w-full rounded-3xl bg-card border border-border/80 shadow-xl shadow-black/5 dark:shadow-primary/5 py-2.5 px-3 flex items-center justify-between transition-all overflow-hidden">
+      <header className="sticky top-3 z-10 w-full rounded-3xl bg-card shadow-xl shadow-black/5 dark:shadow-primary/5 py-2.5 px-3 flex items-center justify-between transition-all overflow-hidden">
         {/* stylish angled gradient background covering right portion with \ slant cut */}
         <div
           style={{
@@ -166,14 +166,14 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
             <div className="hidden sm:flex flex-col items-start text-left min-w-0">
               <span
-                className={`text-xs font-black leading-tight truncate max-w-28 ${
+                className={`text-sm font-semibold truncate max-w-28 ${
                   isProfileOpen ? 'text-card-foreground' : 'text-primary-foreground'
                 }`}
               >
                 {admin?.name || 'Super Admin'}
               </span>
               <span
-                className={`text-[10px] leading-tight truncate max-w-28 font-medium mt-0.5 ${
+                className={`text-xs truncate max-w-28 font-medium mt-0.5 ${
                   isProfileOpen ? 'text-muted-foreground' : 'text-primary-foreground/80'
                 }`}
               >

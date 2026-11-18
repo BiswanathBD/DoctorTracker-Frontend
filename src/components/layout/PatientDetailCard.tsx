@@ -99,10 +99,10 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
             <Users className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-xs font-black uppercase tracking-wider text-foreground">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-foreground">
               Patient Dossier
             </h2>
-            <p className="text-[11px] text-muted-foreground">Clinical and specialist care record</p>
+            <p className="text-xs text-muted-foreground font-medium">Clinical and specialist care record</p>
           </div>
         </div>
 
@@ -174,7 +174,7 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
                 </span>
               </div>
 
-              <h3 className="font-black text-white text-xl tracking-tight truncate drop-shadow-xs">
+              <h3 className="font-semibold text-white text-xl tracking-tight truncate drop-shadow-xs">
                 {patient.name}
               </h3>
 
@@ -275,13 +275,13 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
                     </div>
                   )}
                   <div className="min-w-0">
-                    <p className="text-xs font-black text-foreground truncate">
+                    <p className="text-sm font-semibold text-foreground truncate">
                       {attendingDoctor.name}
                     </p>
-                    <p className="text-[11px] text-secondary font-semibold truncate">
+                    <p className="text-xs text-secondary font-medium truncate">
                       {attendingDoctor.specialization}
                     </p>
-                    <p className="text-[10px] text-muted-foreground flex items-center gap-1 truncate mt-0.5">
+                    <p className="text-xs text-muted-foreground flex items-center gap-1 truncate mt-0.5">
                       <Building2 className="w-3 h-3 shrink-0" />
                       {attendingDoctor.hospital}
                     </p>
