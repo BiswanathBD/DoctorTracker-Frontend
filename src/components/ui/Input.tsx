@@ -61,8 +61,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               } ${
                 !disabled
                   ? isSecondary
-                    ? 'group-focus-within:bg-secondary group-focus-within:text-secondary-foreground group-focus-within:border-secondary [&_svg]:group-focus-within:!text-secondary-foreground'
-                    : 'group-focus-within:bg-primary group-focus-within:text-primary-foreground group-focus-within:border-primary [&_svg]:group-focus-within:!text-primary-foreground'
+                    ? 'group-focus-within:bg-secondary group-focus-within:text-secondary-foreground group-focus-within:border-secondary [&_svg]:group-focus-within:text-secondary-foreground!'
+                    : 'group-focus-within:bg-primary group-focus-within:text-primary-foreground group-focus-within:border-primary [&_svg]:group-focus-within:text-primary-foreground!'
                   : ''
               }`}
             >
