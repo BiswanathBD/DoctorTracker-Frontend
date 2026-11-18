@@ -96,14 +96,15 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
           </div>
         </div>
 
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="sm"
           onClick={onClose}
-          className="w-8 h-8 rounded-full bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground flex items-center justify-center shadow-xs transition-all cursor-pointer"
           title="Close details"
         >
           <X className="w-4 h-4" />
-        </button>
+        </Button>
       </div>
 
       {/* scrollable body */}
@@ -291,11 +292,11 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
             <div className="p-5 rounded-2xl bg-muted/20 border border-dashed border-border text-center space-y-2">
               <p className="text-xs text-muted-foreground">No attending specialist assigned yet</p>
               <Button
+                type="button"
                 size="sm"
                 variant="outline"
                 onClick={() => onEdit(patient)}
-                leftIcon={<Sparkles className="w-3.5 h-3.5 text-primary" />}
-                className="rounded-full text-xs font-bold cursor-pointer"
+                leftIcon={<Sparkles className="w-3.5 h-3.5 text-secondary" />}
               >
                 Assign Specialist
               </Button>
@@ -323,9 +324,9 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
             {patient.email ? (
               <a
                 href={`mailto:${patient.email}`}
-                className="p-3 rounded-2xl bg-card border border-border/70 hover:border-primary/50 hover:bg-primary/5 flex items-center gap-3 transition-colors group cursor-pointer"
+                className="p-3 rounded-2xl bg-card border border-border/70 hover:border-secondary/50 hover:bg-secondary/5 flex items-center gap-3 transition-colors group cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-8 h-8 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                   <Mail className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -349,22 +350,22 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
       </div>
 
       {/* action footer */}
-      <div className="p-5 border-t border-border/70 flex items-center gap-3 bg-card/60 backdrop-blur-md shrink-0">
+      <div className="p-4 border-t border-border/70 flex items-center justify-end gap-2.5 bg-card/60 backdrop-blur-md shrink-0">
         <Button
+          type="button"
           variant="outline"
-          size="md"
+          size="sm"
           onClick={() => onEdit(patient)}
           leftIcon={<Edit2 className="w-3.5 h-3.5" />}
-          className="flex-1 rounded-full text-xs font-bold cursor-pointer"
         >
           Edit Record
         </Button>
         <Button
+          type="button"
           variant="destructive"
-          size="md"
+          size="sm"
           onClick={() => onDelete(patient)}
           leftIcon={<Trash2 className="w-3.5 h-3.5" />}
-          className="flex-1 rounded-full text-xs font-bold cursor-pointer"
         >
           Delete Record
         </Button>

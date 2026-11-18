@@ -132,6 +132,14 @@ export function useDoctorActions({
       setLoadingDoctorDetails(true);
       const fullDoc = await DoctorService.getDoctorById(doc._id);
       setSelectedDoctor(fullDoc);
+      // keep background doctor card count synchronized
+      if (typeof fullDoc.patientCount === 'number') {
+        setDoctors((prev) =>
+          prev.map((d) =>
+            d._id === fullDoc._id ? { ...d, patientCount: fullDoc.patientCount } : d
+          )
+        );
+      }
     } catch (err) {
       console.error('failed to fetch doctor details:', err);
     } finally {
@@ -293,6 +301,13 @@ export function useDoctorActions({
       // reload doctor details to reflect new patient
       const refreshedDoc = await DoctorService.getDoctorById(selectedDoctor._id);
       setSelectedDoctor(refreshedDoc);
+      if (typeof refreshedDoc.patientCount === 'number') {
+        setDoctors((prev) =>
+          prev.map((d) =>
+            d._id === refreshedDoc._id ? { ...d, patientCount: refreshedDoc.patientCount } : d
+          )
+        );
+      }
       refreshDoctors();
     } catch (err: unknown) {
       console.error('add patient error:', err);
@@ -349,6 +364,13 @@ export function useDoctorActions({
 
       const refreshedDoc = await DoctorService.getDoctorById(selectedDoctor._id);
       setSelectedDoctor(refreshedDoc);
+      if (typeof refreshedDoc.patientCount === 'number') {
+        setDoctors((prev) =>
+          prev.map((d) =>
+            d._id === refreshedDoc._id ? { ...d, patientCount: refreshedDoc.patientCount } : d
+          )
+        );
+      }
       refreshDoctors();
     } catch (err: unknown) {
       console.error('remove patient error:', err);

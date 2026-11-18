@@ -45,10 +45,12 @@ export const PatientDeleteModal: React.FC<PatientDeleteModalProps> = ({
             <div className="leading-relaxed">
               {warningText || (
                 <p>
-                  Deleting <strong>{patient?.name}</strong> will remove their admission history and disconnect them from Dr.{' '}
+                  Deleting <strong>{patient?.name}</strong> will permanently remove their clinical record and admission history from{' '}
                   {typeof patient?.doctorId === 'object' && patient?.doctorId !== null
-                    ? (patient.doctorId as { name: string }).name
-                    : 'Assigned'}
+                    ? (patient.doctorId as { name: string }).name.startsWith('Dr.')
+                      ? (patient.doctorId as { name: string }).name
+                      : `Dr. ${(patient.doctorId as { name: string }).name}`
+                    : 'their assigned specialist'}
                   . This action cannot be reversed.
                 </p>
               )}

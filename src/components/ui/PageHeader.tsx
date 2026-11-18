@@ -93,7 +93,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
           className="min-w-0 space-y-0.5"
         >
           <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-xl sm:text-2xl font-extrabold text-primary-hover tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
               {title}
             </h1>
             {badge && <div>{badge}</div>}

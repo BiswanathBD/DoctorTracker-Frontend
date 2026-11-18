@@ -16,6 +16,8 @@ import {
   Stethoscope,
   Camera,
   X,
+  Check,
+  Plus,
 } from 'lucide-react';
 
 export interface PatientFormModalProps {
@@ -64,11 +66,11 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
       onClose={onClose}
       title={modalTitle}
       description={modalDescription}
-      icon={<Users className="w-5 h-5" />}
+      icon={<Users className="w-5 h-5 text-secondary" />}
       maxWidth="xl"
     >
-      <form onSubmit={onSubmit} className="space-y-4">
-        {/* row 1: patient photo on left, name & age stacked on right */}
+      <form onSubmit={onSubmit} autoComplete="off" className="space-y-4">
+        {/* patient photo on left, name & age stacked on right */}
         <div className="flex flex-col sm:flex-row gap-3.5 items-stretch">
           {/* profile avatar upload */}
           <MotionWrapper
@@ -87,11 +89,10 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
               />
               <div
                 onClick={() => !submitting && avatarInputRef.current?.click()}
-                className={`relative w-full h-full min-h-[140px] flex-1 rounded-3xl bg-muted/40 border border-border overflow-hidden flex flex-col items-center justify-center transition-all duration-200 group ${
-                  submitting
-                    ? 'opacity-60 cursor-not-allowed pointer-events-none'
-                    : 'hover:bg-muted/70 hover:border-secondary cursor-pointer'
-                }`}
+                className={`relative w-full h-full min-h-35 flex-1 rounded-3xl bg-muted/40 border border-border overflow-hidden flex flex-col items-center justify-center transition-all duration-200 group ${submitting
+                  ? 'opacity-60 cursor-not-allowed pointer-events-none'
+                  : 'hover:bg-muted/70 hover:border-secondary cursor-pointer'
+                  }`}
               >
                 {avatarPreviewUrl ? (
                   <Image
@@ -122,21 +123,16 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
 
               {/* remove photo trigger */}
               {avatarPreviewUrl && !submitting && (
-                <div className="absolute -top-1.5 -right-1.5 z-10">
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onAvatarChange(null);
-                      if (avatarInputRef.current) avatarInputRef.current.value = '';
-                    }}
-                    title="Remove Photo"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
+                <button type='button' className="absolute -top-1.5 -right-1.5 z-10 w-6 aspect-square rounded-full bg-destructive flex items-center justify-center text-destructive-foreground cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAvatarChange(null);
+                    if (avatarInputRef.current) avatarInputRef.current.value = '';
+                  }}
+                  title="Remove Photo"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
               )}
             </div>
           </MotionWrapper>
@@ -148,6 +144,7 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
                 label="Patient Name"
                 placeholder="e.g. Mahfuzur Rahman"
                 required
+                variant="secondary"
                 disabled={submitting}
                 value={patientForm.name}
                 onChange={(e) => setPatientForm({ ...patientForm, name: e.target.value })}
@@ -162,6 +159,7 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
                   type="number"
                   placeholder="34"
                   required
+                  variant="secondary"
                   disabled={submitting}
                   value={patientForm.age}
                   onChange={(e) => setPatientForm({ ...patientForm, age: e.target.value })}
@@ -172,6 +170,7 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground">Gender</label>
                   <Select
+                    variant="secondary"
                     value={patientForm.gender}
                     onChange={(val) => setPatientForm({ ...patientForm, gender: val || 'Male' })}
                     options={[
@@ -195,10 +194,11 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
               label="Diagnosis / Condition"
               placeholder="e.g. Acute Bronchitis, Diabetes"
               required
+              variant="secondary"
               disabled={submitting}
               value={patientForm.condition}
               onChange={(e) => setPatientForm({ ...patientForm, condition: e.target.value })}
-              leftIcon={<HeartPulse className="w-4 h-4 text-secondary" />}
+              leftIcon={<HeartPulse className="w-4 h-4" />}
             />
           </MotionWrapper>
 
@@ -207,10 +207,11 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
               label="Contact Phone"
               placeholder="+880 1712-345678"
               required
+              variant="secondary"
               disabled={submitting}
               value={patientForm.phone}
               onChange={(e) => setPatientForm({ ...patientForm, phone: e.target.value })}
-              leftIcon={<Phone className="w-4 h-4 text-secondary" />}
+              leftIcon={<Phone className="w-4 h-4" />}
             />
           </MotionWrapper>
         </div>
@@ -225,16 +226,17 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
               </span>
             </label>
             <Select
+              variant="secondary"
               value={patientForm.doctorId}
               onChange={(val) => setPatientForm({ ...patientForm, doctorId: val })}
               options={doctorsList.map((doc) => ({
                 label: `${doc.name} — ${doc.specialization} (${doc.hospital})`,
                 value: doc._id,
-                icon: <Stethoscope className="w-3.5 h-3.5 text-primary" />,
+                icon: <Stethoscope className="w-3.5 h-3.5 text-secondary" />,
               }))}
               disabled={submitting || disableDoctorSelect}
               placeholder="Choose attending doctor..."
-              icon={<Stethoscope className="w-3.5 h-3.5 text-primary" />}
+              icon={<Stethoscope className="w-3.5 h-3.5 text-secondary" />}
             />
           </div>
         </MotionWrapper>
@@ -246,10 +248,11 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
               label="Email Address (Optional)"
               type="email"
               placeholder="patient@example.com"
+              variant="secondary"
               disabled={submitting}
               value={patientForm.email}
               onChange={(e) => setPatientForm({ ...patientForm, email: e.target.value })}
-              leftIcon={<Mail className="w-4 h-4 text-primary" />}
+              leftIcon={<Mail className="w-4 h-4" />}
             />
           </MotionWrapper>
 
@@ -258,10 +261,11 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
               label="Admission Date"
               type="date"
               required
+              variant="secondary"
               disabled={submitting}
               value={patientForm.admissionDate}
               onChange={(e) => setPatientForm({ ...patientForm, admissionDate: e.target.value })}
-              leftIcon={<Calendar className="w-4 h-4 text-muted-foreground" />}
+              leftIcon={<Calendar className="w-4 h-4" />}
             />
           </MotionWrapper>
         </div>
@@ -271,7 +275,7 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
           <div className="pt-3 border-t border-border flex items-center justify-end gap-2.5">
             <Button
               type="button"
-              variant="outline"
+              variant="destructive"
               disabled={submitting}
               onClick={onClose}
             >
@@ -281,6 +285,7 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
               type="submit"
               variant="secondary"
               loading={submitting}
+              leftIcon={editingPatient ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
             >
               {editingPatient ? 'Save Changes' : 'Register Patient'}
             </Button>

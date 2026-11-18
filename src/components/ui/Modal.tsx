@@ -72,7 +72,7 @@ export const Modal: React.FC<ModalProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-foreground/40 backdrop-blur-md"
+            className="fixed inset-0 bg-black/60 backdrop-blur-md"
           />
 
           {/* modal card */}
@@ -81,14 +81,8 @@ export const Modal: React.FC<ModalProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 16 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className={`relative z-10 w-full ${maxWidthClass} rounded-3xl bg-card text-card-foreground border-0 shadow-2xl overflow-hidden p-6 sm:p-7 space-y-5`}
+            className={`relative z-10 w-full ${maxWidthClass} rounded-3xl bg-card text-card-foreground border border-border/80 shadow-2xl p-6 sm:p-7 space-y-5`}
           >
-            {/* background decorative elements */}
-            <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/15 blur-3xl" />
-            <div className="pointer-events-none absolute -left-16 -bottom-16 h-48 w-48 rounded-full bg-secondary/15 blur-3xl" />
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(#808080_1px,transparent_1px)] opacity-[0.07] bg-size-[18px_18px]" />
-            <div className="pointer-events-none absolute -bottom-20 -right-20 h-44 w-44 rounded-full border border-secondary/10" />
-
             <Motion animationType='button'
                className='absolute top-5 right-5 w-8 h-8 z-20 rounded-full bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground flex items-center justify-center shadow-md transition-all cursor-pointer'>
               <button

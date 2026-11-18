@@ -88,22 +88,22 @@
   --background: #090d16;
   --foreground: #f8fafc;
 
-  --card: #111827;
+  --card: #14191f;
   --card-foreground: #f8fafc;
 
-  --primary: #0284c7;
+  --primary: #198dc7;
   --primary-foreground: #ffffff;
-  --primary-hover: #0369a1;
+  --primary-hover: #1474a5;
 
-  --secondary: #0d9488;
+  --secondary: #1ac3b5;
   --secondary-foreground: #ffffff;
-  --secondary-hover: #0f766e;
+  --secondary-hover: #159f94;
 
-  --muted: #1e293b;
+  --muted: #29323f;
   --muted-foreground: #94a3b8;
 
   --accent: #38bdf8;
-  --accent-foreground: #082f49;
+  --accent-foreground: #0b2131;
 
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
@@ -114,7 +114,7 @@
   --warning: #f59e0b;
   --warning-foreground: #ffffff;
 
-  --border: #1f293d;
+  --border: #1e242d;
   --input: #1f293d;
   --ring: #0284c7;
 
@@ -155,6 +155,7 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;

@@ -52,11 +52,11 @@ export const DoctorFormModal: React.FC<DoctorFormModalProps> = ({
           ? 'Update doctor credentials and affiliation'
           : 'Register a new doctor to the directory'
       }
-      icon={<Stethoscope className="w-5 h-5" />}
+      icon={<Stethoscope className="w-5 h-5 text-primary" />}
       maxWidth="xl"
     >
-      <form onSubmit={onSubmit} className="space-y-4">
-        {/* row 1: profile photo on left, name & specialization stacked on right */}
+      <form onSubmit={onSubmit} autoComplete="off" className="space-y-4">
+        {/* profile photo on left, name & specialization stacked on right */}
         <div className="flex flex-col sm:flex-row gap-3.5 items-stretch">
           {/* profile avatar upload */}
           <MotionWrapper
@@ -75,11 +75,10 @@ export const DoctorFormModal: React.FC<DoctorFormModalProps> = ({
               />
               <div
                 onClick={() => !submitting && avatarInputRef.current?.click()}
-                className={`relative w-full h-full min-h-35 flex-1 rounded-3xl bg-muted/40 border border-border overflow-hidden flex flex-col items-center justify-center transition-all duration-200 group ${
-                  submitting
-                    ? 'opacity-60 cursor-not-allowed pointer-events-none'
-                    : 'hover:bg-muted/70 hover:border-primary cursor-pointer'
-                }`}
+                className={`relative w-full h-full min-h-35 flex-1 rounded-3xl bg-muted/40 border border-border overflow-hidden flex flex-col items-center justify-center transition-all duration-200 group ${submitting
+                  ? 'opacity-60 cursor-not-allowed pointer-events-none'
+                  : 'hover:bg-muted/70 hover:border-primary cursor-pointer'
+                  }`}
               >
                 {avatarPreviewUrl ? (
                   <Image
@@ -110,21 +109,18 @@ export const DoctorFormModal: React.FC<DoctorFormModalProps> = ({
 
               {/* remove photo trigger */}
               {avatarPreviewUrl && !submitting && (
-                <div className="absolute -top-1.5 -right-1.5 z-10">
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onAvatarChange(null);
-                      if (avatarInputRef.current) avatarInputRef.current.value = '';
-                    }}
-                    title="Remove Photo"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
+                <button
+                  type="button"
+                  className="absolute -top-1.5 -right-1.5 z-10 w-6 aspect-square rounded-full bg-destructive flex items-center justify-center text-destructive-foreground cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAvatarChange(null);
+                    if (avatarInputRef.current) avatarInputRef.current.value = '';
+                  }}
+                  title="Remove Photo"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
               )}
             </div>
           </MotionWrapper>
@@ -208,7 +204,7 @@ export const DoctorFormModal: React.FC<DoctorFormModalProps> = ({
           <MotionWrapper animationType="fadeUp" delay={0.5} duration={0.3}>
             <Button
               type="button"
-              variant="outline"
+              variant="destructive"
               disabled={submitting}
               onClick={onClose}
             >

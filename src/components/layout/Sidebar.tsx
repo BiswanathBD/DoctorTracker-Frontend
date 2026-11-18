@@ -30,21 +30,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, admin }) => {
   // navigation items
   const primaryNavItems = [
     {
-      title: 'Dashboard Home',
+      title: 'Dashboard',
       subtitle: 'Overview & Hospital KPIs',
       href: '/dashboard',
       icon: <LayoutDashboard className="w-4 h-4" />,
       active: pathname === '/dashboard',
     },
     {
-      title: 'Doctor Management',
+      title: 'Doctors',
       subtitle: 'Specialists & Assignments',
       href: '/doctors',
       icon: <Stethoscope className="w-4 h-4" />,
       active: pathname.startsWith('/doctors'),
     },
     {
-      title: 'Patient Management',
+      title: 'Patients',
       subtitle: 'Admissions & Clinical Records',
       href: '/patients',
       icon: <Users className="w-4 h-4" />,
@@ -62,7 +62,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, admin }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-40 bg-foreground/50 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
           />
         )}
       </AnimatePresence>

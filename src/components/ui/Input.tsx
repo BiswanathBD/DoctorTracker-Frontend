@@ -9,6 +9,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   capsule?: boolean;
+  variant?: 'primary' | 'secondary';
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -20,6 +21,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       leftIcon,
       rightIcon,
       capsule = true,
+      variant = 'primary',
       className = '',
       id,
       ...props
@@ -28,6 +30,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ) => {
     const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
     const { disabled } = props;
+
+    const isSecondary = variant === 'secondary';
 
     // capsule input layout matching button design
     if (capsule && leftIcon) {
@@ -45,14 +49,20 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 ? 'opacity-60 cursor-not-allowed bg-muted/20 border-border'
                 : error
                 ? 'border-destructive'
+                : isSecondary
+                ? 'border-border focus-within:border-secondary'
                 : 'border-border focus-within:border-primary'
             }`}
           >
             {/* left icon capsule section */}
             <div
-              className={`flex items-center justify-center px-4 bg-muted text-primary shrink-0 transition-colors border-r border-border ${
+              className={`flex items-center justify-center px-4 bg-muted shrink-0 transition-colors border-r border-border [&_svg]:transition-colors ${
+                isSecondary ? 'text-secondary' : 'text-primary'
+              } ${
                 !disabled
-                  ? 'group-focus-within:bg-primary group-focus-within:text-primary-foreground group-focus-within:border-primary'
+                  ? isSecondary
+                    ? 'group-focus-within:bg-secondary group-focus-within:text-secondary-foreground group-focus-within:border-secondary [&_svg]:group-focus-within:!text-secondary-foreground'
+                    : 'group-focus-within:bg-primary group-focus-within:text-primary-foreground group-focus-within:border-primary [&_svg]:group-focus-within:!text-primary-foreground'
                   : ''
               }`}
             >
@@ -64,6 +74,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               <input
                 id={inputId}
                 ref={ref}
+                autoComplete={props.autoComplete || 'off'}
                 className={`w-full text-sm font-medium bg-transparent border-0 outline-none placeholder:text-muted-foreground/50 text-foreground disabled:cursor-not-allowed ${className}`}
                 {...props}
               />
@@ -94,16 +105,24 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
 
         <div
-          className={`relative flex items-center rounded-full overflow-hidden border transition-all ${
+          className={`group relative flex items-center rounded-full overflow-hidden border transition-all ${
             disabled
               ? 'opacity-60 cursor-not-allowed bg-muted/20 border-border'
               : error
               ? 'border-destructive'
+              : isSecondary
+              ? 'border-border focus-within:border-secondary'
               : 'border-border focus-within:border-primary'
           }`}
         >
           {leftIcon && (
-            <div className="absolute left-3.5 flex items-center justify-center text-muted-foreground pointer-events-none">
+            <div
+              className={`absolute left-3.5 flex items-center justify-center pointer-events-none transition-colors ${
+                isSecondary
+                  ? 'text-muted-foreground group-focus-within:text-secondary'
+                  : 'text-muted-foreground group-focus-within:text-primary'
+              }`}
+            >
               {leftIcon}
             </div>
           )}
@@ -111,6 +130,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <input
             id={inputId}
             ref={ref}
+            autoComplete={props.autoComplete || 'off'}
             className={`w-full text-sm rounded-full border-0 bg-card text-foreground placeholder:text-muted-foreground/50 outline-none transition-all disabled:cursor-not-allowed ${
               leftIcon ? 'pl-10' : 'pl-4'
             } ${rightIcon ? 'pr-10' : 'pr-4'} py-2.5 ${className}`}

@@ -63,7 +63,7 @@ export const SideSheet: React.FC<SideSheetProps> = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 bg-foreground/35"
+            className="fixed inset-0 bg-black/50 backdrop-blur-xs"
           />
 
           {/* slide-in container keeping floating sheet style */}

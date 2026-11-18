@@ -166,9 +166,9 @@ export const DoctorModals: React.FC<DoctorModalsProps> = ({
         patient={patientToRemove ? { name: patientToRemove.name, _id: patientToRemove.id } : null}
         onConfirm={onConfirmRemovePatient}
         loading={patientRemoveSubmitting}
-        title="Delete Patient Record"
-        description="Are you sure you want to permanently delete this patient record?"
-        confirmLabel="Delete Patient"
+        title="Remove Assigned Patient"
+        description="Are you sure you want to unassign this patient from the doctor?"
+        confirmLabel="Remove Patient"
         warningText={
           <p>
             Deleting <strong>{patientToRemove?.name}</strong> will permanently remove their record and admission history from{' '}
