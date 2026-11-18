@@ -59,9 +59,11 @@ export const DoctorFormModal: React.FC<DoctorFormModalProps> = ({
       icon={<Stethoscope className="w-5 h-5 text-primary" />}
       maxWidth="xl"
     >
-      <form onSubmit={onSubmit} autoComplete="off" className="space-y-4">
-        {/* profile photo on left, name & specialization stacked on right */}
-        <div className="flex flex-col sm:flex-row gap-3.5 items-stretch">
+      <form onSubmit={onSubmit} autoComplete="off" className="flex flex-col flex-1 min-h-0">
+        {/* scrollable center content */}
+        <div className="flex-1 overflow-y-auto no-scrollbar scrollbar-none p-6 space-y-4">
+          {/* profile photo on left, name & specialization stacked on right */}
+          <div className="flex flex-col sm:flex-row gap-3.5 items-stretch">
           {/* profile avatar upload */}
           <MotionWrapper
             animationType="scale"
@@ -215,31 +217,30 @@ export const DoctorFormModal: React.FC<DoctorFormModalProps> = ({
             leftIcon={<FileText className="w-4 h-4" />}
           />
         </MotionWrapper>
+      </div>
 
-        {/* modal footer */}
-        <div className="pt-3 border-t border-border flex items-center justify-end gap-2.5">
-          <MotionWrapper animationType="fadeUp" delay={0.5} duration={0.3}>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={submitting}
-              onClick={onClose}
-            >
-              Cancel
-            </Button>
-          </MotionWrapper>
-          <MotionWrapper animationType="fadeUp" delay={0.56} duration={0.3}>
-            <Button
-              type="submit"
-              variant="primary"
-              loading={submitting}
-              leftIcon={editingDoctor ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-            >
-              {editingDoctor ? 'Save Changes' : 'Register Doctor'}
-            </Button>
-          </MotionWrapper>
-        </div>
-      </form>
-    </Modal>
+      {/* fixed footer following Profile Drawer 1:1 */}
+      <div className="shrink-0 p-5 px-6 border-t border-border/80 bg-card/95 backdrop-blur-md flex items-center justify-end gap-2.5 z-10">
+        <Button
+          type="button"
+          variant="destructive"
+          size="sm"
+          disabled={submitting}
+          onClick={onClose}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          variant="primary"
+          size="sm"
+          loading={submitting}
+          leftIcon={editingDoctor ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+        >
+          {editingDoctor ? 'Save Changes' : 'Register Doctor'}
+        </Button>
+      </div>
+    </form>
+  </Modal>
   );
 };

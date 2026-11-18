@@ -275,6 +275,7 @@ export default function DashboardPage() {
     <div className="w-full space-y-8 pb-12">
       {/* header */}
       <PageHeader
+        size="md"
         icon={<UserRoundShield size={42} strokeWidth={1.2} />}
         title={`Welcome back, ${admin?.name || 'Super Admin'}!`}
         subtitle="Real-time clinical analytics, specialist patient assignments, and hospital telemetry."

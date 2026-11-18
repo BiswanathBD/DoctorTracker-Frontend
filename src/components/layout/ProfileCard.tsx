@@ -4,12 +4,11 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { AuthService, type AdminUser } from '@/server/auth.service';
-import { SideSheet, Badge, toast } from '@/components/ui';
+import { SideSheet, Badge, toast, PageHeader } from '@/components/ui';
 import {
   LogOut,
   ShieldCheck,
   Settings,
-  X,
   ChevronRight,
   Mail,
   Calendar,
@@ -51,29 +50,15 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
 
   return (
     <SideSheet isOpen={isOpen} onClose={onClose} width="lg" className="p-0">
-      {/* fixed header */}
-      <div className="shrink-0 px-6 py-4 border-b border-border/80 flex items-center justify-between bg-card/90">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-            <ShieldCheck className="w-4 h-4 text-primary" />
-          </div>
-          <div>
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-foreground">
-              Administrative Profile
-            </h2>
-            <p className="text-xs text-muted-foreground font-medium">System administrator dossier</p>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={onClose}
-          className="w-8 aspect-square flex items-center justify-center rounded-lg bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors duration-200 cursor-pointer"
-          title="Close profile drawer"
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
+      {/* fixed header using PageHeader size="sm" */}
+      <PageHeader
+        size="sm"
+        title="Administrative Profile"
+        subtitle="System administrator dossier"
+        icon={<ShieldCheck className="w-4 h-4 text-primary" />}
+        onClose={onClose}
+        className="shrink-0 px-6 py-4 border-b border-border/80 bg-card/90"
+      />
 
       {/* scrollable body */}
       <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-5">

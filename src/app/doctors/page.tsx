@@ -28,10 +28,10 @@ function DoctorsContent() {
         {/* page header with quick create action */}
         <MotionWrapper delay={0.05} direction="down">
           <PageHeader
+            size="md"
             title="Doctors Directory"
             subtitle="Manage and oversee active hospital specialists, assigned clinics, and patient capacities."
             icon={<Stethoscope size={42} strokeWidth={1.2} />}
-            badge="Medical Faculty"
             actions={
               <Button
                 onClick={doctorActions.handleOpenCreateModal}

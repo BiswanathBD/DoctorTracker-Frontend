@@ -9,4 +9,6 @@ export * from './ToastCard';
 export * from './PageHeader';
 export * from './Select';
 export * from './Calendar';
+export * from './dialog';
+export * from './drawer';
 export * from '../common/Pagination';

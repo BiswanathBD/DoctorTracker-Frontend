@@ -32,9 +32,11 @@ export const DoctorDetailModal: React.FC<DoctorDetailModalProps> = ({
       description={`Specialist profile and corresponding patient list (${doctor.patientCount || 0} assigned)`}
       maxWidth="lg"
     >
-      <div className="space-y-6">
-        {/* doctor summary card */}
-        <div className="p-4 rounded-2xl bg-muted/40 border border-border grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+      <div className="flex flex-col flex-1 min-h-0">
+        {/* scrollable center content */}
+        <div className="flex-1 overflow-y-auto no-scrollbar scrollbar-none p-6 space-y-5">
+          {/* doctor summary card */}
+          <div className="p-4 rounded-2xl bg-muted/40 border border-border grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
           <div>
             <p className="text-muted-foreground font-semibold">Specialization</p>
             <Badge variant="primary" className="mt-1">
@@ -131,13 +133,15 @@ export const DoctorDetailModal: React.FC<DoctorDetailModalProps> = ({
             </div>
           )}
         </div>
-
-        <div className="pt-3 border-t border-border flex justify-end">
-          <Button variant="outline" size="sm" onClick={onClose}>
-            Close
-          </Button>
-        </div>
       </div>
+
+      {/* fixed footer following Profile Drawer 1:1 */}
+      <div className="shrink-0 p-5 px-6 border-t border-border/80 bg-card/95 backdrop-blur-md flex items-center justify-end z-10">
+        <Button variant="destructive" size="sm" onClick={onClose}>
+          Close
+        </Button>
+      </div>
+    </div>
     </Modal>
   );
 };

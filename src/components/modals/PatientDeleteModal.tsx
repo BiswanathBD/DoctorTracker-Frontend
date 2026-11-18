@@ -38,47 +38,49 @@ export const PatientDeleteModal: React.FC<PatientDeleteModalProps> = ({
       icon={<Trash2 className="w-5 h-5 text-destructive" />}
       maxWidth="sm"
     >
-      <div className="space-y-4">
-        <MotionWrapper animationType="scale" delay={0.1} duration={0.25}>
-          <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/20 flex items-start gap-3 text-xs text-destructive">
-            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-            <div className="leading-relaxed">
-              {warningText || (
-                <p>
-                  Deleting <strong>{patient?.name}</strong> will permanently remove their clinical record and admission history from{' '}
-                  {typeof patient?.doctorId === 'object' && patient?.doctorId !== null
-                    ? (patient.doctorId as { name: string }).name.startsWith('Dr.')
-                      ? (patient.doctorId as { name: string }).name
-                      : `Dr. ${(patient.doctorId as { name: string }).name}`
-                    : 'their assigned specialist'}
-                  . This action cannot be reversed.
-                </p>
-              )}
+      <div className="flex flex-col flex-1 min-h-0">
+        {/* scrollable center content */}
+        <div className="flex-1 overflow-y-auto no-scrollbar scrollbar-none p-6 space-y-4">
+          <MotionWrapper animationType="scale" delay={0.1} duration={0.25}>
+            <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/20 flex items-start gap-3 text-xs text-destructive">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+              <div className="leading-relaxed">
+                {warningText || (
+                  <p>
+                    Deleting <strong>{patient?.name}</strong> will permanently remove their clinical record and admission history from{' '}
+                    {typeof patient?.doctorId === 'object' && patient?.doctorId !== null
+                      ? (patient.doctorId as { name: string }).name.startsWith('Dr.')
+                        ? (patient.doctorId as { name: string }).name
+                        : `Dr. ${(patient.doctorId as { name: string }).name}`
+                      : 'their assigned specialist'}
+                    . This action cannot be reversed.
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
-        </MotionWrapper>
+          </MotionWrapper>
+        </div>
 
-        <MotionWrapper animationType="fadeUp" delay={0.15} duration={0.25}>
-          <div className="flex items-center justify-end gap-2.5 pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onClose}
-              disabled={loading}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              loading={loading}
-              onClick={onConfirm}
-              leftIcon={<Trash2 className="w-3.5 h-3.5" />}
-            >
-              {confirmLabel}
-            </Button>
-          </div>
-        </MotionWrapper>
+        {/* fixed footer following Profile Drawer 1:1 */}
+        <div className="shrink-0 p-5 px-6 border-t border-border/80 bg-card/95 backdrop-blur-md flex items-center justify-end gap-2.5 z-10">
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={onClose}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            loading={loading}
+            onClick={onConfirm}
+            leftIcon={<Trash2 className="w-3.5 h-3.5" />}
+          >
+            {confirmLabel}
+          </Button>
+        </div>
       </div>
     </Modal>
   );

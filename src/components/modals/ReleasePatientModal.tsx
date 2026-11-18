@@ -44,9 +44,11 @@ const ReleaseForm: React.FC<ReleaseFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {/* compact, perfectly balanced 2-column patient dossier */}
-      <MotionWrapper animationType="scale" delay={0.05} duration={0.25}>
+    <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+      {/* scrollable center content */}
+      <div className="flex-1 overflow-y-auto no-scrollbar scrollbar-none p-6 space-y-4">
+        {/* compact, perfectly balanced 2-column patient dossier */}
+        <MotionWrapper animationType="scale" delay={0.05} duration={0.25}>
         <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/80 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           {/* left column: patient profile */}
           <div className="space-y-1.5 min-w-0">
@@ -152,33 +154,30 @@ const ReleaseForm: React.FC<ReleaseFormProps> = ({
           </p>
         </div>
       </div>
+    </div>
 
-      {/* clean, balanced action footer */}
-      <div className="pt-3 border-t border-border flex items-center justify-end gap-2.5">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          capsule={false}
-          onClick={onClose}
-          disabled={loading}
-          className="px-4"
-        >
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          variant="secondary"
-          size="sm"
-          capsule={false}
-          disabled={loading || !releaseDate}
-          leftIcon={<UserCheck className="w-3.5 h-3.5" />}
-          className="px-4"
-        >
-          {loading ? 'Discharging...' : 'Confirm Release'}
-        </Button>
-      </div>
-    </form>
+    {/* fixed footer following Profile Drawer 1:1 */}
+    <div className="shrink-0 p-5 px-6 border-t border-border/80 bg-card/95 backdrop-blur-md flex items-center justify-end gap-2.5 z-10">
+      <Button
+        type="button"
+        variant="destructive"
+        size="sm"
+        onClick={onClose}
+        disabled={loading}
+      >
+        Cancel
+      </Button>
+      <Button
+        type="submit"
+        variant="secondary"
+        size="sm"
+        disabled={loading || !releaseDate}
+        leftIcon={<UserCheck className="w-3.5 h-3.5" />}
+      >
+        {loading ? 'Discharging...' : 'Confirm Release'}
+      </Button>
+    </div>
+  </form>
   );
 };
 

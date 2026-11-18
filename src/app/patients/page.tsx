@@ -28,6 +28,7 @@ function PatientsContent() {
         {/* page header with quick create action */}
         <MotionWrapper delay={0.05} direction="down">
           <PageHeader
+            size="md"
             icon={<Users size={42} strokeWidth={1.2} />}
             title="Patient Directory"
             subtitle="Track clinical admissions, monitor medical conditions, and assign specialist doctors."

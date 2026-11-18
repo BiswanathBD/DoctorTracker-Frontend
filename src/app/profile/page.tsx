@@ -31,6 +31,7 @@ export default function ProfilePage() {
     <div className="w-full max-w-6xl space-y-6 mx-auto pb-10">
       {/* page header */}
       <PageHeader
+        size="md"
         icon={<Shield size={42} strokeWidth={1.2} />}
         title="Admin Profile & Settings"
         subtitle="Manage administrative identity, authentication parameters, Cloudinary media storage, and infrastructure security."

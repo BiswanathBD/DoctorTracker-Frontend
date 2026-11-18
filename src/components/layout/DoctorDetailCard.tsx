@@ -3,7 +3,7 @@
 import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import { DoctorService, type Doctor, type DoctorPatient } from '@/server/doctor.service';
-import { Button, SideSheet, toast } from '@/components/ui';
+import { Button, SideSheet, toast, PageHeader } from '@/components/ui';
 import { MotionWrapper } from '@/components/common/MotionWrapper';
 import {
   Stethoscope,
@@ -14,7 +14,6 @@ import {
   Users,
   UserPlus,
   Trash2,
-  X,
   Edit2,
   Camera,
   ShieldCheck,
@@ -82,33 +81,19 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
   };
 
   return (
-    <SideSheet isOpen={isOpen} onClose={onClose} width="xl">
-      {/* drawer header */}
-      <div className="p-5 pb-3 border-b border-border/70 flex items-center justify-between shrink-0 bg-card/60 backdrop-blur-md relative z-10">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
-            <Stethoscope className="w-4 h-4" />
-          </div>
-          <div>
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-foreground">
-              Doctor Dossier
-            </h2>
-            <p className="text-xs text-muted-foreground font-medium">Comprehensive specialist profile</p>
-          </div>
-        </div>
+    <SideSheet isOpen={isOpen} onClose={onClose} width="xl" className="p-0">
+      {/* drawer header using PageHeader size="sm" */}
+      <PageHeader
+        size="sm"
+        title="Doctor Dossier"
+        subtitle="Comprehensive specialist profile"
+        icon={<Stethoscope className="w-4 h-4" />}
+        onClose={onClose}
+        className="shrink-0 px-6 py-4 border-b border-border/80 bg-card/90 relative z-10"
+      />
 
-        <button
-          type="button"
-          onClick={onClose}
-          title="Close details"
-          className='w-8 aspect-square flex items-center justify-center rounded-lg bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors duration-200 cursor-pointer'
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* body */}
-      <div className="flex-1 overflow-y-auto scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-5 space-y-5">
+      {/* scrollable body matching Profile Drawer 1:1 */}
+      <div className="flex-1 overflow-y-auto no-scrollbar scrollbar-none p-6 space-y-5">
         {/* full colored gradient top card */}
         <div className="relative rounded-3xl bg-linear-to-br from-primary to-primary-hover p-5 space-y-4 shadow-xl overflow-hidden">
           {/* background glows */}
@@ -382,8 +367,8 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
         </div>
       </div>
 
-      {/* footer */}
-      <div className="p-4 border-t border-border/70 flex items-center justify-end gap-2.5 bg-card/60 backdrop-blur-md shrink-0">
+      {/* fixed footer matching Profile Drawer 1:1 */}
+      <div className="shrink-0 p-5 px-6 border-t border-border/80 flex items-center justify-end gap-2.5 bg-card/90">
         <Button
           type="button"
           variant="outline"
