@@ -7,6 +7,8 @@ export interface AdminUser {
     url: string;
     key: string;
   };
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 }
 
 export interface LoginResponse {
