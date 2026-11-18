@@ -1,34 +1,9 @@
 import { AuthService } from './auth.service';
+import type { DashboardStats } from '@/types/dashboard.types';
+
+export type { DashboardStats };
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-
-export interface DashboardStats {
-  overview: {
-    totalDoctors: number;
-    totalPatients: number;
-    totalHospitals: number;
-    avgPatientsPerDoctor: number;
-  };
-  patientsPerDoctor: Array<{
-    _id: string;
-    name: string;
-    specialization: string;
-    hospital: string;
-    patientCount: number;
-  }>;
-  specializationStats: Array<{
-    specialization: string;
-    count: number;
-  }>;
-  conditionStats: Array<{
-    condition: string;
-    count: number;
-  }>;
-  timeline: {
-    patients: Array<{ date: string; patients: number }>;
-    doctors: Array<{ date: string; doctors: number }>;
-  };
-}
 
 export const DashboardService = {
   async getStats(): Promise<DashboardStats> {

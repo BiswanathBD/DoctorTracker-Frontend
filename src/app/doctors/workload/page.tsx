@@ -147,13 +147,13 @@ export default function DoctorWorkloadPage() {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-xs flex-shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">
                           #{idx + 1}
                         </div>
                         <div className="min-w-0">
                           <h3 className="font-bold text-foreground text-sm truncate">{doc.name}</h3>
                           <p className="text-xs text-muted-foreground truncate flex items-center gap-1.5 mt-0.5">
-                            <Building2 className="w-3 h-3 flex-shrink-0" />
+                            <Building2 className="w-3 h-3 shrink-0" />
                             {doc.hospital} &bull; {doc.specialization}
                           </p>
                         </div>
@@ -183,8 +183,8 @@ export default function DoctorWorkloadPage() {
                           style={{ width: `${Math.max(6, percentage)}%` }}
                           className={`h-full rounded-full transition-all duration-500 ${
                             isHeavy
-                              ? 'bg-gradient-to-r from-warning to-destructive'
-                              : 'bg-gradient-to-r from-primary to-secondary'
+                              ? 'bg-linear-to-r from-warning to-destructive'
+                              : 'bg-linear-to-r from-primary to-secondary'
                           }`}
                         />
                       </div>

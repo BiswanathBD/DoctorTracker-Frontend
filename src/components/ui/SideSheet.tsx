@@ -12,7 +12,7 @@ export interface SideSheetProps {
   className?: string;
 }
 
-const emptySubscribe = () => () => {};
+const emptySubscribe = () => () => { };
 const getClientSnapshot = () => true;
 const getServerSnapshot = () => false;
 
@@ -55,7 +55,7 @@ export const SideSheet: React.FC<SideSheetProps> = ({
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex justify-end pointer-events-auto">
+        <div className="fixed inset-0 z-100 flex justify-end pointer-events-auto">
           {/* modal backdrop: transparent dim without blur */}
           <motion.div
             initial={{ opacity: 0 }}

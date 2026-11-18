@@ -1,22 +1,9 @@
 import Cookies from 'js-cookie';
+import type { AdminUser, LoginResponse } from '@/types/auth.types';
+
+export type { AdminUser, LoginResponse };
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-
-export interface AdminUser {
-  id: string;
-  name: string;
-  email: string;
-  role: 'admin';
-  avatar?: {
-    url: string;
-    key: string;
-  };
-}
-
-export interface LoginResponse {
-  token: string;
-  admin: AdminUser;
-}
 
 // client-side auth service
 export const AuthService = {

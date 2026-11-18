@@ -8,9 +8,10 @@ import { DashboardService, type DashboardStats } from '@/server/dashboard.servic
 import { PatientService, type Patient } from '@/server/patient.service';
 import {
   HeartPulse,
-  RefreshCw,
   PlusCircle,
-  Calendar
+  Calendar,
+  Stethoscope,
+  Loader2,
 } from 'lucide-react';
 
 export default function PatientConditionsPage() {
@@ -33,9 +34,10 @@ export default function PatientConditionsPage() {
   }, []);
 
   const conditionStats = stats?.conditionStats || [];
-  const filteredPatients = selectedCondition === 'all'
-    ? patients
-    : patients.filter((p) => p.condition.toLowerCase() === selectedCondition.toLowerCase());
+  const filteredPatients =
+    selectedCondition === 'all'
+      ? patients
+      : patients.filter((p) => p.condition.toLowerCase() === selectedCondition.toLowerCase());
 
   return (
     <div className="w-full space-y-7">
@@ -49,9 +51,9 @@ export default function PatientConditionsPage() {
           <Link href="/patients?action=create">
             <Button
               variant="secondary"
-              size="sm"
+              size="md"
               leftIcon={<PlusCircle className="w-4 h-4" />}
-              className="cursor-pointer"
+              className="cursor-pointer rounded-full"
             >
               Admit Patient
             </Button>
@@ -59,7 +61,7 @@ export default function PatientConditionsPage() {
         }
       />
 
-      {/* condition cards grid */}
+      {/* condition analytics summary cards grid */}
       <MotionWrapper delay={0.1} direction="up">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
           <button
@@ -67,7 +69,7 @@ export default function PatientConditionsPage() {
             onClick={() => setSelectedCondition('all')}
             className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
               selectedCondition === 'all'
-                ? 'bg-secondary/15 border-secondary shadow-md'
+                ? 'bg-secondary/15 border-secondary shadow-md scale-[1.02]'
                 : 'bg-card border-border hover:border-secondary/50'
             }`}
           >
@@ -87,13 +89,19 @@ export default function PatientConditionsPage() {
               onClick={() => setSelectedCondition(item.condition)}
               className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
                 selectedCondition.toLowerCase() === item.condition.toLowerCase()
-                  ? 'bg-secondary/15 border-secondary shadow-md'
+                  ? 'bg-secondary/15 border-secondary shadow-md scale-[1.02]'
                   : 'bg-card border-border hover:border-secondary/50'
               }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-foreground truncate">{item.condition}</span>
-                <Badge variant={selectedCondition.toLowerCase() === item.condition.toLowerCase() ? 'secondary' : 'warning'}>
+                <Badge
+                  variant={
+                    selectedCondition.toLowerCase() === item.condition.toLowerCase()
+                      ? 'secondary'
+                      : 'warning'
+                  }
+                >
                   {item.count}
                 </Badge>
               </div>
@@ -106,7 +114,7 @@ export default function PatientConditionsPage() {
       {/* filtered patient list */}
       <MotionWrapper delay={0.2} direction="up">
         <Card className="p-6 space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
               <h2 className="font-bold text-base text-foreground flex items-center gap-2">
                 <HeartPulse className="w-4 h-4 text-secondary" />
@@ -123,7 +131,7 @@ export default function PatientConditionsPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setSelectedCondition('all')}
-                className="text-xs text-secondary"
+                className="text-xs text-secondary rounded-full"
               >
                 Clear filter
               </Button>
@@ -132,7 +140,7 @@ export default function PatientConditionsPage() {
 
           {loading ? (
             <div className="py-20 flex flex-col items-center justify-center space-y-3">
-              <RefreshCw className="w-8 h-8 text-secondary animate-spin" />
+              <Loader2 className="w-8 h-8 text-secondary animate-spin" />
               <p className="text-xs font-semibold text-muted-foreground">Loading condition records...</p>
             </div>
           ) : filteredPatients.length === 0 ? (
@@ -140,35 +148,55 @@ export default function PatientConditionsPage() {
               No patients found under condition &quot;{selectedCondition}&quot;.
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-              {filteredPatients.map((p) => (
-                <div
-                  key={p._id}
-                  className="p-4 rounded-2xl bg-muted/30 border border-border space-y-2.5 hover:border-secondary/40 transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <h3 className="font-bold text-foreground text-sm truncate">{p.name}</h3>
-                      <p className="text-[11px] text-muted-foreground">
-                        {p.age} yrs &bull; {p.gender}
-                      </p>
-                    </div>
-                    <Badge variant="warning" className="font-bold">
-                      {p.condition}
-                    </Badge>
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredPatients.map((p) => {
+                const docName =
+                  typeof p.doctorId === 'object' && p.doctorId !== null
+                    ? p.doctorId.name
+                    : 'Assigned';
+                const docHosp =
+                  typeof p.doctorId === 'object' && p.doctorId !== null
+                    ? p.doctorId.hospital
+                    : '';
 
-                  <div className="pt-2 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="truncate max-w-[140px]">
-                      Dr. {p.doctorId ? (typeof p.doctorId === 'object' ? p.doctorId.name : 'Assigned') : 'Unassigned'}
-                    </span>
-                    <span className="flex items-center gap-1 text-[11px]">
-                      <Calendar className="w-3 h-3 text-muted-foreground/70" />
-                      {new Date(p.admissionDate).toLocaleDateString()}
-                    </span>
+                return (
+                  <div
+                    key={p._id}
+                    className="p-4 rounded-2xl bg-card border border-border/80 space-y-3 hover:border-secondary/50 hover:shadow-md transition-all group"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-9 h-9 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center font-bold text-xs shrink-0">
+                          {p.name?.charAt(0) || 'P'}
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="font-bold text-foreground text-sm group-hover:text-secondary transition-colors truncate">
+                            {p.name}
+                          </h3>
+                          <p className="text-[11px] text-muted-foreground">
+                            {p.age} yrs • {p.gender}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge variant="warning" className="font-bold text-[10px] shrink-0">
+                        {p.condition}
+                      </Badge>
+                    </div>
+
+                    <div className="pt-2 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1 truncate max-w-[150px]">
+                        <Stethoscope className="w-3 h-3 text-primary shrink-0" />
+                        <span className="truncate">{docName}</span>
+                        {docHosp && <span className="opacity-60 text-[10px]">({docHosp})</span>}
+                      </span>
+                      <span className="flex items-center gap-1 text-[11px] shrink-0">
+                        <Calendar className="w-3 h-3 text-muted-foreground/70" />
+                        {new Date(p.admissionDate).toLocaleDateString()}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </Card>

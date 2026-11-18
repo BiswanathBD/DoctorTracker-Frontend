@@ -1,58 +1,9 @@
 import { AuthService } from './auth.service';
+import type { Patient, PatientQueryParams, PatientsResponse } from '@/types/patient.types';
+
+export type { Patient, PatientQueryParams, PatientsResponse };
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-
-export interface Patient {
-  _id: string;
-  name: string;
-  age: number;
-  gender: 'Male' | 'Female' | 'Other';
-  phone: string;
-  email?: string;
-  condition: string;
-  avatar?: {
-    url: string;
-    key: string;
-  };
-  doctorId: {
-    _id: string;
-    name: string;
-    specialization: string;
-    hospital: string;
-    email: string;
-    phone: string;
-    avatar?: {
-      url: string;
-      key: string;
-    };
-  } | string;
-  admissionDate: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface PatientQueryParams {
-  page?: number;
-  limit?: number;
-  searchTerm?: string;
-  condition?: string;
-  gender?: string;
-  doctorId?: string;
-  startDate?: string;
-  endDate?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface PatientsResponse {
-  meta: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-  data: Patient[];
-}
 
 export const PatientService = {
   // get all patients with query params
