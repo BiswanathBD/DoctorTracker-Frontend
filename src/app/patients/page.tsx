@@ -13,6 +13,7 @@ import { PatientDetailCard } from '@/components/layout/PatientDetailCard';
 import { PatientSkeletonGrid } from '@/components/skeletons/PatientCardSkeleton';
 import { PatientFormModal } from '@/components/modals/PatientFormModal';
 import { PatientDeleteModal } from '@/components/modals/PatientDeleteModal';
+import { Pagination } from '@/components/common/Pagination';
 import { PatientService, type Patient } from '@/server/patient.service';
 import { DoctorService, type Doctor } from '@/server/doctor.service';
 import {
@@ -21,10 +22,6 @@ import {
   Search,
   Filter,
   X,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
   Edit2,
   Trash2,
   Stethoscope,
@@ -868,99 +865,15 @@ function PatientsContent() {
             </div>
 
             {/* modern pagination station */}
-            {total > 0 && (
-              <Card className="p-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-                <p className="text-center sm:text-left">
-                  Showing <strong className="text-foreground">{(page - 1) * limit + 1}</strong> to{' '}
-                  <strong className="text-foreground">{Math.min(page * limit, total)}</strong> of{' '}
-                  <strong className="text-foreground">{total}</strong> admitted patients
-                </p>
-
-                <div className="flex items-center gap-1.5 flex-wrap justify-center">
-                  {/* first page jump */}
-                  <button
-                    type="button"
-                    disabled={page <= 1}
-                    onClick={() => setPage(1)}
-                    className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-                    title="First page"
-                  >
-                    <ChevronsLeft className="w-3.5 h-3.5" />
-                  </button>
-
-                  {/* previous page */}
-                  <button
-                    type="button"
-                    disabled={page <= 1}
-                    onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-border/70 hover:border-secondary/50 text-foreground hover:bg-muted/50 disabled:opacity-40 disabled:cursor-not-allowed font-semibold text-xs transition-all cursor-pointer"
-                  >
-                    <ChevronLeft className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Prev</span>
-                  </button>
-
-                  {/* page number buttons */}
-                  <div className="flex items-center gap-1">
-                    {(() => {
-                      const pages: (number | string)[] = [];
-                      if (totalPages <= 5) {
-                        for (let i = 1; i <= totalPages; i++) pages.push(i);
-                      } else {
-                        if (page <= 3) {
-                          pages.push(1, 2, 3, '…', totalPages);
-                        } else if (page >= totalPages - 2) {
-                          pages.push(1, '…', totalPages - 2, totalPages - 1, totalPages);
-                        } else {
-                          pages.push(1, '…', page - 1, page, page + 1, '…', totalPages);
-                        }
-                      }
-
-                      return pages.map((p, idx) =>
-                        typeof p === 'number' ? (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => setPage(p)}
-                            className={`min-w-[32px] h-8 px-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${p === page
-                              ? 'bg-secondary text-secondary-foreground shadow-md shadow-secondary/25 scale-105'
-                              : 'bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground'
-                              }`}
-                          >
-                            {p}
-                          </button>
-                        ) : (
-                          <span key={idx} className="px-1 text-xs text-muted-foreground select-none">
-                            {p}
-                          </span>
-                        )
-                      );
-                    })()}
-                  </div>
-
-                  {/* next page */}
-                  <button
-                    type="button"
-                    disabled={page >= totalPages}
-                    onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-border/70 hover:border-secondary/50 text-foreground hover:bg-muted/50 disabled:opacity-40 disabled:cursor-not-allowed font-semibold text-xs transition-all cursor-pointer"
-                  >
-                    <span className="hidden sm:inline">Next</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
-
-                  {/* last page jump */}
-                  <button
-                    type="button"
-                    disabled={page >= totalPages}
-                    onClick={() => setPage(totalPages)}
-                    className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-                    title="Last page"
-                  >
-                    <ChevronsRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </Card>
-            )}
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              totalItems={total}
+              pageSize={limit}
+              itemName="admitted patients"
+              variant="secondary"
+            />
           </div>
         )}
       </div>

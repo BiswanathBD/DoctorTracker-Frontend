@@ -107,9 +107,9 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
       </div>
 
       {/* scrollable body */}
-      <div className="flex-1 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-5 space-y-5">
+      <div className="flex-1 overflow-y-auto scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-5 space-y-5">
         {/* hero patient card */}
-        <div className="relative rounded-3xl bg-gradient-to-br from-secondary/10 via-card to-primary/10 border border-border/80 p-5 space-y-4 shadow-sm overflow-hidden">
+        <div className="relative rounded-3xl bg-linear-to-br from-secondary/10 via-card to-primary/10 border border-border/80 p-5 space-y-4 shadow-sm overflow-hidden">
           {/* subtle decorative background circles */}
           <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-secondary/15 blur-2xl" />
           <div className="pointer-events-none absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-primary/15 blur-2xl" />
@@ -237,7 +237,7 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
           </div>
 
           {attendingDoctor ? (
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/5 via-card to-secondary/5 border border-primary/20 space-y-3">
+            <div className="p-4 rounded-2xl bg-linear-to-br from-primary/5 via-card to-secondary/5 border border-primary/20 space-y-3">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
                   {attendingDoctor.avatar?.url ? (
@@ -279,7 +279,7 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
                 {attendingDoctor.email && (
                   <a
                     href={`mailto:${attendingDoctor.email}`}
-                    className="flex items-center gap-1 hover:text-primary transition-colors truncate max-w-[170px]"
+                    className="flex items-center gap-1 hover:text-primary transition-colors truncate max-w-42.5"
                   >
                     <Mail className="w-3 h-3 text-primary" />
                     {attendingDoctor.email}
