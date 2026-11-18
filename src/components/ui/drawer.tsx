@@ -33,6 +33,13 @@ const DrawerOverlay = React.forwardRef<
 ));
 DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName;
 
+const directionClasses: Record<'bottom' | 'top' | 'left' | 'right', string> = {
+  right: 'fixed inset-y-0 right-0 z-100 flex flex-col pointer-events-auto outline-none',
+  left: 'fixed inset-y-0 left-0 z-100 flex flex-col pointer-events-auto outline-none',
+  top: 'fixed inset-x-0 top-0 z-100 flex h-auto flex-col rounded-b-[28px] border bg-card outline-none',
+  bottom: 'fixed inset-x-0 bottom-0 z-100 mt-24 flex h-auto flex-col rounded-t-[28px] border bg-card outline-none',
+};
+
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & {
@@ -44,9 +51,7 @@ const DrawerContent = React.forwardRef<
     <DrawerPrimitive.Content
       ref={ref}
       className={cn(
-        direction === 'right'
-          ? 'fixed inset-y-0 right-0 z-100 flex flex-col pointer-events-auto outline-none'
-          : 'fixed inset-x-0 bottom-0 z-100 mt-24 flex h-auto flex-col rounded-t-[28px] border bg-card outline-none',
+        directionClasses[direction] || directionClasses.bottom,
         className
       )}
       {...props}
