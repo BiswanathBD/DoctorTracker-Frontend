@@ -63,14 +63,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, admin }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm lg:hidden"
           />
         )}
       </AnimatePresence>
 
       {/* sidebar navigation */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-linear-to-b from-primary via-primary-hover to-secondary text-primary-foreground shadow-2xl shadow-primary/30 border border-primary-foreground/20 p-4 flex flex-col justify-between transition-transform duration-300 overflow-hidden lg:sticky lg:top-22 lg:z-20 lg:w-64 xl:w-72 lg:h-[calc(100vh-7rem)] lg:rounded-3xl lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        className={`fixed top-0 bottom-0 left-0 z-60 w-72 bg-linear-to-b from-primary via-primary-hover to-secondary text-primary-foreground shadow-2xl shadow-primary/30 border border-primary-foreground/20 p-4 flex flex-col justify-between transition-transform duration-300 overflow-hidden lg:sticky lg:top-22 lg:z-20 lg:w-64 xl:w-72 lg:h-[calc(100vh-7rem)] lg:rounded-3xl lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
           }`}
       >
         {/* ambient background elements */}

@@ -54,18 +54,21 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
       {/* fixed header */}
       <div className="shrink-0 px-6 py-4 border-b border-border/80 flex items-center justify-between bg-card/90">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+          <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
             <ShieldCheck className="w-4 h-4 text-primary" />
           </div>
-          <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
-            Administrative Profile
-          </span>
+          <div>
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-foreground">
+              Administrative Profile
+            </h2>
+            <p className="text-xs text-muted-foreground font-medium">System administrator dossier</p>
+          </div>
         </div>
 
         <button
           type="button"
           onClick={onClose}
-          className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer transition-colors"
+          className="w-8 aspect-square flex items-center justify-center rounded-lg bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors duration-200 cursor-pointer"
           title="Close profile drawer"
         >
           <X className="w-4 h-4" />
@@ -76,19 +79,10 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
       <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-5">
         {/* stylish hero identity card (following main profile card) */}
         <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-primary via-primary-hover to-secondary text-primary-foreground p-5 shadow-xl border border-primary-foreground/20 space-y-4">
-          {/* subtle matrix dots grid pattern */}
-          <svg className="absolute inset-0 w-full h-full opacity-10 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="profile-sheet-grid" width="18" height="18" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="1.5" fill="currentColor" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#profile-sheet-grid)" />
-          </svg>
 
           {/* absolute admin privilege pill on top right */}
           <div className="absolute top-4 right-4 z-20">
-            <Badge variant="primary" className="bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30 text-xs py-0.5 px-2.5 font-medium shadow-2xs backdrop-blur-xs">
+            <Badge variant="primary" className="bg-primary-foreground/20! text-primary-foreground border-primary-foreground/30 text-xs py-0.5 px-2.5 font-medium shadow-2xs backdrop-blur-xs">
               <ShieldCheck className="w-3 h-3 mr-1" />
               <span className="capitalize">{admin?.role || 'admin'}</span> Privileges
             </Badge>
@@ -100,11 +94,10 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
 
           {/* watermark guard emblem */}
           <div className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 opacity-10">
-            <ShieldCheck className="w-36 h-36 text-primary-foreground stroke-[1]" />
+            <ShieldCheck className="w-36 h-36 text-primary-foreground stroke-1" />
           </div>
 
           <div className="relative z-10 flex items-center gap-4 pr-32">
-            {/* clean avatar (no upload/delete overlay) */}
             <div className="relative shrink-0">
               {admin?.avatar?.url ? (
                 <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-primary-foreground/40 shadow-lg shadow-black/10">
@@ -121,11 +114,6 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
                   <ShieldCheck className="w-8 h-8 text-primary-foreground" />
                 </div>
               )}
-
-              {/* active status dot */}
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-card border-2 border-card flex items-center justify-center shadow-xs">
-                <span className="w-2.5 h-2.5 rounded-full bg-success animate-pulse inline-block" />
-              </div>
             </div>
 
             <div className="min-w-0 flex-1 space-y-1">
