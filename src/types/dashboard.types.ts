@@ -1,8 +1,22 @@
 export interface DashboardOverview {
   totalDoctors: number;
+  activeDoctors: number;
+  inactiveDoctors: number;
+  activeDoctorPercent: number;
+
   totalPatients: number;
+  activePatients: number;
+  unassignedPatients: number;
+  releasedPatients: number;
+  activePatientPercent: number;
+
   totalHospitals: number;
+  activeHospitals: number;
+  activeHospitalPercent: number;
+
   avgPatientsPerDoctor: number;
+  avgActivePatientsPerActiveDoctor: number;
+  ratioText: string;
 }
 
 export interface PatientsPerDoctorItem {
@@ -31,6 +45,7 @@ export interface TimelinePoint {
 
 export interface DashboardStats {
   overview: DashboardOverview;
+  timelineDays: number;
   patientsPerDoctor: PatientsPerDoctorItem[];
   specializationStats: SpecializationStatItem[];
   conditionStats: ConditionStatItem[];

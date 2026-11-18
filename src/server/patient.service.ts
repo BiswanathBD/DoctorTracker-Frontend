@@ -21,6 +21,9 @@ export const PatientService = {
     if (params.endDate) query.set('endDate', params.endDate);
     if (params.sortBy) query.set('sortBy', params.sortBy);
     if (params.sortOrder) query.set('sortOrder', params.sortOrder);
+    if (params.isReleased !== undefined && params.isReleased !== '') {
+      query.set('isReleased', String(params.isReleased));
+    }
 
     const res = await fetch(`${API_URL}/patients?${query.toString()}`, {
       headers: {
@@ -130,6 +133,40 @@ export const PatientService = {
 
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || 'failed to delete patient');
+  },
+
+  // release patient
+  async releasePatient(id: string, releaseDate?: string, note?: string): Promise<Patient> {
+    const token = AuthService.getToken();
+    const res = await fetch(`${API_URL}/patients/${id}/release`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ releaseDate, note }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'failed to release patient');
+    return data.data;
+  },
+
+  // readmit patient
+  async readmitPatient(id: string, doctorId?: string): Promise<Patient> {
+    const token = AuthService.getToken();
+    const res = await fetch(`${API_URL}/patients/${id}/readmit`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ doctorId }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'failed to readmit patient');
+    return data.data;
   },
 
   // get distinct conditions

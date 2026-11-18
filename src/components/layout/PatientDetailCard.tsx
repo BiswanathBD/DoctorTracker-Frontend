@@ -19,6 +19,7 @@ import {
   Clock,
   Sparkles,
   FileText,
+  UserCheck,
 } from 'lucide-react';
 
 interface PatientDetailCardProps {
@@ -26,6 +27,7 @@ interface PatientDetailCardProps {
   isOpen: boolean;
   onClose: () => void;
   onEdit: (patient: Patient) => void;
+  onRelease?: (patient: Patient) => void;
   onDelete: (patient: Patient) => void;
   onAvatarUpdated?: (patient: Patient) => void;
 }
@@ -35,6 +37,7 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
   isOpen,
   onClose,
   onEdit,
+  onRelease,
   onDelete,
   onAvatarUpdated,
 }) => {
@@ -172,6 +175,15 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
                 <span className="inline-flex items-center text-[10px] font-bold bg-white/20 text-white border border-white/30 backdrop-blur-md px-2.5 py-0.5 rounded-full">
                   {patient.age} Years Old
                 </span>
+                {patient.isReleased ? (
+                  <span className="inline-flex items-center text-[10px] font-bold bg-amber-400/90 text-amber-950 border border-amber-300 px-2.5 py-0.5 rounded-full shadow-xs">
+                    Discharged / Released
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center text-[10px] font-bold bg-emerald-400/90 text-emerald-950 border border-emerald-300 px-2.5 py-0.5 rounded-full shadow-xs">
+                    Under Active Care
+                  </span>
+                )}
               </div>
 
               <h3 className="font-semibold text-white text-xl tracking-tight truncate drop-shadow-xs">
@@ -373,6 +385,17 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
 
       {/* action footer */}
       <div className="p-4 border-t border-border/70 flex items-center justify-end gap-2.5 bg-card/60 backdrop-blur-md shrink-0">
+        {!patient.isReleased && onRelease && (
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => onRelease(patient)}
+            leftIcon={<UserCheck className="w-3.5 h-3.5" />}
+          >
+            Release Patient
+          </Button>
+        )}
         <Button
           type="button"
           variant="outline"

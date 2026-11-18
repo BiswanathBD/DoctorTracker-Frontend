@@ -6,8 +6,9 @@ import { DoctorFormModal } from '@/components/modals/DoctorFormModal';
 import { PatientFormModal } from '@/components/modals/PatientFormModal';
 import { DoctorDeleteModal } from '@/components/modals/DoctorDeleteModal';
 import { PatientDeleteModal } from '@/components/modals/PatientDeleteModal';
-import type { Doctor, DoctorFormData } from '@/server/doctor.service';
-import type { PatientFormData } from '@/types/patient.types';
+import { ReleasePatientModal } from '@/components/modals/ReleasePatientModal';
+import type { Doctor, DoctorFormData, DoctorPatient } from '@/server/doctor.service';
+import type { PatientFormData, Patient } from '@/types/patient.types';
 
 export interface DoctorModalsProps {
   // detail drawer
@@ -20,6 +21,7 @@ export interface DoctorModalsProps {
   onDeleteDoctor: (doctor: Doctor) => void;
   onOpenAddPatient: () => void;
   onRequestRemovePatient: (patientId: string, patientName: string) => void;
+  onReleasePatient?: (patient: DoctorPatient | { _id: string; name: string }) => void;
 
   // doctor create / edit modal
   isFormModalOpen: boolean;
@@ -55,6 +57,13 @@ export interface DoctorModalsProps {
   patientToRemove: { id: string; name: string } | null;
   onConfirmRemovePatient: () => void;
   patientRemoveSubmitting: boolean;
+
+  // patient release modal
+  isReleaseModalOpen?: boolean;
+  onCloseReleaseModal?: () => void;
+  patientToRelease?: Patient | null;
+  onConfirmReleasePatient?: (patientId: string, releaseDate: string, remark: string) => Promise<void> | void;
+  releaseSubmitting?: boolean;
 }
 
 export const DoctorModals: React.FC<DoctorModalsProps> = ({
@@ -67,6 +76,7 @@ export const DoctorModals: React.FC<DoctorModalsProps> = ({
   onDeleteDoctor,
   onOpenAddPatient,
   onRequestRemovePatient,
+  onReleasePatient,
   isFormModalOpen,
   onCloseFormModal,
   editingDoctor,
@@ -94,6 +104,11 @@ export const DoctorModals: React.FC<DoctorModalsProps> = ({
   patientToRemove,
   onConfirmRemovePatient,
   patientRemoveSubmitting,
+  isReleaseModalOpen = false,
+  onCloseReleaseModal,
+  patientToRelease = null,
+  onConfirmReleasePatient,
+  releaseSubmitting = false,
 }) => {
   const doctorDisplayName = selectedDoctor
     ? selectedDoctor.name.startsWith('Dr.')
@@ -119,6 +134,7 @@ export const DoctorModals: React.FC<DoctorModalsProps> = ({
         }}
         onAddPatient={onOpenAddPatient}
         onRemovePatient={onRequestRemovePatient}
+        onReleasePatient={onReleasePatient}
       />
 
       {/* modal: create / edit doctor */}
@@ -150,6 +166,17 @@ export const DoctorModals: React.FC<DoctorModalsProps> = ({
         title={`Add Patient under ${doctorDisplayName}`}
         description="Create and assign a patient directly to this specialist."
       />
+
+      {/* modal: release patient from doctor */}
+      {onCloseReleaseModal && onConfirmReleasePatient && (
+        <ReleasePatientModal
+          isOpen={isReleaseModalOpen}
+          onClose={onCloseReleaseModal}
+          patient={patientToRelease}
+          onConfirmRelease={onConfirmReleasePatient}
+          loading={releaseSubmitting}
+        />
+      )}
 
       {/* modal: delete doctor confirmation */}
       <DoctorDeleteModal

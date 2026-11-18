@@ -20,6 +20,7 @@ export interface PatientGridProps {
   onCreatePatient: () => void;
   onViewDetails: (patient: Patient) => void;
   onEditPatient: (patient: Patient) => void;
+  onReleasePatient?: (patient: Patient) => void;
   onDeletePatient: (patient: Patient) => void;
 }
 
@@ -36,6 +37,7 @@ export const PatientGrid: React.FC<PatientGridProps> = ({
   onCreatePatient,
   onViewDetails,
   onEditPatient,
+  onReleasePatient,
   onDeletePatient,
 }) => {
   // loading skeleton
@@ -65,6 +67,7 @@ export const PatientGrid: React.FC<PatientGridProps> = ({
             index={idx}
             onViewDetails={onViewDetails}
             onEdit={onEditPatient}
+            onRelease={onReleasePatient}
             onDelete={onDeletePatient}
           />
         ))}

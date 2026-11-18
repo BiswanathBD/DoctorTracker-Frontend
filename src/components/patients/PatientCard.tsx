@@ -15,6 +15,7 @@ import {
   Trash2,
   ChevronRight,
   Users,
+  UserCheck,
 } from 'lucide-react';
 
 export interface PatientCardProps {
@@ -23,6 +24,7 @@ export interface PatientCardProps {
   onViewDetails: (patient: Patient) => void;
   onEdit: (patient: Patient) => void;
   onDelete: (patient: Patient) => void;
+  onRelease?: (patient: Patient) => void;
 }
 
 export const PatientCard: React.FC<PatientCardProps> = ({
@@ -31,6 +33,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({
   onViewDetails,
   onEdit,
   onDelete,
+  onRelease,
 }) => {
   const docObj =
     typeof patient.doctorId === 'object' && patient.doctorId !== null
@@ -80,6 +83,15 @@ export const PatientCard: React.FC<PatientCardProps> = ({
                     <HeartPulse className="w-2.5 h-2.5 mr-1" />
                     {patient.condition}
                   </Badge>
+                  {patient.isReleased ? (
+                    <Badge variant="outline" className="text-[10px] text-emerald-500 border-emerald-500/40 bg-emerald-500/10 font-bold">
+                      Released
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-[10px] text-primary border-primary/30 font-semibold">
+                      Under Care
+                    </Badge>
+                  )}
                   <span className="text-[11px] text-muted-foreground font-medium">
                     {patient.age} yrs • {patient.gender}
                   </span>
@@ -89,6 +101,16 @@ export const PatientCard: React.FC<PatientCardProps> = ({
 
             {/* card top actions */}
             <div className="flex items-center gap-1 shrink-0">
+              {!patient.isReleased && onRelease && (
+                <button
+                  type="button"
+                  onClick={() => onRelease(patient)}
+                  className="p-1.5 rounded-lg text-secondary hover:bg-secondary/15 transition-colors cursor-pointer"
+                  title="Release Patient"
+                >
+                  <UserCheck className="w-3.5 h-3.5" />
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => onEdit(patient)}

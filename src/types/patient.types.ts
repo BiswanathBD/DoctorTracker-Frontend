@@ -23,8 +23,10 @@ export interface Patient {
     url: string;
     key: string;
   };
-  doctorId: PatientDoctorInfo | string;
+  doctorId?: PatientDoctorInfo | string | null;
   admissionDate: string;
+  releaseDate?: string | null;
+  isReleased?: boolean;
   note?: string;
   createdAt: string;
   updatedAt: string;
@@ -39,6 +41,7 @@ export interface PatientQueryParams {
   doctorId?: string;
   startDate?: string;
   endDate?: string;
+  isReleased?: string | boolean;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
 }

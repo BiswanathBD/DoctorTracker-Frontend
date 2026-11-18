@@ -17,6 +17,7 @@ import {
   ArrowUpDown,
   Filter,
   Calendar,
+  UserCheck,
 } from 'lucide-react';
 
 export interface PatientFiltersProps {
@@ -36,6 +37,8 @@ export interface PatientFiltersProps {
   setEndDate: (val: string) => void;
   gender: string;
   setGender: (val: string) => void;
+  statusFilter?: 'under_care' | 'released' | 'all';
+  setStatusFilter?: (val: 'under_care' | 'released' | 'all') => void;
   sortValue: string;
   setSortValue: (val: string) => void;
   total: number;
@@ -62,6 +65,8 @@ export const PatientFilters: React.FC<PatientFiltersProps> = ({
   setEndDate,
   gender,
   setGender,
+  statusFilter = 'under_care',
+  setStatusFilter,
   sortValue,
   setSortValue,
   total,
@@ -77,6 +82,7 @@ export const PatientFilters: React.FC<PatientFiltersProps> = ({
       gender ||
       startDate ||
       endDate ||
+      statusFilter !== 'under_care' ||
       sortValue !== 'createdAt-desc'
   );
 
@@ -144,6 +150,57 @@ export const PatientFilters: React.FC<PatientFiltersProps> = ({
               Reset
             </Button>
           )}
+        </div>
+      </div>
+
+      {/* status tabs row (Under Care default | Released | All Patients) */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/60 border border-border/80 text-xs shadow-2xs">
+          <button
+            type="button"
+            onClick={() => {
+              setStatusFilter?.('under_care');
+              setPage(1);
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              statusFilter === 'under_care'
+                ? 'bg-secondary text-secondary-foreground shadow-xs'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <HeartPulse className="w-3.5 h-3.5" />
+            Under Care
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setStatusFilter?.('released');
+              setPage(1);
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              statusFilter === 'released'
+                ? 'bg-primary text-primary-foreground shadow-xs'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <UserCheck className="w-3.5 h-3.5" />
+            Released
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setStatusFilter?.('all');
+              setPage(1);
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              statusFilter === 'all'
+                ? 'bg-card text-foreground shadow-xs'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            All Patients
+          </button>
         </div>
       </div>
 

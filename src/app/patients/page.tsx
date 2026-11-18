@@ -63,6 +63,7 @@ function PatientsContent() {
           onCreatePatient={patientActions.handleOpenCreateModal}
           onViewDetails={patientActions.handleViewPatientDetails}
           onEditPatient={patientActions.handleOpenEditModal}
+          onReleasePatient={patientActions.handleOpenReleaseModal}
           onDeletePatient={patientActions.handleOpenDeleteModal}
         />
       </div>

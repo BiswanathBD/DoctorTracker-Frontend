@@ -19,6 +19,7 @@ import {
   Camera,
   ShieldCheck,
   FileText,
+  UserCheck,
 } from 'lucide-react';
 
 interface DoctorDetailCardProps {
@@ -28,7 +29,8 @@ interface DoctorDetailCardProps {
   onEdit: (doctor: Doctor) => void;
   onDelete?: (doctor: Doctor) => void;
   onAddPatient: () => void;
-  onRemovePatient: (patientId: string, patientName: string) => void;
+  onRemovePatient?: (patientId: string, patientName: string) => void;
+  onReleasePatient?: (patient: DoctorPatient | { _id: string; name: string }) => void;
   onAvatarUpdated?: (doctor: Doctor) => void;
   loadingPatients?: boolean;
 }
@@ -41,6 +43,7 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
   onDelete,
   onAddPatient,
   onRemovePatient,
+  onReleasePatient,
   onAvatarUpdated,
   loadingPatients = false,
 }) => {
@@ -354,13 +357,21 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
 
                       <Button
                         type="button"
-                        variant="destructive"
+                        variant="outline"
                         size="sm"
                         capsule={false}
-                        onClick={() => onRemovePatient(patientId, patientName)}
-                        title={`Delete ${patientName}`}
+                        onClick={() => {
+                          if (onReleasePatient) {
+                            onReleasePatient(typeof p === 'string' ? { _id: p, name: patientName } : p);
+                          } else if (onRemovePatient) {
+                            onRemovePatient(patientId, patientName);
+                          }
+                        }}
+                        title={`Release ${patientName}`}
+                        className="text-secondary border-secondary/30 hover:bg-secondary/10 shrink-0 font-semibold"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <UserCheck className="w-3.5 h-3.5 mr-1" />
+                        Release
                       </Button>
                     </div>
                   </MotionWrapper>

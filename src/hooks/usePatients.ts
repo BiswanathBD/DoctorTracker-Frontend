@@ -23,6 +23,7 @@ export function usePatients(limit = 9) {
   const [doctorId, setDoctorId] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'under_care' | 'released' | 'all'>('under_care');
   const [sortValue, setSortValue] = useState('createdAt-desc');
 
   // filter options fetched directly from database
@@ -82,6 +83,8 @@ export function usePatients(limit = 9) {
       string,
       'asc' | 'desc'
     ];
+    const isReleasedParam =
+      statusFilter === 'under_care' ? false : statusFilter === 'released' ? true : undefined;
 
     PatientService.getAllPatients({
       page,
@@ -92,6 +95,7 @@ export function usePatients(limit = 9) {
       doctorId: doctorId || undefined,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
+      isReleased: isReleasedParam,
       sortBy,
       sortOrder,
     })
@@ -107,7 +111,7 @@ export function usePatients(limit = 9) {
       .finally(() => {
         setLoading(false);
       });
-  }, [page, limit, debouncedSearch, condition, gender, doctorId, startDate, endDate, sortValue]);
+  }, [page, limit, debouncedSearch, condition, gender, doctorId, startDate, endDate, statusFilter, sortValue]);
 
   // fetch patients on filter changes
   useEffect(() => {
@@ -116,6 +120,8 @@ export function usePatients(limit = 9) {
       string,
       'asc' | 'desc'
     ];
+    const isReleasedParam =
+      statusFilter === 'under_care' ? false : statusFilter === 'released' ? true : undefined;
 
     PatientService.getAllPatients({
       page,
@@ -126,6 +132,7 @@ export function usePatients(limit = 9) {
       doctorId: doctorId || undefined,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
+      isReleased: isReleasedParam,
       sortBy,
       sortOrder,
     })
@@ -147,7 +154,7 @@ export function usePatients(limit = 9) {
     return () => {
       isMounted = false;
     };
-  }, [page, limit, debouncedSearch, condition, gender, doctorId, startDate, endDate, sortValue]);
+  }, [page, limit, debouncedSearch, condition, gender, doctorId, startDate, endDate, statusFilter, sortValue]);
 
   // reset all filters
   const handleResetFilters = useCallback(() => {
@@ -158,6 +165,7 @@ export function usePatients(limit = 9) {
     setDoctorId('');
     setStartDate('');
     setEndDate('');
+    setStatusFilter('under_care');
     setSortValue('createdAt-desc');
     setPage(1);
   }, []);
@@ -169,6 +177,7 @@ export function usePatients(limit = 9) {
       doctorId ||
       startDate ||
       endDate ||
+      statusFilter !== 'under_care' ||
       sortValue !== 'createdAt-desc'
   );
 
@@ -203,6 +212,8 @@ export function usePatients(limit = 9) {
       setEndDate,
       gender,
       setGender,
+      statusFilter,
+      setStatusFilter,
       sortValue,
       setSortValue,
       total,

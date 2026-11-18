@@ -2,9 +2,9 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { DoctorService, type Doctor, type DoctorFormData } from '@/server/doctor.service';
+import { DoctorService, type Doctor, type DoctorFormData, type DoctorPatient } from '@/server/doctor.service';
 import { PatientService } from '@/server/patient.service';
-import type { PatientFormData } from '@/types/patient.types';
+import type { PatientFormData, Patient } from '@/types/patient.types';
 import { toast } from '@/components/ui';
 
 interface UseDoctorActionsProps {
@@ -36,6 +36,9 @@ export function useDoctorActions({
   const [doctorToDelete, setDoctorToDelete] = useState<Doctor | null>(null);
   const [patientToRemove, setPatientToRemove] = useState<{ id: string; name: string } | null>(null);
   const [patientRemoveSubmitting, setPatientRemoveSubmitting] = useState(false);
+  const [isReleaseModalOpen, setIsReleaseModalOpen] = useState(false);
+  const [patientToRelease, setPatientToRelease] = useState<Patient | null>(null);
+  const [releaseSubmitting, setReleaseSubmitting] = useState(false);
 
   // form states
   const [doctorForm, setDoctorForm] = useState<DoctorFormData>({
@@ -391,10 +394,111 @@ export function useDoctorActions({
     }
   };
 
+  // release patient from doctor
+  const handleOpenReleaseModal = (
+    patient:
+      | DoctorPatient
+      | Patient
+      | {
+          _id: string;
+          name: string;
+          age?: number;
+          gender?: 'Male' | 'Female' | 'Other';
+          phone?: string;
+          condition?: string;
+          admissionDate?: string | Date;
+          note?: string;
+        }
+  ) => {
+    if (!patient) return;
+    const patObj: Patient = {
+      _id: patient._id,
+      name: patient.name,
+      age: patient.age ?? 0,
+      gender: (patient.gender as 'Male' | 'Female' | 'Other') || 'Male',
+      phone: patient.phone ?? '',
+      condition: patient.condition ?? 'General Care',
+      doctorId: selectedDoctor || null,
+      admissionDate: patient.admissionDate
+        ? new Date(patient.admissionDate).toISOString()
+        : new Date().toISOString(),
+      note: 'note' in patient && typeof patient.note === 'string' ? patient.note : '',
+      isReleased: false,
+      createdAt: 'createdAt' in patient && typeof patient.createdAt === 'string' ? patient.createdAt : new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    setPatientToRelease(patObj);
+    setIsReleaseModalOpen(true);
+  };
+
+  const handleConfirmReleasePatient = async (
+    patientId: string,
+    releaseDate: string,
+    remark: string
+  ) => {
+    try {
+      setReleaseSubmitting(true);
+      await PatientService.releasePatient(patientId, releaseDate, remark);
+      toast.success(
+        'Patient Released',
+        `${patientToRelease?.name || 'Patient'} has been discharged from active care.`
+      );
+      setIsReleaseModalOpen(false);
+      setPatientToRelease(null);
+
+      // update selected doctor drawer immediately
+      setSelectedDoctor((prev) => {
+        if (!prev) return prev;
+        const currentPatients = prev.assignedPatients || prev.patients || [];
+        const nextPatients = currentPatients.filter((p) => {
+          const id = typeof p === 'string' ? p : p._id;
+          return id !== patientId;
+        });
+        return {
+          ...prev,
+          patientCount: Math.max(0, (prev.patientCount ?? currentPatients.length) - 1),
+          patients: nextPatients,
+          assignedPatients: nextPatients,
+        };
+      });
+
+      // update doctor card in background list immediately
+      setDoctors((prev) =>
+        prev.map((doc) =>
+          doc._id === selectedDoctor?._id
+            ? { ...doc, patientCount: Math.max(0, (doc.patientCount || 1) - 1) }
+            : doc
+        )
+      );
+
+      if (selectedDoctor?._id) {
+        const refreshedDoc = await DoctorService.getDoctorById(selectedDoctor._id);
+        setSelectedDoctor(refreshedDoc);
+        if (typeof refreshedDoc.patientCount === 'number') {
+          setDoctors((prev) =>
+            prev.map((d) =>
+              d._id === refreshedDoc._id ? { ...d, patientCount: refreshedDoc.patientCount } : d
+            )
+          );
+        }
+      }
+
+      refreshDoctors();
+      fetchFilterOptions();
+    } catch (err: unknown) {
+      console.error('release patient error:', err);
+      const message = err instanceof Error ? err.message : 'Could not release patient.';
+      toast.error('Release Failed', message);
+    } finally {
+      setReleaseSubmitting(false);
+    }
+  };
+
   return {
     handleOpenCreateModal,
     handleOpenEditModal,
     handleViewDoctorDetails,
+    handleOpenReleaseModal,
     handleOpenDeleteModal: (doc: Doctor) => {
       setDoctorToDelete(doc);
       setIsDeleteModalOpen(true);
@@ -417,6 +521,7 @@ export function useDoctorActions({
       },
       onOpenAddPatient: () => handleOpenAddPatientModal(selectedDoctor),
       onRequestRemovePatient: handleRequestRemovePatient,
+      onReleasePatient: handleOpenReleaseModal,
       isFormModalOpen,
       onCloseFormModal: () => setIsFormModalOpen(false),
       editingDoctor,
@@ -450,6 +555,14 @@ export function useDoctorActions({
       patientToRemove,
       onConfirmRemovePatient: handleConfirmRemovePatient,
       patientRemoveSubmitting,
+      isReleaseModalOpen,
+      onCloseReleaseModal: () => {
+        setIsReleaseModalOpen(false);
+        setPatientToRelease(null);
+      },
+      patientToRelease,
+      onConfirmReleasePatient: handleConfirmReleasePatient,
+      releaseSubmitting,
     },
   };
 }

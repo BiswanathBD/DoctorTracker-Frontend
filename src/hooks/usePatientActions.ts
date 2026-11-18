@@ -26,9 +26,12 @@ export function usePatientActions({
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDetailCardOpen, setIsDetailCardOpen] = useState(false);
+  const [isReleaseModalOpen, setIsReleaseModalOpen] = useState(false);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
+  const [patientToRelease, setPatientToRelease] = useState<Patient | null>(null);
+  const [releaseSubmitting, setReleaseSubmitting] = useState(false);
 
   // form state
   const [patientForm, setPatientForm] = useState<PatientFormData>({
@@ -180,6 +183,36 @@ export function usePatientActions({
     }
   };
 
+  // release patient handler
+  const handleOpenReleaseModal = useCallback((patient: Patient) => {
+    setPatientToRelease(patient);
+    setIsReleaseModalOpen(true);
+  }, []);
+
+  const handleConfirmRelease = async (patientId: string, releaseDate: string, remark: string) => {
+    try {
+      setReleaseSubmitting(true);
+      const updated = await PatientService.releasePatient(patientId, releaseDate, remark);
+      toast.success('Patient Released', `${patientToRelease?.name || 'Patient'} has been discharged.`);
+      setIsReleaseModalOpen(false);
+      setPatientToRelease(null);
+
+      // update local state
+      setPatients((prev) => prev.map((p) => (p._id === patientId ? updated : p)));
+      if (selectedPatient?._id === patientId) {
+        setSelectedPatient(updated);
+      }
+
+      refreshPatients();
+      fetchFilterOptions();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'failed to release patient';
+      toast.error('Release Failed', msg);
+    } finally {
+      setReleaseSubmitting(false);
+    }
+  };
+
   // delete patient
   const handleDeletePatient = async () => {
     if (!patientToDelete) return;
@@ -209,6 +242,7 @@ export function usePatientActions({
   return {
     handleOpenCreateModal,
     handleOpenEditModal,
+    handleOpenReleaseModal,
     handleViewPatientDetails: (patient: Patient) => {
       setSelectedPatient(patient);
       setIsDetailCardOpen(true);
@@ -228,6 +262,7 @@ export function usePatientActions({
         );
       },
       onEditPatient: handleOpenEditModal,
+      onReleasePatient: handleOpenReleaseModal,
       onDeletePatient: (p: Patient) => {
         setPatientToDelete(p);
         setIsDeleteModalOpen(true);
@@ -246,6 +281,14 @@ export function usePatientActions({
       onCloseDeleteModal: () => setIsDeleteModalOpen(false),
       patientToDelete,
       onConfirmDeletePatient: handleDeletePatient,
+      isReleaseModalOpen,
+      onCloseReleaseModal: () => {
+        setIsReleaseModalOpen(false);
+        setPatientToRelease(null);
+      },
+      patientToRelease,
+      onConfirmReleasePatient: handleConfirmRelease,
+      releaseSubmitting,
     },
   };
 }

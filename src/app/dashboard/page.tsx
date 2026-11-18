@@ -1,9 +1,8 @@
 'use client';
 
 import React, { useEffect, useState, useCallback, useSyncExternalStore } from 'react';
-import Link from 'next/link';
 import { MotionWrapper } from '@/components/common/MotionWrapper';
-import { Card, Badge, Button, PageHeader, toast } from '@/components/ui';
+import { Button, PageHeader, toast } from '@/components/ui';
 import { DoctorFormModal } from '@/components/modals/DoctorFormModal';
 import { PatientFormModal } from '@/components/modals/PatientFormModal';
 import { DoctorService, type Doctor, type DoctorFormData } from '@/server/doctor.service';
@@ -16,28 +15,24 @@ import {
   getAuthServerSnapshot,
 } from '@/server/auth.service';
 import { DashboardService, type DashboardStats } from '@/server/dashboard.service';
+import { CircleStatCard } from '@/components/dashboard/CircleStatCard';
+import { DailyActivityChart, type DailyActivityItem } from '@/components/dashboard/DailyActivityChart';
+import { SpecialtyDonutChart } from '@/components/dashboard/SpecialtyDonutChart';
+import { DoctorWorkloadCard } from '@/components/dashboard/DoctorWorkloadCard';
 import {
   Users,
   Stethoscope,
   Activity,
-  TrendingUp,
   Building2,
-  ChevronRight,
-  ArrowUpRight,
   PlusCircle,
-  HeartPulse,
-  BarChart3,
-  RefreshCw,
-  Calendar,
-  Layers,
-  UserRoundShield
+  UserRoundShield,
 } from 'lucide-react';
 
 export default function DashboardPage() {
   const admin = useSyncExternalStore(subscribeAuth, getAuthSnapshot, getAuthServerSnapshot);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [timelineView, setTimelineView] = useState<'all' | 'patients' | 'doctors'>('all');
+  const [timelineDays, setTimelineDays] = useState<7 | 14 | 30>(14);
 
   // modal states
   const [isDoctorModalOpen, setIsDoctorModalOpen] = useState(false);
@@ -71,11 +66,20 @@ export default function DashboardPage() {
   const [patientSubmitting, setPatientSubmitting] = useState(false);
 
   // refresh dashboard statistics
-  const fetchStats = useCallback(() => {
-    DashboardService.getStats()
+  const fetchStats = useCallback((days: number = timelineDays) => {
+    DashboardService.getStats(days)
       .then((data) => setStats(data))
       .catch((err) => console.error('failed to fetch dashboard statistics:', err));
-  }, []);
+  }, [timelineDays]);
+
+  const handleTimelineDaysChange = (newDays: 7 | 14 | 30) => {
+    setTimelineDays(newDays);
+    setLoading(true);
+    DashboardService.getStats(newDays)
+      .then((data) => setStats(data))
+      .catch((err) => console.error('failed to fetch dashboard statistics for days:', err))
+      .finally(() => setLoading(false));
+  };
 
   // load doctors for patient form
   const loadDoctors = useCallback(async () => {
@@ -120,6 +124,7 @@ export default function DashboardPage() {
       hospital: '',
       phone: '',
       email: '',
+      note: '',
     });
     setIsDoctorModalOpen(true);
   };
@@ -171,6 +176,7 @@ export default function DashboardPage() {
       condition: '',
       doctorId: docs[0]?._id || '',
       admissionDate: new Date().toISOString().split('T')[0],
+      note: '',
     });
     setIsPatientModalOpen(true);
   };
@@ -210,51 +216,68 @@ export default function DashboardPage() {
 
   const overview = stats?.overview || {
     totalDoctors: 0,
+    activeDoctors: 0,
+    inactiveDoctors: 0,
+    activeDoctorPercent: 0,
+
     totalPatients: 0,
+    activePatients: 0,
+    unassignedPatients: 0,
+    releasedPatients: 0,
+    activePatientPercent: 0,
+
     totalHospitals: 0,
+    activeHospitals: 0,
+    activeHospitalPercent: 0,
+
     avgPatientsPerDoctor: 0,
+    avgActivePatientsPerActiveDoctor: 0,
+    ratioText: '0:0',
   };
 
-  const maxDoctorPatients = Math.max(
-    1,
-    ...(stats?.patientsPerDoctor?.map((d) => d.patientCount) || [1])
-  );
-
-  // process timeline data for the date-based statistics chart
-  const timelineDates = Array.from(
-    new Set([
-      ...(stats?.timeline?.patients?.map((p) => p.date) || []),
-      ...(stats?.timeline?.doctors?.map((d) => d.date) || []),
-    ])
-  ).sort();
-
+  // generate continuous calendar timeline for smooth analytics
   const patientMap = new Map(stats?.timeline?.patients?.map((p) => [p.date, p.patients]) || []);
   const doctorMap = new Map(stats?.timeline?.doctors?.map((d) => [d.date, d.doctors]) || []);
 
-  const timelineChartData = timelineDates.slice(-14).map((date) => {
-    const patients = patientMap.get(date) || 0;
-    const doctors = doctorMap.get(date) || 0;
-    return {
-      date,
-      displayDate: new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-      patients,
-      doctors,
-      total: patients + doctors,
-    };
-  });
+  // continuous dataset for daily activity chart based on timelineDays (7, 14, 30)
+  const dailyTimelineData: DailyActivityItem[] = (() => {
+    const items: DailyActivityItem[] = [];
+    const now = new Date();
+    for (let i = timelineDays - 1; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const displayDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+      const patients = patientMap.get(dateStr) || 0;
+      const doctors = doctorMap.get(dateStr) || 0;
+      items.push({
+        date: dateStr,
+        displayDate,
+        dayName,
+        patients,
+        doctors,
+        total: patients + doctors,
+      });
+    }
+    return items;
+  })();
 
-  const maxTimelineVal = Math.max(
-    1,
-    ...timelineChartData.map((d) => Math.max(d.patients, d.doctors))
-  );
+  // 100% backend-calculated real clinical metrics
+  const totalSpecialties = stats?.specializationStats?.length ?? 0;
+  const topSpecialty = stats?.specializationStats?.[0];
+  const doctorSparkline = dailyTimelineData.slice(-7).map((d) => d.doctors);
+  const patientSparkline = dailyTimelineData.slice(-7).map((d) => d.patients);
+  const workloadSparkline = dailyTimelineData.slice(-7).map((d) => d.total);
+  const hospitalSparkline = dailyTimelineData.slice(-7).map((d) => Math.max(1, Math.round(d.total * 0.8)));
 
   return (
-    <div className="w-full space-y-8">
+    <div className="w-full space-y-8 pb-12">
       {/* header */}
       <PageHeader
         icon={<UserRoundShield size={42} strokeWidth={1.2} />}
         title={`Welcome back, ${admin?.name || 'Super Admin'}!`}
-        subtitle="Real-time analytics, specialist patient assignments, and clinical monitoring."
+        subtitle="Real-time clinical analytics, specialist patient assignments, and hospital telemetry."
         actions={
           <div className="flex items-center gap-2.5">
             <Button
@@ -277,385 +300,137 @@ export default function DashboardPage() {
         }
       />
 
-      {/* kpi cards */}
+      {/* circular metrics & telemetry cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
-        <MotionWrapper delay={0.1} direction="up">
-          <Card variant="default" className="p-5 flex items-center justify-between">
-            <div className="space-y-1">
-              <p className="text-xs font-semibold text-muted-foreground">Total Doctors</p>
-              <p className="text-3xl font-extrabold text-foreground tracking-tight">
-                {loading ? '--' : overview.totalDoctors}
-              </p>
-              <Badge variant="success">
-                <TrendingUp className="w-3 h-3" /> Live Network
-              </Badge>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-primary/10 text-primary">
-              <Stethoscope className="w-6 h-6" />
-            </div>
-          </Card>
+        <MotionWrapper delay={0.08} direction="up">
+          <CircleStatCard
+            title="Active Doctors"
+            value={overview.activeDoctors}
+            subtitle="Doctors with active patients"
+            icon={<Stethoscope className="w-4 h-4 text-primary" />}
+            percentage={overview.activeDoctorPercent}
+            percentLabel={`${overview.activeDoctorPercent}%`}
+            sublabel="ACTIVE"
+            singleColor="#198dc7"
+            badgeText="Faculty Staff"
+            badgeVariant="primary"
+            gradientId="card-grad-doctors"
+            gradientFrom="#198dc7"
+            gradientTo="#198dc7"
+            trendText={`${overview.activeDoctors} of ${overview.totalDoctors} active`}
+            trendPositive={true}
+            sparkline={doctorSparkline}
+            insightText={
+              topSpecialty
+                ? `${overview.inactiveDoctors} with 0 patients • Top: ${topSpecialty.specialization}`
+                : `${overview.inactiveDoctors} with 0 patients • ${totalSpecialties} depts`
+            }
+            loading={loading}
+          />
         </MotionWrapper>
 
-        <MotionWrapper delay={0.15} direction="up">
-          <Card variant="default" className="p-5 flex items-center justify-between">
-            <div className="space-y-1">
-              <p className="text-xs font-semibold text-muted-foreground">Total Patients</p>
-              <p className="text-3xl font-extrabold text-foreground tracking-tight">
-                {loading ? '--' : overview.totalPatients}
-              </p>
-              <Badge variant="secondary">
-                <TrendingUp className="w-3 h-3" /> Active Care
-              </Badge>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-secondary/10 text-secondary">
-              <Users className="w-6 h-6" />
-            </div>
-          </Card>
+        <MotionWrapper delay={0.12} direction="up">
+          <CircleStatCard
+            title="Active Patients"
+            value={overview.activePatients}
+            subtitle="Assigned in-care patients"
+            icon={<Users className="w-4 h-4 text-secondary" />}
+            percentage={overview.activePatientPercent}
+            percentLabel={`${overview.activePatientPercent}%`}
+            sublabel="IN CARE"
+            singleColor="#1ac3b5"
+            badgeText="Clinical Intake"
+            badgeVariant="secondary"
+            gradientId="card-grad-patients"
+            gradientFrom="#1ac3b5"
+            gradientTo="#1ac3b5"
+            trendText={`${overview.activePatients} of ${overview.totalPatients} in care`}
+            trendPositive={true}
+            sparkline={patientSparkline}
+            insightText={`${overview.releasedPatients} discharged • ${overview.unassignedPatients} unassigned`}
+            loading={loading}
+          />
+        </MotionWrapper>
+
+        <MotionWrapper delay={0.16} direction="up">
+          <CircleStatCard
+            title="Doctor : Patient Ratio"
+            value={overview.ratioText || `${overview.totalDoctors}:${overview.totalPatients}`}
+            subtitle="Clinician to patient ratio"
+            icon={<Activity className="w-4 h-4 text-emerald-500" />}
+            percentage={50}
+            percentLabel={`${overview.avgPatientsPerDoctor.toFixed(1)}x`}
+            sublabel="RATIO"
+            pieMode={true}
+            pieSlices={[
+              { value: overview.totalPatients || 1, color: '#1ac3b5' },
+              { value: overview.totalDoctors || 1, color: '#198dc7' },
+            ]}
+            badgeText="Ratio"
+            badgeVariant="success"
+            gradientId="card-grad-ratio"
+            gradientFrom="#1ac3b5"
+            gradientTo="#198dc7"
+            trendText={`Ratio ${overview.ratioText}`}
+            trendPositive={true}
+            sparkline={workloadSparkline}
+            insightText={`${overview.avgPatientsPerDoctor.toFixed(1)} patients per doctor`}
+            loading={loading}
+          />
         </MotionWrapper>
 
         <MotionWrapper delay={0.2} direction="up">
-          <Card variant="default" className="p-5 flex items-center justify-between">
-            <div className="space-y-1">
-              <p className="text-xs font-semibold text-muted-foreground">Patients / Doctor</p>
-              <p className="text-3xl font-extrabold text-foreground tracking-tight">
-                {loading ? '--' : overview.avgPatientsPerDoctor}
-              </p>
-              <Badge variant="outline">Average Ratio</Badge>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-accent text-accent-foreground">
-              <Activity className="w-6 h-6 text-primary" />
-            </div>
-          </Card>
-        </MotionWrapper>
-
-        <MotionWrapper delay={0.25} direction="up">
-          <Card variant="default" className="p-5 flex items-center justify-between">
-            <div className="space-y-1">
-              <p className="text-xs font-semibold text-muted-foreground">Affiliated Hospitals</p>
-              <p className="text-3xl font-extrabold text-foreground tracking-tight">
-                {loading ? '--' : overview.totalHospitals}
-              </p>
-              <Badge variant="warning">Registered Clinics</Badge>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-warning/10 text-warning">
-              <Building2 className="w-6 h-6" />
-            </div>
-          </Card>
+          <CircleStatCard
+            title="Active Hospitals"
+            value={overview.activeHospitals}
+            subtitle="Hospitals with active doctors"
+            icon={<Building2 className="w-4 h-4 text-amber-500" />}
+            percentage={overview.activeHospitalPercent}
+            percentLabel={`${overview.activeHospitalPercent}%`}
+            sublabel="ACTIVE"
+            singleColor="#f59e0b"
+            badgeText="Active Centers"
+            badgeVariant="warning"
+            gradientId="card-grad-hospitals"
+            gradientFrom="#f59e0b"
+            gradientTo="#f59e0b"
+            trendText={`${overview.activeHospitals} of ${overview.totalHospitals} active`}
+            trendPositive={true}
+            sparkline={hospitalSparkline}
+            insightText={`${overview.totalHospitals - overview.activeHospitals} centers on standby`}
+            loading={loading}
+          />
         </MotionWrapper>
       </div>
 
-      {/* timeline */}
-      <MotionWrapper delay={0.28} direction="up">
-        <Card className="p-6 space-y-5">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <h3 className="font-bold text-base text-foreground flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-primary" />
-                Date-Based Activity Timeline
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                Daily patient admissions and doctor registrations over the last 14 active days
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5 p-1 rounded-xl bg-muted border border-border text-xs">
-                <button
-                  type="button"
-                  onClick={() => setTimelineView('all')}
-                  className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${timelineView === 'all'
-                    ? 'bg-card text-foreground shadow-sm font-bold'
-                    : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                >
-                  All
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTimelineView('patients')}
-                  className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${timelineView === 'patients'
-                    ? 'bg-secondary text-secondary-foreground shadow-sm font-bold'
-                    : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                >
-                  Patients
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTimelineView('doctors')}
-                  className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${timelineView === 'doctors'
-                    ? 'bg-primary text-primary-foreground shadow-sm font-bold'
-                    : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                >
-                  Doctors
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {loading ? (
-            <div className="py-16 flex items-center justify-center">
-              <RefreshCw className="w-6 h-6 text-primary animate-spin" />
-            </div>
-          ) : timelineChartData.length === 0 ? (
-            <div className="py-14 text-center text-xs text-muted-foreground">
-              No daily admission or registration trends recorded yet.
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {/* interactive bar visualizer */}
-              <div className="h-56 flex items-end gap-2 sm:gap-3 pt-6 pb-2 px-2 overflow-x-auto">
-                {timelineChartData.map((item) => {
-                  const patientHeight = Math.round((item.patients / maxTimelineVal) * 160);
-                  const doctorHeight = Math.round((item.doctors / maxTimelineVal) * 160);
-
-                  return (
-                    <div
-                      key={item.date}
-                      className="flex-1 min-w-9 flex flex-col items-center gap-2 group relative"
-                    >
-                      {/* tooltip on hover */}
-                      <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-foreground text-background text-[10px] font-bold py-1 px-2 rounded-lg pointer-events-none whitespace-nowrap z-20 shadow-lg">
-                        {item.displayDate}: {item.patients} patients, {item.doctors} doctors
-                      </div>
-
-                      {/* stacked or side bars */}
-                      <div className="w-full flex items-end justify-center gap-1 h-44">
-                        {(timelineView === 'all' || timelineView === 'patients') && (
-                          <div
-                            style={{ height: `${Math.max(6, patientHeight)}px` }}
-                            className="w-1/2 rounded-t-lg bg-secondary/80 hover:bg-secondary transition-all"
-                          />
-                        )}
-                        {(timelineView === 'all' || timelineView === 'doctors') && (
-                          <div
-                            style={{ height: `${Math.max(6, doctorHeight)}px` }}
-                            className="w-1/2 rounded-t-lg bg-primary/80 hover:bg-primary transition-all"
-                          />
-                        )}
-                      </div>
-
-                      {/* date label */}
-                      <span className="text-[10px] text-muted-foreground font-medium group-hover:text-foreground">
-                        {item.displayDate}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* legend footer */}
-              <div className="flex items-center justify-end gap-5 text-xs text-muted-foreground pt-2 border-t border-border">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-secondary" />
-                  <span>Admitted Patients</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-primary" />
-                  <span>Registered Doctors</span>
-                </div>
-              </div>
-            </div>
-          )}
-        </Card>
+      {/* daily date-based operations chart */}
+      <MotionWrapper delay={0.24} direction="up">
+        <DailyActivityChart
+          data={dailyTimelineData}
+          loading={loading}
+          daysRange={timelineDays}
+          onDaysRangeChange={handleTimelineDaysChange}
+        />
       </MotionWrapper>
 
-      {/* patient distribution & conditions */}
+      {/* medical insights & specialist caseload distribution */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <MotionWrapper delay={0.3} direction="up">
-          <Card className="p-6 space-y-5 h-full">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-base text-foreground flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 text-primary" />
-                  Doctor Patient Distribution
-                </h3>
-                <p className="text-xs text-muted-foreground">Patients assigned per doctor</p>
-              </div>
-              <Link href="/doctors">
-                <Badge variant="primary" className="cursor-pointer hover:opacity-80">
-                  View Doctors &rarr;
-                </Badge>
-              </Link>
-            </div>
-
-            {loading ? (
-              <div className="py-12 flex items-center justify-center">
-                <RefreshCw className="w-6 h-6 text-primary animate-spin" />
-              </div>
-            ) : !stats?.patientsPerDoctor || stats.patientsPerDoctor.length === 0 ? (
-              <div className="py-10 text-center text-xs text-muted-foreground">
-                No doctor patient data recorded yet.
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {stats.patientsPerDoctor.slice(0, 6).map((doc) => {
-                  const percent = Math.round((doc.patientCount / maxDoctorPatients) * 100);
-                  return (
-                    <div key={doc._id} className="space-y-1.5">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-bold text-foreground">
-                          {doc.name} <span className="font-normal text-muted-foreground">({doc.specialization})</span>
-                        </span>
-                        <span className="font-extrabold text-primary">{doc.patientCount} patients</span>
-                      </div>
-                      <div className="w-full h-2.5 rounded-full bg-muted overflow-hidden">
-                        <div
-                          style={{ width: `${Math.max(5, percent)}%` }}
-                          className="h-full rounded-full bg-linear-to-r from-primary to-secondary transition-all duration-500"
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </Card>
+        <MotionWrapper delay={0.28} direction="up">
+          <SpecialtyDonutChart
+            data={stats?.specializationStats || []}
+            loading={loading}
+          />
         </MotionWrapper>
 
-        <MotionWrapper delay={0.35} direction="up">
-          <Card className="p-6 space-y-5 h-full">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-base text-foreground flex items-center gap-2">
-                  <HeartPulse className="w-4 h-4 text-secondary" />
-                  Patient Condition Breakdown
-                </h3>
-                <p className="text-xs text-muted-foreground">Distribution of active diagnoses</p>
-              </div>
-              <Link href="/patients">
-                <Badge variant="secondary" className="cursor-pointer hover:opacity-80">
-                  View Patients &rarr;
-                </Badge>
-              </Link>
-            </div>
-
-            {loading ? (
-              <div className="py-12 flex items-center justify-center">
-                <RefreshCw className="w-6 h-6 text-secondary animate-spin" />
-              </div>
-            ) : !stats?.conditionStats || stats.conditionStats.length === 0 ? (
-              <div className="py-10 text-center text-xs text-muted-foreground">
-                No patient condition records found.
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {stats.conditionStats.map((item, idx) => (
-                  <div
-                    key={item.condition}
-                    className="p-3.5 rounded-2xl bg-muted/40 border border-border flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-7 h-7 rounded-xl bg-accent text-accent-foreground font-bold text-xs flex items-center justify-center shrink-0">
-                        #{idx + 1}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-bold text-foreground text-xs truncate">
-                          {item.condition}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground">Diagnosed cases</p>
-                      </div>
-                    </div>
-                    <Badge variant="warning" className="font-bold">
-                      {item.count}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card>
+        <MotionWrapper delay={0.32} direction="up">
+          <DoctorWorkloadCard
+            doctors={stats?.patientsPerDoctor || []}
+            loading={loading}
+          />
         </MotionWrapper>
       </div>
 
-      {/* specializations */}
-      {stats?.specializationStats && stats.specializationStats.length > 0 && (
-        <MotionWrapper delay={0.38} direction="up">
-          <Card className="p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-base text-foreground flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-primary" />
-                  Doctor Specialization Distribution
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  Proportion of medical specialties across affiliated hospitals
-                </p>
-              </div>
-              <Badge variant="outline">Network Coverage</Badge>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {stats.specializationStats.map((spec) => (
-                <div
-                  key={spec.specialization}
-                  className="p-3.5 rounded-2xl bg-muted/30 border border-border flex flex-col justify-between space-y-2"
-                >
-                  <p className="text-xs font-bold text-foreground truncate">{spec.specialization}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-muted-foreground">Practicing</span>
-                    <Badge variant="primary" className="font-bold">
-                      {spec.count} {spec.count === 1 ? 'doc' : 'docs'}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </MotionWrapper>
-      )}
-
-      {/* quick links */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <MotionWrapper delay={0.4} direction="up">
-          <Link href="/doctors" className="block group h-full">
-            <Card variant="default" className="p-6 h-full group-hover:border-primary group-hover:shadow-md transition-all flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-3.5 rounded-2xl bg-primary/10 text-primary group-hover:scale-105 transition-transform shrink-0">
-                  <Stethoscope className="w-6 h-6" />
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-foreground text-base group-hover:text-primary transition-colors">
-                      Doctor Management
-                    </h3>
-                    <ArrowUpRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Create, search, filter, and assign patients to specialized doctors.
-                  </p>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 group-hover:text-primary transition-all shrink-0" />
-            </Card>
-          </Link>
-        </MotionWrapper>
-
-        <MotionWrapper delay={0.45} direction="up">
-          <Link href="/patients" className="block group h-full">
-            <Card variant="default" className="p-6 h-full group-hover:border-secondary group-hover:shadow-md transition-all flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-3.5 rounded-2xl bg-secondary/10 text-secondary group-hover:scale-105 transition-transform shrink-0">
-                  <Users className="w-6 h-6" />
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-foreground text-base group-hover:text-secondary transition-colors">
-                      Patient Management
-                    </h3>
-                    <ArrowUpRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity text-secondary" />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Track medical conditions, admission dates, and manage patient records.
-                  </p>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 group-hover:text-secondary transition-all shrink-0" />
-            </Card>
-          </Link>
-        </MotionWrapper>
-      </div>
-
-      {/* modal: create doctor in-page */}
+      {/* modals */}
       <DoctorFormModal
         isOpen={isDoctorModalOpen}
         onClose={() => setIsDoctorModalOpen(false)}
@@ -665,13 +440,13 @@ export default function DashboardPage() {
         avatarPreviewUrl={doctorAvatarPreviewUrl}
         onAvatarChange={(file) => {
           setDoctorAvatarFile(file);
-          setDoctorAvatarPreviewUrl(file ? URL.createObjectURL(file) : null);
+          if (file) setDoctorAvatarPreviewUrl(URL.createObjectURL(file));
+          else setDoctorAvatarPreviewUrl(null);
         }}
         onSubmit={handleDoctorSubmit}
         submitting={doctorSubmitting}
       />
 
-      {/* modal: admit patient in-page */}
       <PatientFormModal
         isOpen={isPatientModalOpen}
         onClose={() => setIsPatientModalOpen(false)}
@@ -682,7 +457,8 @@ export default function DashboardPage() {
         avatarPreviewUrl={patientAvatarPreviewUrl}
         onAvatarChange={(file) => {
           setPatientAvatarFile(file);
-          setPatientAvatarPreviewUrl(file ? URL.createObjectURL(file) : null);
+          if (file) setPatientAvatarPreviewUrl(URL.createObjectURL(file));
+          else setPatientAvatarPreviewUrl(null);
         }}
         onSubmit={handlePatientSubmit}
         submitting={patientSubmitting}

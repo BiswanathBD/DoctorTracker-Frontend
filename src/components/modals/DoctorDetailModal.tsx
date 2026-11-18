@@ -2,15 +2,16 @@
 
 import React from 'react';
 import { Modal, Badge, Button } from '@/components/ui';
-import type { Doctor } from '@/types/doctor.types';
-import { Building2, UserPlus, Users, Trash2 } from 'lucide-react';
+import type { Doctor, DoctorPatient } from '@/types/doctor.types';
+import { Building2, UserPlus, Users, UserCheck } from 'lucide-react';
 
 export interface DoctorDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   doctor: Doctor | null;
   onAddPatient: () => void;
-  onRemovePatient: (patientId: string, patientName: string) => void;
+  onRemovePatient?: (patientId: string, patientName: string) => void;
+  onReleasePatient?: (patient: DoctorPatient) => void;
 }
 
 export const DoctorDetailModal: React.FC<DoctorDetailModalProps> = ({
@@ -19,6 +20,7 @@ export const DoctorDetailModal: React.FC<DoctorDetailModalProps> = ({
   doctor,
   onAddPatient,
   onRemovePatient,
+  onReleasePatient,
 }) => {
   if (!doctor) return null;
 
@@ -82,7 +84,7 @@ export const DoctorDetailModal: React.FC<DoctorDetailModalProps> = ({
                     <th className="py-2.5 px-3">Age / Gender</th>
                     <th className="py-2.5 px-3">Condition</th>
                     <th className="py-2.5 px-3">Phone</th>
-                    <th className="py-2.5 px-3 text-right">Remove</th>
+                    <th className="py-2.5 px-3 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -97,13 +99,22 @@ export const DoctorDetailModal: React.FC<DoctorDetailModalProps> = ({
                       </td>
                       <td className="py-2.5 px-3 text-muted-foreground">{patient.phone}</td>
                       <td className="py-2.5 px-3 text-right">
-                        <button
+                        <Button
                           type="button"
-                          onClick={() => onRemovePatient(patient._id, patient.name)}
-                          className="p-1 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            if (onReleasePatient) {
+                              onReleasePatient(patient);
+                            } else if (onRemovePatient) {
+                              onRemovePatient(patient._id, patient.name);
+                            }
+                          }}
+                          className="text-secondary border-secondary/30 hover:bg-secondary/10 text-xs py-1 px-2.5 font-semibold"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                          <UserCheck className="w-3.5 h-3.5 mr-1" />
+                          Release
+                        </Button>
                       </td>
                     </tr>
                   ))}
