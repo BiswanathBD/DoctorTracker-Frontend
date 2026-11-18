@@ -3,7 +3,7 @@
 import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import { PatientService, type Patient } from '@/server/patient.service';
-import { Button, Badge, SideSheet, toast } from '@/components/ui';
+import { Button, SideSheet, toast } from '@/components/ui';
 import {
   HeartPulse,
   Stethoscope,
@@ -14,7 +14,6 @@ import {
   Edit2,
   Trash2,
   Building2,
-  Activity,
   Camera,
   Users,
   Clock,
@@ -72,8 +71,18 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
     }
   };
 
+  // format admission date
   const formattedAdmissionDate = patient.admissionDate
     ? new Date(patient.admissionDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+    : 'N/A';
+
+  // format registered date
+  const formattedRegisteredDate = patient.createdAt
+    ? new Date(patient.createdAt).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -92,34 +101,33 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
             <h2 className="text-xs font-black uppercase tracking-wider text-foreground">
               Patient Dossier
             </h2>
-            <p className="text-[11px] text-muted-foreground">Comprehensive clinical and admission record</p>
+            <p className="text-[11px] text-muted-foreground">Clinical and specialist care record</p>
           </div>
         </div>
 
-        <Button
+        <button
           type="button"
-          variant="ghost"
-          size="sm"
           onClick={onClose}
           title="Close details"
+          className="w-8 aspect-square flex items-center justify-center rounded-lg bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors duration-200 cursor-pointer"
         >
           <X className="w-4 h-4" />
-        </Button>
+        </button>
       </div>
 
       {/* scrollable body */}
       <div className="flex-1 overflow-y-auto scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-5 space-y-5">
-        {/* hero patient card */}
-        <div className="relative rounded-3xl bg-linear-to-br from-secondary/10 via-card to-primary/10 border border-border/80 p-5 space-y-4 shadow-sm overflow-hidden">
-          {/* subtle decorative background circles */}
-          <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-secondary/15 blur-2xl" />
-          <div className="pointer-events-none absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-primary/15 blur-2xl" />
+        {/* full colored gradient top card */}
+        <div className="relative rounded-3xl bg-linear-to-br from-secondary to-secondary-hover p-5 space-y-4 shadow-xl overflow-hidden text-white">
+          {/* background glows */}
+          <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+          <div className="pointer-events-none absolute -left-8 -bottom-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
 
           <div className="flex items-start gap-4 relative z-10">
             {/* avatar with update trigger */}
             <div className="relative group shrink-0">
               {patient.avatar?.url ? (
-                <div className="relative w-18 h-18 rounded-2xl overflow-hidden border-2 border-secondary/30 shadow-md">
+                <div className="relative w-18 h-18 rounded-2xl overflow-hidden border-2 border-white/40 shadow-lg bg-white/10">
                   <Image
                     src={patient.avatar.url}
                     alt={patient.name}
@@ -129,7 +137,7 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
                   />
                 </div>
               ) : (
-                <div className="w-18 h-18 rounded-2xl bg-secondary/15 text-secondary flex items-center justify-center font-black text-2xl uppercase border-2 border-secondary/30 shadow-md">
+                <div className="w-18 h-18 rounded-2xl bg-white/20 text-white flex items-center justify-center font-black text-2xl uppercase border-2 border-white/40 shadow-lg backdrop-blur-sm">
                   {patient.name?.charAt(0) || 'P'}
                 </div>
               )}
@@ -155,71 +163,67 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
             </div>
 
             {/* details & badge */}
-            <div className="min-w-0 flex-1 space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-muted text-muted-foreground">
-                  #PAT-{patient._id.slice(-6).toUpperCase()}
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="inline-flex items-center text-[10px] font-bold bg-white/20 text-white border border-white/30 backdrop-blur-md px-2.5 py-0.5 rounded-full">
+                  {patient.gender}
                 </span>
-                <Badge variant="warning" className="text-[10px] font-bold">
-                  <HeartPulse className="w-3 h-3 mr-1" />
-                  {patient.condition}
-                </Badge>
+                <span className="inline-flex items-center text-[10px] font-bold bg-white/20 text-white border border-white/30 backdrop-blur-md px-2.5 py-0.5 rounded-full">
+                  {patient.age} Years Old
+                </span>
               </div>
 
-              <h3 className="text-lg font-black text-foreground tracking-tight truncate">
+              <h3 className="font-black text-white text-xl tracking-tight truncate drop-shadow-xs">
                 {patient.name}
               </h3>
 
-              <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-                <span className="font-semibold text-foreground">{patient.age} years old</span>
-                <span>•</span>
-                <Badge variant="outline" className="text-[10px] px-2 py-0">
-                  {patient.gender}
-                </Badge>
-                <span>•</span>
-                <span className="text-secondary font-medium">Under Clinical Care</span>
+              <div className="flex items-center gap-1.5 text-xs text-white/90">
+                <HeartPulse className="w-3.5 h-3.5 text-white/90 shrink-0" />
+                <span className="truncate font-medium">{patient.condition}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 2-column clinical & admission metrics */}
+        {/* real metrics grid */}
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/70 space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-              <HeartPulse className="w-3 h-3 text-secondary" />
-              Diagnosis
-            </span>
-            <p className="text-xs font-bold text-foreground truncate">{patient.condition}</p>
-          </div>
-
-          <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/70 space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-              <Calendar className="w-3 h-3 text-primary" />
-              Admitted
+              <Calendar className="w-3 h-3 text-secondary" />
+              Admission Date
             </span>
             <p className="text-xs font-bold text-foreground truncate">{formattedAdmissionDate}</p>
           </div>
 
           <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/70 space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-              <Activity className="w-3 h-3 text-success" />
-              Care Status
+              <Users className="w-3 h-3 text-primary" />
+              Demographics
             </span>
-            <p className="text-xs font-bold text-success flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-success animate-pulse inline-block" />
-              Active Monitoring
+            <p className="text-xs font-bold text-foreground truncate">
+              {patient.age} yrs • {patient.gender}
             </p>
           </div>
 
           <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/70 space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-              <Clock className="w-3 h-3 text-muted-foreground" />
-              Registered
+              <Phone className="w-3 h-3 text-secondary" />
+              Contact Phone
             </span>
-            <p className="text-xs font-semibold text-foreground truncate">
-              {new Date(patient.createdAt).toLocaleDateString()}
-            </p>
+            <a
+              href={`tel:${patient.phone}`}
+              className="text-xs font-mono font-bold text-foreground truncate block hover:text-secondary transition-colors"
+            >
+              {patient.phone}
+            </a>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/70 space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+              <Clock className="w-3 h-3 text-muted-foreground" />
+              Registered On
+            </span>
+            <p className="text-xs font-bold text-foreground truncate">{formattedRegisteredDate}</p>
           </div>
         </div>
 
@@ -227,22 +231,22 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
         <div className="space-y-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
-              <Stethoscope className="w-3.5 h-3.5 text-primary" />
+              <Stethoscope className="w-3.5 h-3.5 text-secondary" />
               <span>Attending Specialist</span>
             </div>
             {attendingDoctor && (
-              <Badge variant="primary" className="text-[10px] font-semibold">
+              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-secondary/10 text-secondary border border-secondary/20">
                 Specialist Assigned
-              </Badge>
+              </span>
             )}
           </div>
 
           {attendingDoctor ? (
-            <div className="p-4 rounded-2xl bg-linear-to-br from-primary/5 via-card to-secondary/5 border border-primary/20 space-y-3">
+            <div className="p-4 rounded-2xl bg-linear-to-br from-secondary/5 via-card to-primary/5 border border-secondary/20 space-y-3">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
                   {attendingDoctor.avatar?.url ? (
-                    <div className="relative w-11 h-11 rounded-xl overflow-hidden border border-primary/25 shrink-0 shadow-xs">
+                    <div className="relative w-11 h-11 rounded-xl overflow-hidden border border-secondary/25 shrink-0 shadow-xs">
                       <Image
                         src={attendingDoctor.avatar.url}
                         alt={attendingDoctor.name}
@@ -252,13 +256,17 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
                       />
                     </div>
                   ) : (
-                    <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0 border border-primary/20">
-                      {attendingDoctor.name ? attendingDoctor.name.replace(/^dr\.?\s+/i, '').charAt(0) : 'D'}
+                    <div className="w-11 h-11 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center font-bold text-sm shrink-0 border border-secondary/20">
+                      {attendingDoctor.name
+                        ? attendingDoctor.name.replace(/^dr\.?\s+/i, '').charAt(0)
+                        : 'D'}
                     </div>
                   )}
                   <div className="min-w-0">
-                    <p className="text-xs font-black text-foreground truncate">{attendingDoctor.name}</p>
-                    <p className="text-[11px] text-primary font-semibold truncate">
+                    <p className="text-xs font-black text-foreground truncate">
+                      {attendingDoctor.name}
+                    </p>
+                    <p className="text-[11px] text-secondary font-semibold truncate">
                       {attendingDoctor.specialization}
                     </p>
                     <p className="text-[10px] text-muted-foreground flex items-center gap-1 truncate mt-0.5">
@@ -269,10 +277,10 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
                 </div>
               </div>
 
-              <div className="pt-2.5 border-t border-primary/10 flex items-center justify-between text-[11px] text-muted-foreground">
+              <div className="pt-2.5 border-t border-secondary/10 flex items-center justify-between text-[11px] text-muted-foreground">
                 <a
                   href={`tel:${attendingDoctor.phone}`}
-                  className="flex items-center gap-1 hover:text-primary transition-colors font-mono"
+                  className="flex items-center gap-1 hover:text-secondary transition-colors font-mono"
                 >
                   <Phone className="w-3 h-3 text-secondary" />
                   {attendingDoctor.phone}
@@ -280,7 +288,7 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
                 {attendingDoctor.email && (
                   <a
                     href={`mailto:${attendingDoctor.email}`}
-                    className="flex items-center gap-1 hover:text-primary transition-colors truncate max-w-42.5"
+                    className="flex items-center gap-1 hover:text-secondary transition-colors truncate max-w-42.5"
                   >
                     <Mail className="w-3 h-3 text-primary" />
                     {attendingDoctor.email}
@@ -317,7 +325,9 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
               </div>
               <div className="min-w-0">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase">Phone</p>
-                <p className="text-xs font-mono font-semibold text-foreground truncate">{patient.phone}</p>
+                <p className="text-xs font-mono font-semibold text-foreground truncate">
+                  {patient.phone}
+                </p>
               </div>
             </a>
 
@@ -358,7 +368,7 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
           onClick={() => onEdit(patient)}
           leftIcon={<Edit2 className="w-3.5 h-3.5" />}
         >
-          Edit Record
+          Edit Patient
         </Button>
         <Button
           type="button"
@@ -367,7 +377,7 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
           onClick={() => onDelete(patient)}
           leftIcon={<Trash2 className="w-3.5 h-3.5" />}
         >
-          Delete Record
+          Delete Patient
         </Button>
       </div>
     </SideSheet>

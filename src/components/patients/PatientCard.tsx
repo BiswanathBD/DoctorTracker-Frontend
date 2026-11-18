@@ -9,6 +9,7 @@ import {
   HeartPulse,
   Stethoscope,
   Phone,
+  Mail,
   Calendar,
   Edit2,
   Trash2,
@@ -47,7 +48,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({
         <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-secondary/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
         {/* top section: avatar, name, condition, demographics, actions */}
-        <div className="space-y-3 relative">
+        <div className="space-y-3 relative z-10">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               {/* patient avatar */}
@@ -112,11 +113,11 @@ export const PatientCard: React.FC<PatientCardProps> = ({
           <div className="p-3 rounded-2xl bg-muted/40 border border-border/70 space-y-1.5">
             <div className="flex items-center justify-between text-[11px]">
               <span className="text-muted-foreground font-semibold flex items-center gap-1">
-                <Stethoscope className="w-3 h-3 text-primary" />
+                <Stethoscope className="w-3 h-3 text-secondary" />
                 Attending Doctor
               </span>
               {docObj && (
-                <span className="text-[10px] font-mono text-muted-foreground truncate max-w-[120px]">
+                <span className="text-[10px] font-mono text-muted-foreground truncate max-w-30">
                   {docObj.hospital}
                 </span>
               )}
@@ -125,7 +126,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({
             {docObj ? (
               <div className="flex items-center gap-2">
                 {docObj.avatar?.url ? (
-                  <div className="relative w-6 h-6 rounded-lg overflow-hidden border border-primary/20 shrink-0">
+                  <div className="relative w-6 h-6 rounded-lg overflow-hidden border border-secondary/20 shrink-0">
                     <Image
                       src={docObj.avatar.url}
                       alt={docObj.name}
@@ -135,7 +136,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({
                     />
                   </div>
                 ) : (
-                  <div className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-[10px] shrink-0">
+                  <div className="w-6 h-6 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center font-bold text-[10px] shrink-0">
                     {docObj.name ? docObj.name.replace(/^dr\.?\s+/i, '').charAt(0) : 'D'}
                   </div>
                 )}
@@ -143,7 +144,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({
                   <p className="text-xs font-bold text-foreground truncate">
                     {docObj.name}
                   </p>
-                  <p className="text-[10px] text-primary font-medium truncate">
+                  <p className="text-[10px] text-secondary font-medium truncate">
                     {docObj.specialization}
                   </p>
                 </div>
@@ -155,29 +156,37 @@ export const PatientCard: React.FC<PatientCardProps> = ({
             )}
           </div>
 
-          {/* quick contact & admission date */}
-          <div className="space-y-1.5 pt-1 text-xs text-muted-foreground">
-            <div className="flex items-center justify-between">
+          {/* quick contact channels */}
+          <div className="space-y-1.5 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Phone className="w-3.5 h-3.5 text-secondary shrink-0" />
               <a
                 href={`tel:${patient.phone}`}
-                className="flex items-center gap-1.5 hover:text-secondary transition-colors font-mono text-[11px]"
+                className="hover:text-secondary transition-colors font-mono truncate"
               >
-                <Phone className="w-3 h-3 text-secondary shrink-0" />
-                <span className="truncate">{patient.phone}</span>
+                {patient.phone}
               </a>
-              <span className="flex items-center gap-1 text-[11px] text-muted-foreground/80">
-                <Calendar className="w-3 h-3" />
-                {new Date(patient.admissionDate).toLocaleDateString()}
-              </span>
             </div>
+            {patient.email && (
+              <div className="flex items-center gap-2">
+                <Mail className="w-3.5 h-3.5 text-primary shrink-0" />
+                <a
+                  href={`mailto:${patient.email}`}
+                  className="hover:text-primary transition-colors truncate"
+                >
+                  {patient.email}
+                </a>
+              </div>
+            )}
           </div>
         </div>
 
         {/* bottom footer */}
         <div className="pt-3 border-t border-border flex items-center justify-between gap-2 relative z-10">
-          <span className="text-[11px] font-medium text-muted-foreground">
-            Admitted {new Date(patient.admissionDate).toLocaleDateString()}
-          </span>
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <Calendar className="w-3.5 h-3.5 text-secondary shrink-0" />
+            <span>Admitted {new Date(patient.admissionDate).toLocaleDateString()}</span>
+          </div>
 
           <Button
             type="button"
