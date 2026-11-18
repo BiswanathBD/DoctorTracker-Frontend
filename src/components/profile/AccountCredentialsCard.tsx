@@ -58,7 +58,7 @@ export const AccountCredentialsCard: React.FC<AccountCredentialsCardProps> = ({ 
                 <User className="w-3.5 h-3.5" />
                 Administrator Name
               </span>
-              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-md bg-primary-foreground/20 text-primary-foreground font-bold">
+              <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-primary-foreground/20 text-primary-foreground font-semibold">
                 KEY-ADMIN
               </span>
             </div>
@@ -76,7 +76,7 @@ export const AccountCredentialsCard: React.FC<AccountCredentialsCardProps> = ({ 
               <button
                 type="button"
                 onClick={() => handleCopyText(admin?.email || '', 'Email')}
-                className="text-primary-foreground/80 hover:text-primary-foreground text-xs font-mono flex items-center gap-1 px-1.5 py-0.5 rounded-md hover:bg-primary-foreground/20 transition-colors cursor-pointer"
+                className="text-primary-foreground/80 hover:text-primary-foreground text-xs flex items-center gap-1 px-1.5 py-0.5 rounded-md hover:bg-primary-foreground/20 transition-colors cursor-pointer"
                 title="Copy email address"
               >
                 {copiedField === 'Email' ? (
@@ -87,7 +87,7 @@ export const AccountCredentialsCard: React.FC<AccountCredentialsCardProps> = ({ 
                 <span>Copy</span>
               </button>
             </div>
-            <p className="font-semibold text-primary-foreground text-sm font-mono truncate">
+            <p className="font-semibold text-primary-foreground text-sm truncate">
               {admin?.email || 'admin@doctortracker.com'}
             </p>
             <p className="text-xs text-primary-foreground/75 font-medium">Primary administrative authentication channel</p>
@@ -100,15 +100,15 @@ export const AccountCredentialsCard: React.FC<AccountCredentialsCardProps> = ({ 
                 <ShieldCheck className="w-3.5 h-3.5 text-accent" />
                 Authorization Level
               </span>
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-accent/20 text-accent border border-accent/30">
+              <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-md bg-accent/20 text-accent border border-accent/30">
                 Full Access
               </span>
             </div>
             <p className="font-semibold text-primary-foreground text-sm capitalize">{admin?.role || 'Root Administrator'}</p>
             <div className="flex items-center gap-1.5 pt-0.5 flex-wrap">
-              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-primary-foreground/15 text-primary-foreground/90 font-semibold">CRUD</span>
-              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-primary-foreground/15 text-primary-foreground/90 font-semibold">Media Pipeline</span>
-              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-primary-foreground/15 text-primary-foreground/90 font-semibold">Roster Control</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-primary-foreground/15 text-primary-foreground/90 font-medium">CRUD</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-primary-foreground/15 text-primary-foreground/90 font-medium">Media Pipeline</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-primary-foreground/15 text-primary-foreground/90 font-medium">Roster Control</span>
             </div>
           </div>
 
@@ -119,7 +119,7 @@ export const AccountCredentialsCard: React.FC<AccountCredentialsCardProps> = ({ 
                 <Building2 className="w-3.5 h-3.5 text-primary-foreground" />
                 Platform Tenant
               </span>
-              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-md bg-primary-foreground/15 text-primary-foreground font-bold">
+              <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-primary-foreground/15 text-primary-foreground font-semibold">
                 v1.0.0
               </span>
             </div>
@@ -130,7 +130,7 @@ export const AccountCredentialsCard: React.FC<AccountCredentialsCardProps> = ({ 
 
         {/* bottom verification footer */}
         <div className="relative z-10 pt-2 flex items-center justify-between text-xs text-primary-foreground/80 border-t border-primary-foreground/20">
-          <span className="font-mono text-xs">AUTH_MODE: <strong>TOKEN_BEARER_STRICT</strong></span>
+          <span className="text-xs">AUTH_MODE: <strong>TOKEN_BEARER_STRICT</strong></span>
           <span className="text-primary-foreground font-semibold flex items-center gap-1 text-xs">
             <CheckCircle2 className="w-3.5 h-3.5 text-accent" />
             Synchronized with Database

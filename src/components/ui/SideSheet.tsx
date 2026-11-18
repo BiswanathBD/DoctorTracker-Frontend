@@ -45,9 +45,9 @@ export const SideSheet: React.FC<SideSheetProps> = ({
 
   const widthClass = {
     sm: 'max-w-sm sm:w-80',
-    md: 'max-w-sm sm:w-88',
-    lg: 'max-w-md sm:w-96',
-    xl: 'max-w-lg sm:w-[28rem]',
+    md: 'max-w-md sm:w-[26rem]',
+    lg: 'max-w-lg sm:w-[30rem]',
+    xl: 'max-w-xl sm:w-[34rem]',
   }[width];
 
   if (!isMounted) return null;

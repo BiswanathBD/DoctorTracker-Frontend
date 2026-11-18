@@ -2,7 +2,7 @@
 
 import React, { useSyncExternalStore } from 'react';
 import Image from 'next/image';
-import { Menu, Search, Moon, Sun, User, ChevronDown, Command } from 'lucide-react';
+import { Menu, Search, Moon, Sun, ShieldCheck, ChevronDown, Command } from 'lucide-react';
 import { type AdminUser } from '@/server/auth.service';
 import { Logo } from '@/components/common/Logo';
 import { Motion } from '@/components/common/MotionWrapper';
@@ -154,7 +154,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                       : 'bg-primary-foreground/25 text-primary-foreground'
                   }`}
                 >
-                  <User className="w-4 h-4" />
+                  <ShieldCheck className="w-4 h-4" />
                 </div>
               )}
               <div

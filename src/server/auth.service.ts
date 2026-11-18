@@ -94,6 +94,31 @@ export const AuthService = {
     return updatedUser;
   },
 
+  // delete admin avatar
+  async deleteAvatar(): Promise<AdminUser> {
+    const token = this.getToken();
+    if (!token) throw new Error('Not authenticated');
+
+    const res = await fetch(`${API_URL}/auth/avatar`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || 'Failed to delete avatar');
+    }
+
+    const updatedUser = data.data;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      notifyAuthListeners();
+    }
+    return updatedUser;
+  },
+
   // fetch current profile from api
   async getProfile(): Promise<AdminUser> {
     const token = this.getToken();

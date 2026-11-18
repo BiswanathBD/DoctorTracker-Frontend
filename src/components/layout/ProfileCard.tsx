@@ -1,22 +1,22 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { AuthService, type AdminUser } from '@/server/auth.service';
-import { DashboardService, type DashboardStats } from '@/server/dashboard.service';
-import { SideSheet, Badge } from '@/components/ui';
+import { SideSheet, Badge, toast } from '@/components/ui';
 import {
   LogOut,
-  Shield,
-  Stethoscope,
-  Users,
+  ShieldCheck,
   Settings,
   X,
   ChevronRight,
   Mail,
-  Building2,
-  User,
+  Calendar,
+  Clock,
+  Lock,
+  Copy,
+  CheckCircle2,
 } from 'lucide-react';
 
 interface ProfileCardProps {
@@ -25,27 +25,40 @@ interface ProfileCardProps {
   admin: AdminUser | null;
 }
 
+// format display date helper
+const formatDate = (dateVal?: string | Date) => {
+  if (!dateVal) return 'Recently';
+  const d = new Date(dateVal);
+  if (isNaN(d.getTime())) return 'Recently';
+  return d.toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+};
+
 export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin }) => {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
-  useEffect(() => {
-    DashboardService.getStats()
-      .then((data) => setStats(data))
-      .catch((err) => console.error('failed to fetch stats for profile card:', err));
-  }, []);
-
-  const totalDoctors = stats?.overview.totalDoctors ?? '--';
-  const totalPatients = stats?.overview.totalPatients ?? '--';
-  const totalHospitals = stats?.overview.totalHospitals ?? '--';
+  // copy text to clipboard helper
+  const handleCopyText = (text: string, label: string) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedField(label);
+    toast.success('Copied to Clipboard', text);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
 
   return (
-    <SideSheet isOpen={isOpen} onClose={onClose} width="md" className="p-0">
+    <SideSheet isOpen={isOpen} onClose={onClose} width="lg" className="p-0">
       {/* fixed header */}
       <div className="shrink-0 px-6 py-4 border-b border-border/80 flex items-center justify-between bg-card/90">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Account Center
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+            <ShieldCheck className="w-4 h-4 text-primary" />
+          </div>
+          <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
+            Administrative Profile
           </span>
         </div>
 
@@ -53,22 +66,48 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
           type="button"
           onClick={onClose}
           className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer transition-colors"
+          title="Close profile drawer"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
 
       {/* scrollable body */}
-      <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-6">
-        {/* modern identity card */}
-        <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-primary/15 via-muted/30 to-card border border-primary/20 py-3 px-4 shadow-sm">
-          {/* subtle decorative vector */}
-          <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-primary/10 blur-2xl pointer-events-none" />
+      <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-5">
+        {/* stylish hero identity card (following main profile card) */}
+        <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-primary via-primary-hover to-secondary text-primary-foreground p-5 shadow-xl border border-primary-foreground/20 space-y-4">
+          {/* subtle matrix dots grid pattern */}
+          <svg className="absolute inset-0 w-full h-full opacity-10 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="profile-sheet-grid" width="18" height="18" patternUnits="userSpaceOnUse">
+                <circle cx="2" cy="2" r="1.5" fill="currentColor" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#profile-sheet-grid)" />
+          </svg>
 
-          <div className="relative z-10 flex items-center gap-4">
+          {/* absolute admin privilege pill on top right */}
+          <div className="absolute top-4 right-4 z-20">
+            <Badge variant="primary" className="bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30 text-xs py-0.5 px-2.5 font-medium shadow-2xs backdrop-blur-xs">
+              <ShieldCheck className="w-3 h-3 mr-1" />
+              <span className="capitalize">{admin?.role || 'admin'}</span> Privileges
+            </Badge>
+          </div>
+
+          {/* angled glowing light accents */}
+          <div className="pointer-events-none absolute -top-16 -right-10 w-64 h-28 bg-primary-foreground/15 rotate-12 blur-xl" />
+          <div className="pointer-events-none absolute -bottom-12 -left-8 w-56 h-24 bg-primary-foreground/10 -rotate-12 blur-xl" />
+
+          {/* watermark guard emblem */}
+          <div className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 opacity-10">
+            <ShieldCheck className="w-36 h-36 text-primary-foreground stroke-[1]" />
+          </div>
+
+          <div className="relative z-10 flex items-center gap-4 pr-32">
+            {/* clean avatar (no upload/delete overlay) */}
             <div className="relative shrink-0">
               {admin?.avatar?.url ? (
-                <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-primary/40 shadow-lg shadow-primary/20">
+                <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-primary-foreground/40 shadow-lg shadow-black/10">
                   <Image
                     src={admin.avatar.url}
                     alt={admin.name || 'Admin'}
@@ -78,150 +117,162 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
                   />
                 </div>
               ) : (
-                <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-primary via-primary-hover to-secondary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/20">
-                  <User className="w-8 h-8" />
+                <div className="w-16 h-16 rounded-2xl bg-primary-foreground/20 text-primary-foreground flex items-center justify-center border-2 border-primary-foreground/40 shadow-lg backdrop-blur-sm">
+                  <ShieldCheck className="w-8 h-8 text-primary-foreground" />
                 </div>
               )}
-              <div
-                className="absolute -bottom-1 -right-1 w-4.5 h-4.5 rounded-full bg-success border-2 border-card"
-              />
+
+              {/* active status dot */}
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-card border-2 border-card flex items-center justify-center shadow-xs">
+                <span className="w-2.5 h-2.5 rounded-full bg-success animate-pulse inline-block" />
+              </div>
             </div>
 
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <h3 className="font-semibold text-foreground text-base tracking-tight truncate">
-                  {admin?.name || 'Super Admin'}
-                </h3>
-              </div>
+            <div className="min-w-0 flex-1 space-y-1">
+              <h3 className="font-semibold text-primary-foreground text-base tracking-tight truncate">
+                {admin?.name || 'Super Admin'}
+              </h3>
 
-              <p className="text-xs text-muted-foreground flex items-center gap-1.5 truncate mt-0.5 font-medium">
-                <Mail className="w-3.5 h-3.5 text-primary shrink-0" />
+              <p className="text-xs text-primary-foreground/85 flex items-center gap-1.5 truncate font-medium">
+                <Mail className="w-3.5 h-3.5 text-primary-foreground/90 shrink-0" />
                 <span className="truncate">{admin?.email || 'admin@doctortracker.com'}</span>
               </p>
-
-              <div className="mt-2 flex items-center gap-1.5">
-                <Badge variant="primary" className="text-xs py-0.5 px-2 font-medium">
-                  {admin?.role || 'Super Admin'}
-                </Badge>
-                <span className="text-xs text-muted-foreground font-medium flex items-center gap-1">
-                  <Shield className="w-3 h-3 text-success" />
-                  Verified Access
-                </span>
-              </div>
             </div>
           </div>
         </div>
 
-        {/* platform impact metrics */}
+        {/* real & relevant account credentials and session details */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Platform Directory
-            </p>
-            <span className="text-xs text-primary font-medium flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              Live Sync
-            </span>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">
+            Account & Session Identity
+          </p>
+
+          {/* email pill with copy */}
+          <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/70 flex items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <Mail className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] uppercase font-semibold text-muted-foreground tracking-wider">
+                  Verified Email
+                </p>
+                <p className="text-xs font-semibold text-foreground truncate">
+                  {admin?.email || 'admin@doctortracker.com'}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleCopyText(admin?.email || '', 'Email')}
+              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0"
+              title="Copy email"
+            >
+              {copiedField === 'Email' ? (
+                <CheckCircle2 className="w-4 h-4 text-success" />
+              ) : (
+                <Copy className="w-4 h-4" />
+              )}
+            </button>
           </div>
 
-          <div className="grid grid-cols-3 gap-2.5">
-            {/* doctors card */}
-            <Link
-              href="/doctors"
-              onClick={onClose}
-              className="group relative overflow-hidden p-3.5 rounded-2xl bg-linear-to-b from-primary/10 via-card to-card border border-primary/20 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs hover:shadow-md hover:shadow-primary/10 cursor-pointer"
-            >
-              <div className="flex items-center justify-between">
-                <div className="w-7 h-7 rounded-xl bg-primary/15 text-primary flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs">
-                  <Stethoscope className="w-3.5 h-3.5" />
-                </div>
-                <ChevronRight className="w-3 h-3 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
-              </div>
-              <div className="mt-3">
-                <p className="text-xl font-semibold text-foreground tracking-tight leading-none group-hover:text-primary transition-colors">
-                  {totalDoctors}
-                </p>
-                <p className="text-xs font-medium text-muted-foreground mt-1">Specialists</p>
-              </div>
-            </Link>
+          {/* dates side-by-side */}
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            {/* created at */}
+            <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/70 space-y-1 shadow-2xs">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-primary" />
+                Account Created
+              </span>
+              <p className="font-semibold text-foreground truncate text-xs">
+                {formatDate(admin?.createdAt)}
+              </p>
+            </div>
 
-            {/* patients card */}
-            <Link
-              href="/patients"
-              onClick={onClose}
-              className="group relative overflow-hidden p-3.5 rounded-2xl bg-linear-to-b from-secondary/10 via-card to-card border border-secondary/20 hover:border-secondary/50 transition-all flex flex-col justify-between shadow-xs hover:shadow-md hover:shadow-secondary/10 cursor-pointer"
-            >
-              <div className="flex items-center justify-between">
-                <div className="w-7 h-7 rounded-xl bg-secondary/15 text-secondary flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs">
-                  <Users className="w-3.5 h-3.5" />
-                </div>
-                <ChevronRight className="w-3 h-3 text-muted-foreground/40 group-hover:text-secondary group-hover:translate-x-0.5 transition-all" />
-              </div>
-              <div className="mt-3">
-                <p className="text-xl font-semibold text-foreground tracking-tight leading-none group-hover:text-secondary transition-colors">
-                  {totalPatients}
-                </p>
-                <p className="text-xs font-medium text-muted-foreground mt-1">Admissions</p>
-              </div>
-            </Link>
+            {/* last updated */}
+            <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/70 space-y-1 shadow-2xs">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-secondary" />
+                Last Updated
+              </span>
+              <p className="font-semibold text-foreground truncate text-xs">
+                {formatDate(admin?.updatedAt || admin?.createdAt)}
+              </p>
+            </div>
+          </div>
 
-            {/* hospitals card */}
-            <Link
-              href="/doctors"
-              onClick={onClose}
-              className="group relative overflow-hidden p-3.5 rounded-2xl bg-linear-to-b from-primary/10 via-card to-card border border-primary/20 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs hover:shadow-md hover:shadow-primary/10 cursor-pointer"
-            >
-              <div className="flex items-center justify-between">
-                <div className="w-7 h-7 rounded-xl bg-primary/15 text-primary flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs">
-                  <Building2 className="w-3.5 h-3.5" />
-                </div>
-                <ChevronRight className="w-3 h-3 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+          {/* security & session protocol */}
+          <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/70 flex items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="w-8 h-8 rounded-xl bg-success/10 text-success flex items-center justify-center shrink-0">
+                <Lock className="w-4 h-4" />
               </div>
-              <div className="mt-3">
-                <p className="text-xl font-semibold text-foreground tracking-tight leading-none group-hover:text-primary transition-colors">
-                  {totalHospitals}
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] uppercase font-semibold text-muted-foreground tracking-wider">
+                  Security Protocol
                 </p>
-                <p className="text-xs font-medium text-muted-foreground mt-1">Hospitals</p>
+                <p className="text-xs font-semibold text-foreground truncate">
+                  JWT • 7-Day Session Lifespan
+                </p>
               </div>
-            </Link>
+            </div>
+            <span className="text-xs font-medium text-success flex items-center gap-1 bg-success/10 px-2.5 py-0.5 rounded-full border border-success/20 shrink-0">
+              <ShieldCheck className="w-3.5 h-3.5 text-success" />
+              Protected
+            </span>
           </div>
         </div>
 
         {/* navigation & settings options */}
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">
-            Preferences
+            Administrative Dossier
           </p>
 
           <Link
             href="/profile"
             onClick={onClose}
-            className="p-3.5 rounded-2xl bg-card hover:bg-muted/50 border border-border/80 hover:border-primary/40 transition-all flex items-center justify-between group cursor-pointer shadow-xs"
+            className="p-3.5 rounded-2xl bg-card hover:bg-muted/50 border border-border/80 hover:border-primary/40 transition-all flex items-center justify-between group cursor-pointer shadow-xs gap-3"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
-                <Settings className="w-4 h-4" />
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="w-9 h-9 rounded-xl bg-linear-to-br from-primary/15 to-secondary/15 border border-primary/25 flex items-center justify-center text-primary group-hover:scale-105 transition-transform shrink-0">
+                <Settings className="w-4.5 h-4.5" />
               </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-                  Admin Settings
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                  Full Profile & Settings
                 </p>
-                <p className="text-xs text-muted-foreground mt-0.5 font-medium">Edit profile, credentials & avatar</p>
+                <p className="text-xs text-muted-foreground mt-0.5 font-medium truncate">
+                  Manage identity, media storage, & security
+                </p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
           </Link>
         </div>
       </div>
 
-      {/* fixed footer */}
-      <div className="shrink-0 p-5 border-t border-border/80 bg-card/90">
+      {/* fixed footer with matching logout button on right */}
+      <div className="shrink-0 p-5 border-t border-border/80 bg-card/90 flex items-center justify-between gap-3 text-left">
+        <div className="space-y-0.5 min-w-0 flex-1">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-destructive">
+            <LogOut className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">Sign Out of Session</span>
+          </div>
+          <p className="text-xs text-muted-foreground truncate">
+            Clear token and end session.
+          </p>
+        </div>
+
         <button
           type="button"
-          onClick={() => AuthService.logout()}
-          className="w-full py-3 px-4 rounded-2xl bg-destructive hover:bg-destructive/90 text-destructive-foreground font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-destructive/25 transition-all cursor-pointer active:scale-[0.99]"
+          onClick={() => {
+            onClose();
+            AuthService.logout();
+          }}
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-all font-semibold text-xs shadow-md shadow-destructive/25 cursor-pointer active:scale-95 shrink-0"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-3.5 h-3.5" />
           <span>Sign Out</span>
         </button>
       </div>
