@@ -47,20 +47,20 @@ export function useDoctorActions({
   });
   const [doctorAvatarFile, setDoctorAvatarFile] = useState<File | null>(null);
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
+  const [avatarDeleted, setAvatarDeleted] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
 
-  // handle avatar file selection
-  const handleAvatarChange = useCallback(
-    (file: File | null) => {
-      setDoctorAvatarFile(file);
-      if (file) {
-        setAvatarPreviewUrl(URL.createObjectURL(file));
-      } else {
-        setAvatarPreviewUrl(editingDoctor?.avatar?.url || null);
-      }
-    },
-    [editingDoctor]
-  );
+  // handle avatar file selection / deletion
+  const handleAvatarChange = useCallback((file: File | null) => {
+    setDoctorAvatarFile(file);
+    if (file) {
+      setAvatarPreviewUrl(URL.createObjectURL(file));
+      setAvatarDeleted(false);
+    } else {
+      setAvatarPreviewUrl(null);
+      setAvatarDeleted(true);
+    }
+  }, []);
 
   // nested patient form states
   const [patientForm, setPatientForm] = useState<PatientFormData>({
@@ -104,6 +104,7 @@ export function useDoctorActions({
     setEditingDoctor(null);
     setDoctorAvatarFile(null);
     setAvatarPreviewUrl(null);
+    setAvatarDeleted(false);
     setDoctorForm({
       name: '',
       specialization: '',
@@ -152,6 +153,7 @@ export function useDoctorActions({
     setEditingDoctor(doctor);
     setDoctorAvatarFile(null);
     setAvatarPreviewUrl(doctor.avatar?.url || null);
+    setAvatarDeleted(false);
     setDoctorForm({
       name: doctor.name,
       specialization: doctor.specialization,
@@ -184,6 +186,9 @@ export function useDoctorActions({
 
         if (doctorAvatarFile) {
           const avatarRes = await DoctorService.updateAvatar(editingDoctor._id, doctorAvatarFile);
+          updated.avatar = avatarRes.avatar;
+        } else if (avatarDeleted && editingDoctor.avatar?.url) {
+          const avatarRes = await DoctorService.deleteAvatar(editingDoctor._id);
           updated.avatar = avatarRes.avatar;
         }
 

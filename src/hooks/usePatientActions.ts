@@ -43,6 +43,7 @@ export function usePatientActions({
   });
   const [patientAvatarFile, setPatientAvatarFile] = useState<File | null>(null);
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
+  const [avatarDeleted, setAvatarDeleted] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
 
   // open create modal
@@ -50,6 +51,7 @@ export function usePatientActions({
     setEditingPatient(null);
     setPatientAvatarFile(null);
     setAvatarPreviewUrl(null);
+    setAvatarDeleted(false);
     setPatientForm({
       name: '',
       age: '',
@@ -78,6 +80,7 @@ export function usePatientActions({
     setEditingPatient(patient);
     setPatientAvatarFile(null);
     setAvatarPreviewUrl(patient.avatar?.url || null);
+    setAvatarDeleted(false);
     const assignedDocId =
       typeof patient.doctorId === 'object' && patient.doctorId !== null
         ? patient.doctorId._id
@@ -98,15 +101,17 @@ export function usePatientActions({
     setIsFormModalOpen(true);
   };
 
-  // handle avatar image selection
-  const handleAvatarChange = (file: File | null) => {
+  // handle avatar image selection / deletion
+  const handleAvatarChange = useCallback((file: File | null) => {
     setPatientAvatarFile(file);
     if (file) {
       setAvatarPreviewUrl(URL.createObjectURL(file));
+      setAvatarDeleted(false);
     } else {
-      setAvatarPreviewUrl(editingPatient?.avatar?.url || null);
+      setAvatarPreviewUrl(null);
+      setAvatarDeleted(true);
     }
-  };
+  }, []);
 
   // submit form (create or edit)
   const handlePatientSubmit = async (e: React.FormEvent) => {
@@ -138,6 +143,9 @@ export function usePatientActions({
         const updated = await PatientService.updatePatient(editingPatient._id, payload);
         if (patientAvatarFile) {
           const avatarRes = await PatientService.updateAvatar(editingPatient._id, patientAvatarFile);
+          updated.avatar = avatarRes.avatar;
+        } else if (avatarDeleted && editingPatient.avatar?.url) {
+          const avatarRes = await PatientService.deleteAvatar(editingPatient._id);
           updated.avatar = avatarRes.avatar;
         }
         toast.success('Patient Updated', `${patientForm.name}'s record has been updated.`);

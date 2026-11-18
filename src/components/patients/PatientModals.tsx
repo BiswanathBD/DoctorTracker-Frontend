@@ -27,7 +27,7 @@ export interface PatientModalsProps {
   onAvatarChange: (file: File | null) => void;
   onPatientSubmit: (e: React.FormEvent) => void;
   formSubmitting: boolean;
-
+ 
   // patient delete modal
   isDeleteModalOpen: boolean;
   onCloseDeleteModal: () => void;

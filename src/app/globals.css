@@ -88,7 +88,7 @@
   --background: #090d16;
   --foreground: #f8fafc;
 
-  --card: #14191f;
+  --card: #0a0d11;
   --card-foreground: #f8fafc;
 
   --primary: #198dc7;
@@ -99,7 +99,7 @@
   --secondary-foreground: #ffffff;
   --secondary-hover: #159f94;
 
-  --muted: #29323f;
+  --muted: #222932;
   --muted-foreground: #94a3b8;
 
   --accent: #38bdf8;
@@ -114,7 +114,7 @@
   --warning: #f59e0b;
   --warning-foreground: #ffffff;
 
-  --border: #1e242d;
+  --border: #1b1f27;
   --input: #1f293d;
   --ring: #0284c7;
 

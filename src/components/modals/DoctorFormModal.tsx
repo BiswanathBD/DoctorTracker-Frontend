@@ -12,7 +12,7 @@ import {
   Phone,
   Mail,
   Camera,
-  X,
+  Trash2,
   Check,
   Plus,
 } from 'lucide-react';
@@ -41,6 +41,9 @@ export const DoctorFormModal: React.FC<DoctorFormModalProps> = ({
   submitting,
 }) => {
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  // track initial avatar state
+  const initialAvatar = editingDoctor?.avatar?.url || null;
 
   return (
     <Modal
@@ -107,19 +110,20 @@ export const DoctorFormModal: React.FC<DoctorFormModalProps> = ({
                 </div>
               </div>
 
-              {/* remove photo trigger */}
+              {/* delete avatar button on hover */}
               {avatarPreviewUrl && !submitting && (
                 <button
                   type="button"
-                  className="absolute -top-1.5 -right-1.5 z-10 w-6 aspect-square rounded-full bg-destructive flex items-center justify-center text-destructive-foreground cursor-pointer"
+                  className="absolute bottom-2.5 left-1/2 -translate-x-1/2 z-20 px-2.5 py-1 rounded-full bg-destructive hover:bg-destructive/90 text-white text-[10px] font-bold flex items-center gap-1 shadow-lg transition-all opacity-0 group-hover:opacity-100 cursor-pointer pointer-events-auto"
                   onClick={(e) => {
                     e.stopPropagation();
                     onAvatarChange(null);
                     if (avatarInputRef.current) avatarInputRef.current.value = '';
                   }}
-                  title="Remove Photo"
+                  title={initialAvatar ? 'Delete avatar' : 'Remove photo'}
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <Trash2 className="w-3 h-3" />
+                  <span>{initialAvatar ? 'Delete' : 'Remove'}</span>
                 </button>
               )}
             </div>

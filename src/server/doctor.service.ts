@@ -101,6 +101,21 @@ export const DoctorService = {
     return data.data;
   },
 
+  // delete doctor avatar
+  async deleteAvatar(doctorId: string): Promise<Doctor> {
+    const token = AuthService.getToken();
+    const res = await fetch(`${API_URL}/doctors/${doctorId}/avatar`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'failed to delete doctor avatar');
+    return data.data;
+  },
+
   // delete doctor by id
   async deleteDoctor(id: string): Promise<void> {
     const token = AuthService.getToken();

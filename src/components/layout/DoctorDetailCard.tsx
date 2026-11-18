@@ -93,21 +93,20 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
           </div>
         </div>
 
-        <Button
+        <button
           type="button"
-          variant="ghost"
-          size="sm"
           onClick={onClose}
           title="Close details"
+          className='w-8 aspect-square flex items-center justify-center rounded-lg bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors duration-200 cursor-pointer'
         >
           <X className="w-4 h-4" />
-        </Button>
+        </button>
       </div>
 
       {/* body */}
       <div className="flex-1 overflow-y-auto scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-5 space-y-5">
         {/* full colored gradient top card */}
-        <div className="relative rounded-3xl bg-linear-to-br from-primary via-primary-hover to-primary p-5 space-y-4 shadow-xl border border-white/20 text-white overflow-hidden">
+        <div className="relative rounded-3xl bg-linear-to-br from-primary to-primary-hover p-5 space-y-4 shadow-xl overflow-hidden">
           {/* background glows */}
           <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
           <div className="pointer-events-none absolute -left-8 -bottom-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
@@ -369,7 +368,7 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
         >
           Edit Doctor
         </Button>
-        
+
         {onDelete && (
           <Button
             type="button"

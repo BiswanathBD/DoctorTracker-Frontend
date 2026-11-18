@@ -103,6 +103,21 @@ export const PatientService = {
     return data.data;
   },
 
+  // delete patient avatar
+  async deleteAvatar(patientId: string): Promise<Patient> {
+    const token = AuthService.getToken();
+    const res = await fetch(`${API_URL}/patients/${patientId}/avatar`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'failed to delete patient avatar');
+    return data.data;
+  },
+
   // delete patient
   async deletePatient(id: string): Promise<void> {
     const token = AuthService.getToken();

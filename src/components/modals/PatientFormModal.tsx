@@ -15,7 +15,7 @@ import {
   Calendar,
   Stethoscope,
   Camera,
-  X,
+  Trash2,
   Check,
   Plus,
 } from 'lucide-react';
@@ -52,6 +52,9 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
   description,
 }) => {
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  // track initial avatar state
+  const initialAvatar = editingPatient?.avatar?.url || null;
 
   const modalTitle = title || (editingPatient ? 'Edit Patient' : 'Register Patient');
   const modalDescription =
@@ -121,17 +124,20 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
                 </div>
               </div>
 
-              {/* remove photo trigger */}
+              {/* delete avatar button on hover */}
               {avatarPreviewUrl && !submitting && (
-                <button type='button' className="absolute -top-1.5 -right-1.5 z-10 w-6 aspect-square rounded-full bg-destructive flex items-center justify-center text-destructive-foreground cursor-pointer"
+                <button
+                  type="button"
+                  className="absolute bottom-2.5 left-1/2 -translate-x-1/2 z-20 px-2.5 py-1 rounded-full bg-destructive hover:bg-destructive/90 text-white text-[10px] font-bold flex items-center gap-1 shadow-lg transition-all opacity-0 group-hover:opacity-100 cursor-pointer pointer-events-auto"
                   onClick={(e) => {
                     e.stopPropagation();
                     onAvatarChange(null);
                     if (avatarInputRef.current) avatarInputRef.current.value = '';
                   }}
-                  title="Remove Photo"
+                  title={initialAvatar ? 'Delete avatar' : 'Remove photo'}
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <Trash2 className="w-3 h-3" />
+                  <span>{initialAvatar ? 'Delete' : 'Remove'}</span>
                 </button>
               )}
             </div>
@@ -187,7 +193,7 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
           </div>
         </div>
 
-        {/* row 2: medical condition and phone */}
+        {/* medical condition and phone */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <MotionWrapper animationType="fadeUp" delay={0.3} duration={0.3}>
             <Input
