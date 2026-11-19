@@ -55,30 +55,30 @@ export const LogoText: React.FC<{
   hideOnMobile = false,
   className = '',
 }) => {
-  const { title, tag: tagStyle } = sizeMap[size];
-  const [firstWord, ...rest] = name.trim().split(' ');
-  const restWord = rest.join(' ');
+    const { title, tag: tagStyle } = sizeMap[size];
+    const [firstWord, ...rest] = name.trim().split(' ');
+    const restWord = rest.join(' ');
 
-  const mobileDisplayClass = hideOnMobile ? 'hidden sm:flex' : 'flex';
+    const mobileDisplayClass = hideOnMobile ? 'hidden sm:flex' : 'flex';
 
-  return (
-    <div className={`${mobileDisplayClass} flex-col leading-none ${className}`}>
-      <h1 className={`font-extrabold text-foreground tracking-tight leading-none ${title}`}>
-        {firstWord || 'Doctor'}
-        {restWord && (
-          <span className="ml-1 bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
-            {restWord}
-          </span>
+    return (
+      <div className={`${mobileDisplayClass} flex-col leading-none ${className}`}>
+        <h1 className={`font-bold text-foreground  leading-none ${title}`}>
+          {firstWord || 'Doctor'}
+          {restWord && (
+            <span className="ml-1 bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
+              {restWord}
+            </span>
+          )}
+        </h1>
+        {tag && (
+          <p className={`font-semibold uppercase tracking-[0.14em] text-muted-foreground mt-1 ${tagStyle}`}>
+            {tag}
+          </p>
         )}
-      </h1>
-      {tag && (
-        <p className={`font-semibold uppercase tracking-[0.14em] text-muted-foreground mt-1 ${tagStyle}`}>
-          {tag}
-        </p>
-      )}
-    </div>
-  );
-};
+      </div>
+    );
+  };
 
 // main unified clean logo
 export const Logo: React.FC<LogoProps> = ({

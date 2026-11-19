@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { DoctorDetailCard } from '@/components/layout/DoctorDetailCard';
+import { PatientDetailCard } from '@/components/layout/PatientDetailCard';
 import { DoctorFormModal } from '@/components/modals/DoctorFormModal';
 import { PatientFormModal } from '@/components/modals/PatientFormModal';
 import { DoctorDeleteModal } from '@/components/modals/DoctorDeleteModal';
@@ -110,6 +111,12 @@ export const DoctorModals: React.FC<DoctorModalsProps> = ({
   onConfirmReleasePatient,
   releaseSubmitting = false,
 }) => {
+  const [viewingPatientId, setViewingPatientId] = useState<string | null>(null);
+  const [viewingDoctorId, setViewingDoctorId] = useState<string | null>(null);
+
+  const activeDoctorId = viewingDoctorId || (isDetailCardOpen ? selectedDoctor?._id || null : null);
+  const isDoctorCardOpen = Boolean(activeDoctorId);
+
   const doctorDisplayName = selectedDoctor
     ? selectedDoctor.name.startsWith('Dr.')
       ? selectedDoctor.name
@@ -120,13 +127,18 @@ export const DoctorModals: React.FC<DoctorModalsProps> = ({
     <>
       {/* side slide-in sheet for detailed doctor information */}
       <DoctorDetailCard
-        doctor={selectedDoctor}
-        isOpen={isDetailCardOpen}
+        key={activeDoctorId || 'doctor-drawer-none'}
+        doctorId={activeDoctorId}
+        isOpen={isDoctorCardOpen}
         loadingPatients={loadingDoctorDetails}
-        onClose={onCloseDetailCard}
+        onClose={() => {
+          onCloseDetailCard();
+          setViewingDoctorId(null);
+        }}
         onAvatarUpdated={onAvatarUpdated}
         onEdit={(doc) => {
           onCloseDetailCard();
+          setViewingDoctorId(null);
           onEditDoctor(doc);
         }}
         onDelete={(doc) => {
@@ -135,6 +147,23 @@ export const DoctorModals: React.FC<DoctorModalsProps> = ({
         onAddPatient={onOpenAddPatient}
         onRemovePatient={onRequestRemovePatient}
         onReleasePatient={onReleasePatient}
+        onViewPatient={(patientId) => {
+          onCloseDetailCard();
+          setViewingDoctorId(null);
+          setViewingPatientId(patientId);
+        }}
+      />
+
+      {/* linked patient details modal */}
+      <PatientDetailCard
+        key={viewingPatientId || 'patient-drawer-none'}
+        patientId={viewingPatientId}
+        isOpen={Boolean(viewingPatientId)}
+        onClose={() => setViewingPatientId(null)}
+        onViewDoctor={(docId) => {
+          setViewingPatientId(null);
+          setViewingDoctorId(docId);
+        }}
       />
 
       {/* modal: create / edit doctor */}

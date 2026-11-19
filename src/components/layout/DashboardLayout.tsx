@@ -333,6 +333,10 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             onAddPatient={handleOpenAddPatient}
             onRemovePatient={(patId, patName) => setPatientToDelete({ _id: patId, name: patName })}
             onReleasePatient={(pat) => setPatientToRelease(pat as unknown as Patient)}
+            onViewPatient={(patId) => {
+              setSelectedDoctorId(null);
+              setSelectedPatientId(patId);
+            }}
             onAvatarUpdated={() => setDrawerRefreshKey((prev) => prev + 1)}
           />
 
@@ -344,6 +348,10 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             onEdit={(pat) => handleOpenEditPatient(pat)}
             onRelease={(pat) => setPatientToRelease(pat)}
             onDelete={(pat) => setPatientToDelete(pat)}
+            onViewDoctor={(docId) => {
+              setSelectedPatientId(null);
+              setSelectedDoctorId(docId);
+            }}
             onAvatarUpdated={() => setDrawerRefreshKey((prev) => prev + 1)}
           />
 

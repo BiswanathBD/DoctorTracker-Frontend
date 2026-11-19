@@ -2,10 +2,20 @@
 
 import React from 'react';
 import { motion, type HTMLMotionProps } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 export interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'> {
   children?: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive';
+  variant?:
+    | 'primary'
+    | 'secondary'
+    | 'outline'
+    | 'ghost'
+    | 'destructive'
+    | 'warning'
+    | 'light'
+    | 'light-primary'
+    | 'light-secondary';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   leftIcon?: React.ReactNode;
@@ -60,10 +70,30 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         bodyText: 'bg-muted text-foreground font-medium',
         iconBg: 'text-foreground',
       },
+      warning: {
+        container: `bg-warning/15 text-warning ${shadowBySize} shadow-warning/25`,
+        bodyText: 'bg-warning text-warning-foreground font-bold',
+        iconBg: 'text-warning',
+      },
       destructive: {
         container: `bg-destructive/15 text-destructive ${shadowBySize} shadow-destructive/25`,
         bodyText: 'bg-destructive text-destructive-foreground font-bold',
         iconBg: 'text-destructive',
+      },
+      light: {
+        container: `bg-white text-foreground ${shadowBySize} shadow-black/10`,
+        bodyText: 'bg-white text-foreground font-bold',
+        iconBg: 'text-muted-foreground',
+      },
+      'light-primary': {
+        container: `bg-white text-primary ${shadowBySize} shadow-black/10`,
+        bodyText: 'bg-white text-primary font-bold',
+        iconBg: 'text-primary',
+      },
+      'light-secondary': {
+        container: `bg-white text-secondary ${shadowBySize} shadow-black/10`,
+        bodyText: 'bg-white text-secondary font-bold',
+        iconBg: 'text-secondary',
       },
     }[variant];
 
@@ -73,7 +103,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       secondary: `bg-secondary text-secondary-foreground hover:bg-secondary-hover ${shadowBySize} shadow-secondary/25`,
       outline: `bg-card text-foreground hover:bg-muted ${shadowBySize}`,
       ghost: 'text-foreground hover:bg-muted shadow-sm',
+      warning: `bg-warning text-warning-foreground hover:bg-warning/90 ${shadowBySize} shadow-warning/25`,
       destructive: `bg-destructive text-destructive-foreground hover:bg-destructive/90 ${shadowBySize} shadow-destructive/25`,
+      light: `bg-white text-foreground hover:bg-slate-50 ${shadowBySize} shadow-black/10`,
+      'light-primary': `bg-white text-primary hover:bg-white/95 ${shadowBySize} shadow-black/10`,
+      'light-secondary': `bg-white text-secondary hover:bg-white/95 ${shadowBySize} shadow-black/10`,
     }[variant];
 
     // sizing styles
@@ -109,7 +143,12 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           whileHover={disabled || loading ? undefined : { scale: 1.02 }}
           whileTap={disabled || loading ? undefined : { scale: 0.98 }}
           disabled={disabled || loading}
-          className={`group inline-flex items-center rounded-full p-0 border-0 overflow-hidden select-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-all outline-none focus-visible:ring-4 focus-visible:ring-ring/20 ${capsuleTheme.container} ${sizeStyles.capsuleWrapper} ${className}`}
+          className={cn(
+            'group inline-flex items-center rounded-full p-0 border-0 overflow-hidden select-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-all outline-none focus-visible:ring-4 focus-visible:ring-ring/20',
+            capsuleTheme.container,
+            sizeStyles.capsuleWrapper,
+            className
+          )}
           {...props}
         >
           {/* icon section */}
@@ -141,7 +180,12 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         whileHover={disabled || loading ? undefined : { scale: 1.02 }}
         whileTap={disabled || loading ? undefined : { scale: 0.98 }}
         disabled={disabled || loading}
-        className={`inline-flex items-center justify-center font-bold border-0 transition-all outline-none focus-visible:ring-4 focus-visible:ring-ring/20 select-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${standardVariantStyles} ${sizeStyles.standard} ${className}`}
+        className={cn(
+          'inline-flex items-center justify-center font-bold border-0 transition-all outline-none focus-visible:ring-4 focus-visible:ring-ring/20 select-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed',
+          standardVariantStyles,
+          sizeStyles.standard,
+          className
+        )}
         {...props}
       >
         {loading ? (

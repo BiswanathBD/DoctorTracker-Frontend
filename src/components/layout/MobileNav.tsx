@@ -68,7 +68,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, admin }) 
     >
       <DrawerContent
         direction="left"
-        className="w-72 h-full p-0 flex flex-col justify-start pointer-events-auto outline-none lg:hidden border-none bg-transparent"
+        className="max-w-xs h-full p-0 flex flex-col justify-start pointer-events-auto outline-none lg:hidden border-none bg-transparent"
       >
         <DrawerHeader className="sr-only">
           <DrawerTitle>Portal Navigation</DrawerTitle>
@@ -100,7 +100,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, admin }) 
           {/* Mobile brand header with close button */}
           <div className="relative z-10 h-12 px-2 flex items-center justify-between border-b border-primary-foreground/15 mb-2">
             <div className="brightness-200">
-              <Logo size="sm" hideTextOnMobile={false} />
+              <Logo hideTextOnMobile={false} />
             </div>
             <button
               type="button"

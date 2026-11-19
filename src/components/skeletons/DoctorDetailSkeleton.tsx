@@ -1,5 +1,6 @@
 import React from 'react';
-import { Stethoscope, Users } from 'lucide-react';
+import { Stethoscope } from 'lucide-react';
+import { DoctorPatientRosterSkeleton } from './DoctorPatientRosterSkeleton';
 import { cn } from '@/lib/utils';
 
 export const DoctorDetailSkeleton: React.FC<{ animated?: boolean }> = ({ animated = true }) => {
@@ -70,25 +71,7 @@ export const DoctorDetailSkeleton: React.FC<{ animated?: boolean }> = ({ animate
             <div className="h-7 bg-muted/60 border border-border/60 rounded-xl w-24" />
           </div>
 
-          <div className="space-y-2">
-            {[1, 2].map((i) => (
-              <div
-                key={i}
-                className="p-3 rounded-2xl bg-card border border-border/70 flex items-center justify-between gap-3"
-              >
-                <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <div className="w-8 h-8 rounded-xl bg-secondary/15 flex items-center justify-center shrink-0">
-                    <Users className="w-3.5 h-3.5 text-secondary/40" />
-                  </div>
-                  <div className="space-y-1.5 flex-1 min-w-0">
-                    <div className="h-3.5 bg-foreground/15 rounded-md w-24" />
-                    <div className="h-2.5 bg-muted-foreground/20 rounded-md w-32" />
-                  </div>
-                </div>
-                <div className="w-16 h-7 rounded-xl bg-secondary/10 border border-secondary/20" />
-              </div>
-            ))}
-          </div>
+          <DoctorPatientRosterSkeleton count={2} />
         </div>
       </div>
 

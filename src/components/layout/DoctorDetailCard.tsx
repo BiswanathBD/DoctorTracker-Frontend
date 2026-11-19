@@ -2,11 +2,21 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { DoctorService, type Doctor, type DoctorPatient } from '@/server/doctor.service';
+import { PatientService, type Patient } from '@/server/patient.service';
 import { Button, SideSheet, toast, PageHeader } from '@/components/ui';
 import { MotionWrapper } from '@/components/common/MotionWrapper';
 import { DoctorDetailSkeleton } from '@/components/skeletons/DoctorDetailSkeleton';
+import { DoctorPatientRosterSkeleton } from '@/components/skeletons/DoctorPatientRosterSkeleton';
 import { AssignExistingPatientModal } from '@/components/modals/AssignExistingPatientModal';
+import { DoctorFormModal } from '@/components/modals/DoctorFormModal';
+import { DoctorDeleteModal } from '@/components/modals/DoctorDeleteModal';
+import { PatientFormModal } from '@/components/modals/PatientFormModal';
+import { ReleasePatientModal } from '@/components/modals/ReleasePatientModal';
+import { PatientDeleteModal } from '@/components/modals/PatientDeleteModal';
+import type { DoctorFormData } from '@/types/doctor.types';
+import type { PatientFormData } from '@/types/patient.types';
 import {
   Stethoscope,
   Building2,
@@ -14,14 +24,19 @@ import {
   Mail,
   Calendar,
   Users,
-  UserPlus,
   Trash2,
   Edit2,
   Camera,
   ShieldCheck,
   FileText,
   UserCheck,
+  UserPlus,
 } from 'lucide-react';
+
+const PatientDetailCard = dynamic(
+  () => import('@/components/layout/PatientDetailCard').then((mod) => mod.PatientDetailCard),
+  { ssr: false }
+);
 
 export interface DoctorDetailCardProps {
   doctorId?: string | null;
@@ -33,6 +48,7 @@ export interface DoctorDetailCardProps {
   onAddPatient?: () => void;
   onRemovePatient?: (patientId: string, patientName: string) => void;
   onReleasePatient?: (patient: DoctorPatient | { _id: string; name: string }) => void;
+  onViewPatient?: (patientId: string) => void;
   onAvatarUpdated?: (doctor: Doctor) => void;
   loadingPatients?: boolean;
 }
@@ -47,18 +63,63 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
   onAddPatient,
   onRemovePatient,
   onReleasePatient,
+  onViewPatient,
   onAvatarUpdated,
   loadingPatients = false,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [fetchedDoctor, setFetchedDoctor] = useState<Doctor | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(() => Boolean(!initialDoctor && Boolean(doctorId)));
+  const [doctor, setDoctor] = useState<Doctor | null>(null);
+  const [loadedId, setLoadedId] = useState<string | null>(null);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState<boolean>(false);
 
-  const targetId = doctorId || initialDoctor?._id;
+  // internal modal states for autonomous/reusable usage anywhere
+  const [isInternalEditOpen, setIsInternalEditOpen] = useState(false);
+  const [internalDoctorForm, setInternalDoctorForm] = useState<DoctorFormData>({
+    name: '',
+    specialization: '',
+    hospital: '',
+    phone: '',
+    email: '',
+    note: '',
+  });
+  const [internalDoctorAvatarFile, setInternalDoctorAvatarFile] = useState<File | null>(null);
+  const [internalDoctorAvatarPreview, setInternalDoctorAvatarPreview] = useState<string | null>(null);
+  const [internalDoctorSubmitting, setInternalDoctorSubmitting] = useState(false);
 
-  // fetch doctor details on open
+  const [isInternalDeleteOpen, setIsInternalDeleteOpen] = useState(false);
+  const [internalDeleteSubmitting, setInternalDeleteSubmitting] = useState(false);
+
+  const [isInternalAdmitOpen, setIsInternalAdmitOpen] = useState(false);
+  const [internalAdmitForm, setInternalAdmitForm] = useState<PatientFormData>({
+    name: '',
+    age: '',
+    gender: 'Male',
+    phone: '',
+    email: '',
+    condition: '',
+    doctorId: '',
+    admissionDate: new Date().toISOString().split('T')[0],
+    note: '',
+  });
+  const [internalAdmitAvatarFile, setInternalAdmitAvatarFile] = useState<File | null>(null);
+  const [internalAdmitAvatarPreview, setInternalAdmitAvatarPreview] = useState<string | null>(null);
+  const [internalAdmitSubmitting, setInternalAdmitSubmitting] = useState(false);
+
+  const [isInternalReleaseOpen, setIsInternalReleaseOpen] = useState(false);
+  const [internalPatientToRelease, setInternalPatientToRelease] = useState<Patient | null>(null);
+  const [internalReleaseSubmitting, setInternalReleaseSubmitting] = useState(false);
+
+  const [isInternalRemoveOpen, setIsInternalRemoveOpen] = useState(false);
+  const [internalPatientToRemove, setInternalPatientToRemove] = useState<{ id: string; name: string } | null>(null);
+  const [internalRemoveSubmitting, setInternalRemoveSubmitting] = useState(false);
+
+  const [internalViewingPatientId, setInternalViewingPatientId] = useState<string | null>(null);
+
+  const targetId = doctorId || initialDoctor?._id;
+  const isLoading = Boolean(!isOpen || !targetId || !doctor || loadedId !== targetId);
+
+  // fetch fresh doctor details from api every time drawer opens or targetId changes
   useEffect(() => {
     if (!isOpen || !targetId) return;
 
@@ -67,15 +128,15 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
     DoctorService.getDoctorById(targetId)
       .then((data) => {
         if (isMounted) {
-          setFetchedDoctor(data);
-          setIsLoading(false);
+          setDoctor(data);
+          setLoadedId(targetId);
         }
       })
       .catch((err) => {
         if (isMounted) {
           console.error('Failed to fetch doctor details:', err);
           toast.error('Load Failed', 'Could not fetch doctor details.');
-          setIsLoading(false);
+          setLoadedId(targetId);
         }
       });
 
@@ -84,7 +145,7 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
     };
   }, [isOpen, targetId]);
 
-  const activeDoctor = initialDoctor || fetchedDoctor;
+  const activeDoctor = doctor && loadedId === targetId ? doctor : null;
 
   if (!isOpen && !activeDoctor && !targetId) return null;
 
@@ -100,12 +161,24 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
       : `Dr. ${activeDoctor.name}`
     : 'Doctor';
 
+  // safely format consulting date (prevents "Invalid Date")
+  const formattedConsultingDate = (() => {
+    if (!activeDoctor?.createdAt) return 'Registered Specialist';
+    const parsed = new Date(activeDoctor.createdAt);
+    if (isNaN(parsed.getTime())) return 'Registered Specialist';
+    return parsed.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  })();
+
   // refresh doctor details after assigning existing patient
   const handlePatientAssigned = async () => {
     if (!targetId) return;
     try {
       const refreshed = await DoctorService.getDoctorById(targetId);
-      setFetchedDoctor(refreshed);
+      setDoctor(refreshed);
       if (refreshed) {
         onAvatarUpdated?.(refreshed);
       }
@@ -129,7 +202,7 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
       setIsUploading(true);
       const updated = await DoctorService.updateAvatar(activeDoctor._id, file);
       toast.success('Avatar Updated', `Avatar updated for ${doctorDisplayName}.`);
-      setFetchedDoctor(updated);
+      setDoctor(updated);
       onAvatarUpdated?.(updated);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'failed to upload avatar';
@@ -137,6 +210,201 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  // autonomous action handlers
+  const handleTriggerEditDoctor = () => {
+    if (onEdit && activeDoctor) {
+      onEdit(activeDoctor);
+    } else if (activeDoctor) {
+      setInternalDoctorForm({
+        name: activeDoctor.name,
+        specialization: activeDoctor.specialization,
+        hospital: activeDoctor.hospital,
+        phone: activeDoctor.phone,
+        email: activeDoctor.email,
+        note: activeDoctor.note || '',
+      });
+      setInternalDoctorAvatarFile(null);
+      setInternalDoctorAvatarPreview(activeDoctor.avatar?.url || null);
+      setIsInternalEditOpen(true);
+    }
+  };
+
+  const handleSubmitInternalEditDoctor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeDoctor) return;
+    try {
+      setInternalDoctorSubmitting(true);
+      const updated = await DoctorService.updateDoctor(activeDoctor._id, internalDoctorForm);
+      if (internalDoctorAvatarFile) {
+        try {
+          const avRes = await DoctorService.updateAvatar(activeDoctor._id, internalDoctorAvatarFile);
+          updated.avatar = avRes.avatar;
+        } catch (avErr) {
+          console.error('Avatar upload failed:', avErr);
+        }
+      }
+      setDoctor(updated);
+      onAvatarUpdated?.(updated);
+      toast.success('Doctor Updated', 'Specialist profile saved.');
+      setIsInternalEditOpen(false);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'failed to update doctor';
+      toast.error('Update Failed', msg);
+    } finally {
+      setInternalDoctorSubmitting(false);
+    }
+  };
+
+  const handleTriggerDeleteDoctor = () => {
+    if (onDelete && activeDoctor) {
+      onDelete(activeDoctor);
+    } else if (activeDoctor) {
+      setIsInternalDeleteOpen(true);
+    }
+  };
+
+  const handleConfirmInternalDeleteDoctor = async () => {
+    if (!activeDoctor) return;
+    try {
+      setInternalDeleteSubmitting(true);
+      await DoctorService.deleteDoctor(activeDoctor._id);
+      toast.success('Doctor Deleted', `${doctorDisplayName} has been removed.`);
+      setIsInternalDeleteOpen(false);
+      onClose();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'failed to delete doctor';
+      toast.error('Delete Failed', msg);
+    } finally {
+      setInternalDeleteSubmitting(false);
+    }
+  };
+
+  const handleTriggerAdmitPatient = () => {
+    if (onAddPatient) {
+      onAddPatient();
+    } else if (activeDoctor) {
+      setInternalAdmitForm({
+        name: '',
+        age: '',
+        gender: 'Male',
+        phone: '',
+        email: '',
+        condition: '',
+        doctorId: activeDoctor._id,
+        admissionDate: new Date().toISOString().split('T')[0],
+        note: '',
+      });
+      setInternalAdmitAvatarFile(null);
+      setInternalAdmitAvatarPreview(null);
+      setIsInternalAdmitOpen(true);
+    }
+  };
+
+  const handleSubmitInternalAdmitPatient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeDoctor) return;
+    try {
+      setInternalAdmitSubmitting(true);
+      const payload = {
+        name: internalAdmitForm.name,
+        age: Number(internalAdmitForm.age),
+        gender: internalAdmitForm.gender,
+        phone: internalAdmitForm.phone,
+        email: internalAdmitForm.email || undefined,
+        condition: internalAdmitForm.condition,
+        doctorId: activeDoctor._id,
+        admissionDate: internalAdmitForm.admissionDate,
+        note: internalAdmitForm.note || undefined,
+      };
+      const created = await PatientService.createPatient(payload);
+      if (internalAdmitAvatarFile && created._id) {
+        try {
+          await PatientService.updateAvatar(created._id, internalAdmitAvatarFile);
+        } catch (avErr) {
+          console.error('Avatar upload failed for new patient:', avErr);
+        }
+      }
+      toast.success('Patient Admitted', `${internalAdmitForm.name} admitted successfully.`);
+      setIsInternalAdmitOpen(false);
+      // refresh doctor details
+      const refreshed = await DoctorService.getDoctorById(activeDoctor._id);
+      setDoctor(refreshed);
+      if (refreshed) onAvatarUpdated?.(refreshed);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'failed to admit patient';
+      toast.error('Admit Failed', msg);
+    } finally {
+      setInternalAdmitSubmitting(false);
+    }
+  };
+
+  const handleTriggerReleasePatient = (p: DoctorPatient | { _id: string; name: string }) => {
+    if (onReleasePatient) {
+      onReleasePatient(p);
+    } else {
+      setInternalPatientToRelease(p as Patient);
+      setIsInternalReleaseOpen(true);
+    }
+  };
+
+  const handleConfirmInternalReleasePatient = async (patientId: string, releaseDate: string, remark: string) => {
+    try {
+      setInternalReleaseSubmitting(true);
+      await PatientService.releasePatient(patientId, releaseDate, remark);
+      toast.success('Patient Released', 'Patient successfully released.');
+      setIsInternalReleaseOpen(false);
+      setInternalPatientToRelease(null);
+      if (activeDoctor) {
+        const refreshed = await DoctorService.getDoctorById(activeDoctor._id);
+        setDoctor(refreshed);
+        if (refreshed) onAvatarUpdated?.(refreshed);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'failed to release patient';
+      toast.error('Release Failed', msg);
+    } finally {
+      setInternalReleaseSubmitting(false);
+    }
+  };
+
+  const handleTriggerRemovePatient = (patientId: string, patientName: string) => {
+    if (onRemovePatient) {
+      onRemovePatient(patientId, patientName);
+    } else {
+      setInternalPatientToRemove({ id: patientId, name: patientName });
+      setIsInternalRemoveOpen(true);
+    }
+  };
+
+  const handleConfirmInternalRemovePatient = async () => {
+    if (!activeDoctor || !internalPatientToRemove) return;
+    try {
+      setInternalRemoveSubmitting(true);
+      await DoctorService.removePatientFromDoctor(activeDoctor._id, internalPatientToRemove.id);
+      toast.success('Patient Removed', `${internalPatientToRemove.name} unassigned from doctor.`);
+      setIsInternalRemoveOpen(false);
+      setInternalPatientToRemove(null);
+      const refreshed = await DoctorService.getDoctorById(activeDoctor._id);
+      setDoctor(refreshed);
+      if (refreshed) onAvatarUpdated?.(refreshed);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'failed to unassign patient';
+      toast.error('Unassign Failed', msg);
+    } finally {
+      setInternalRemoveSubmitting(false);
+    }
+  };
+
+  const handleTriggerViewPatient = (patientId: string) => {
+    if (!patientId) return;
+    if (onViewPatient) {
+      onClose();
+      onViewPatient(patientId);
+    } else {
+      setInternalViewingPatientId(patientId);
     }
   };
 
@@ -240,11 +508,7 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
                     <span>Consulting Since</span>
                   </div>
                   <span className="font-bold">
-                    {new Date(activeDoctor.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                    })}
+                    {formattedConsultingDate}
                   </span>
                 </div>
               </div>
@@ -311,49 +575,27 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
                     <Button
                       type="button"
                       size="sm"
-                      variant="outline"
+                      variant="secondary"
+                      leftIcon={<UserCheck className="w-3.5 h-3.5" />}
                       onClick={() => setIsAssignModalOpen(true)}
-                      leftIcon={<Users className="w-3.5 h-3.5 text-secondary" />}
                     >
                       Assign
                     </Button>
-                    {onAddPatient && (
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="primary"
-                        onClick={onAddPatient}
-                        leftIcon={<UserPlus className="w-3.5 h-3.5" />}
-                      >
-                        Admit
-                      </Button>
-                    )}
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="primary"
+                      leftIcon={<UserPlus className="w-3.5 h-3.5" />}
+                      onClick={handleTriggerAdmitPatient}
+                    >
+                      Admit
+                    </Button>
                   </div>
                 </div>
 
                 <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pr-0.5">
                   {loadingPatients ? (
-                    <div className="space-y-2">
-                      {Array.from({ length: Math.max(1, Math.min(3, displayPatientCount || 2)) }).map((_, i) => (
-                        <div
-                          key={i}
-                          className="p-3 rounded-2xl bg-linear-to-r from-primary/10 via-card to-secondary/10 border border-primary/25 flex items-center justify-between gap-3 animate-pulse shadow-xs"
-                        >
-                          <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                            <div className="w-8 h-8 rounded-xl bg-secondary/20 border border-secondary/30 text-secondary flex items-center justify-center font-bold text-xs shrink-0">
-                              <Users className="w-3.5 h-3.5 opacity-50" />
-                            </div>
-                            <div className="space-y-1.5 flex-1 min-w-0">
-                              <div className="h-3.5 bg-primary/25 border border-primary/20 rounded-md w-28" />
-                              <div className="flex items-center gap-2">
-                                <div className="h-2.5 bg-secondary/25 rounded-md w-16" />
-                                <div className="h-2 bg-primary/15 rounded-md w-20" />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                    <DoctorPatientRosterSkeleton count={displayPatientCount} />
                   ) : assignedPatients.length === 0 ? (
                     <div className="text-center py-8 border border-dashed border-border rounded-2xl bg-muted/20 p-4 space-y-2">
                       <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center mx-auto text-muted-foreground">
@@ -369,21 +611,17 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
                           size="sm"
                           variant="outline"
                           onClick={() => setIsAssignModalOpen(true)}
-                          leftIcon={<Users className="w-3.5 h-3.5 text-secondary" />}
                         >
                           Assign Patient
                         </Button>
-                        {onAddPatient && (
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="primary"
-                            onClick={onAddPatient}
-                            leftIcon={<UserPlus className="w-3.5 h-3.5" />}
-                          >
-                            Admit Patient
-                          </Button>
-                        )}
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="primary"
+                          onClick={handleTriggerAdmitPatient}
+                        >
+                          Admit Patient
+                        </Button>
                       </div>
                     </div>
                   ) : (
@@ -392,59 +630,92 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
                       const patientName = typeof p === 'string' ? `Patient ${idx + 1}` : p.name;
                       const patientCondition = typeof p === 'object' ? p.condition : undefined;
                       const patientPhone = typeof p === 'object' ? p.phone : undefined;
+                      const patientAge = typeof p === 'object' ? p.age : undefined;
+                      const patientGender = typeof p === 'object' ? p.gender : undefined;
+                      const patientAvatar = typeof p === 'object' && p.avatar?.url ? p.avatar.url : undefined;
+                      const isReleased = typeof p === 'object' && (p as unknown as { isReleased?: boolean }).isReleased;
 
                       return (
                         <MotionWrapper key={patientId} delay={idx * 0.04} animationType="fade">
-                          <div className="p-3 rounded-2xl bg-card border border-border/70 hover:border-secondary/30 transition-all flex items-center justify-between gap-3 text-xs shadow-2xs group">
-                            <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                              <div className="w-8 h-8 rounded-xl bg-secondary/10 border border-secondary/20 text-secondary flex items-center justify-center font-bold text-xs shrink-0">
-                                {patientName.charAt(0)}
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <p className="font-bold text-foreground truncate group-hover:text-secondary transition-colors">
-                                  {patientName}
-                                </p>
-                                <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                                  {patientCondition && (
-                                    <span className="text-warning font-semibold truncate">
-                                      {patientCondition}
-                                    </span>
-                                  )}
-                                  {patientPhone && (
-                                    <span className="truncate">{patientPhone}</span>
+                          <div
+                            onClick={() => handleTriggerViewPatient(patientId)}
+                            className="relative overflow-hidden group transition-all duration-300 p-2.5 sm:p-3 rounded-2xl bg-secondary text-secondary-foreground hover:bg-secondary-hover/90 cursor-pointer shadow-md shadow-secondary/20 hover:shadow-lg"
+                          >
+                            <div className="flex items-center justify-between gap-3 relative z-10">
+                              <div className="flex items-center gap-3 min-w-0 flex-1">
+                                {/* reduced avatar size with border and shadow */}
+                                <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-secondary-foreground/90 border-2 border-white/80 overflow-hidden flex items-center justify-center shrink-0 shadow-md group-hover:scale-105 transition-transform duration-300">
+                                  {patientAvatar ? (
+                                    <Image
+                                      src={patientAvatar}
+                                      alt={patientName}
+                                      fill
+                                      sizes="44px"
+                                      className="object-cover"
+                                    />
+                                  ) : (
+                                    <Users className="w-5 h-5 text-secondary" />
                                   )}
                                 </div>
-                              </div>
-                            </div>
 
-                            <div className="flex items-center gap-2 shrink-0">
-                              {onReleasePatient && (
+                                {/* name and (condition, age and gender in same line) */}
+                                <div className="min-w-0 flex-1 space-y-1">
+                                  <h4
+                                    className="font-semibold text-white text-sm sm:text-base truncate leading-tight drop-shadow-xs"
+                                    title={patientName}
+                                  >
+                                    {patientName}
+                                  </h4>
+                                  <div className="flex items-center gap-2 truncate text-[11px] font-medium">
+                                    {patientCondition && (
+                                      <span className="text-white px-2 py-0.5 rounded-md bg-warning font-bold truncate max-w-38 shadow-xs">
+                                        <span className="truncate">{patientCondition}</span>
+                                      </span>
+                                    )}
+                                    <span className="truncate text-white/90">
+                                      {patientAge ? `${patientAge} yrs` : ''}
+                                      {patientAge && (patientGender || patientPhone) ? ' • ' : ''}
+                                      {patientGender || patientPhone || ''}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* delete and release same line */}
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                {!isReleased && (
+                                  <Button
+                                    type="button"
+                                    variant="light-secondary"
+                                    size="sm"
+                                    capsule={false}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleTriggerReleasePatient(typeof p === 'string' ? { _id: p, name: patientName } : p);
+                                    }}
+                                    title={`Release ${patientName}`}
+                                    className="h-7 px-2.5 text-xs font-bold rounded-xl border-0"
+                                    leftIcon={<UserCheck className="w-3.5 h-3.5" />}
+                                  >
+                                    Release
+                                  </Button>
+                                )}
+
                                 <Button
                                   type="button"
-                                  variant="secondary"
+                                  variant="destructive"
                                   size="sm"
                                   capsule={false}
-                                  onClick={() =>
-                                    onReleasePatient(typeof p === 'string' ? { _id: p, name: patientName } : p)
-                                  }
-                                  title={`Release ${patientName}`}
-                                  className="rounded-full bg-secondary text-secondary-foreground hover:bg-secondary-hover shrink-0 font-semibold h-8 px-3 text-xs shadow-xs"
-                                >
-                                  <UserCheck className="w-3.5 h-3.5 mr-1 text-secondary-foreground" />
-                                  Release
-                                </Button>
-                              )}
-
-                              {onRemovePatient && (
-                                <button
-                                  type="button"
-                                  onClick={() => onRemovePatient(patientId, patientName)}
-                                  title={`Delete ${patientName} from doctor's list`}
-                                  className="w-8 h-8 rounded-full bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground border border-destructive/25 flex items-center justify-center shrink-0 transition-all cursor-pointer shadow-xs active:scale-95"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleTriggerRemovePatient(patientId, patientName);
+                                  }}
+                                  className="h-7! w-7! p-0 rounded-full flex items-center justify-center shrink-0 shadow-xs"
+                                  title={`Unassign ${patientName} from doctor's list`}
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              )}
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         </MotionWrapper>
@@ -455,33 +726,29 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
               </div>
             </div>
 
-            {/* fixed footer matching Profile Drawer 1:1 */}
+            {/* fixed footer matching Profile Drawer 1:1 - always visible */}
             <div className="shrink-0 p-4 sm:p-5 px-5 sm:px-6 border-t border-border/80 flex items-center justify-end gap-2 sm:gap-2.5 bg-card/90">
-              {onEdit && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onEdit(activeDoctor)}
-                  leftIcon={<Edit2 className="w-3.5 h-3.5" />}
-                  className="whitespace-nowrap"
-                >
-                  Edit
-                </Button>
-              )}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleTriggerEditDoctor}
+                leftIcon={<Edit2 className="w-3.5 h-3.5" />}
+                className="whitespace-nowrap"
+              >
+                Edit Doctor
+              </Button>
 
-              {onDelete && (
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => onDelete(activeDoctor)}
-                  leftIcon={<Trash2 className="w-3.5 h-3.5" />}
-                  className="whitespace-nowrap"
-                >
-                  Delete
-                </Button>
-              )}
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={handleTriggerDeleteDoctor}
+                leftIcon={<Trash2 className="w-3.5 h-3.5" />}
+                className="whitespace-nowrap"
+              >
+                Delete Doctor
+              </Button>
             </div>
           </div>
         )}
@@ -493,8 +760,112 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
         onClose={() => setIsAssignModalOpen(false)}
         doctor={activeDoctor || null}
         onSuccess={handlePatientAssigned}
-        onOpenAdmitModal={onAddPatient}
+        onOpenAdmitModal={handleTriggerAdmitPatient}
       />
+
+      {/* autonomous modal: edit doctor */}
+      <DoctorFormModal
+        isOpen={isInternalEditOpen}
+        onClose={() => setIsInternalEditOpen(false)}
+        editingDoctor={activeDoctor}
+        doctorForm={internalDoctorForm}
+        setDoctorForm={setInternalDoctorForm}
+        avatarPreviewUrl={internalDoctorAvatarPreview}
+        onAvatarChange={(file) => {
+          setInternalDoctorAvatarFile(file);
+          if (file) {
+            const url = URL.createObjectURL(file);
+            setInternalDoctorAvatarPreview(url);
+          } else {
+            setInternalDoctorAvatarPreview(null);
+          }
+        }}
+        onSubmit={handleSubmitInternalEditDoctor}
+        submitting={internalDoctorSubmitting}
+      />
+
+      {/* autonomous modal: delete doctor */}
+      <DoctorDeleteModal
+        isOpen={isInternalDeleteOpen}
+        onClose={() => setIsInternalDeleteOpen(false)}
+        doctor={activeDoctor}
+        loading={internalDeleteSubmitting}
+        onConfirm={handleConfirmInternalDeleteDoctor}
+      />
+
+      {/* autonomous modal: admit patient under this doctor */}
+      <PatientFormModal
+        isOpen={isInternalAdmitOpen}
+        onClose={() => setIsInternalAdmitOpen(false)}
+        editingPatient={null}
+        patientForm={internalAdmitForm}
+        setPatientForm={setInternalAdmitForm}
+        doctorsList={activeDoctor ? [activeDoctor] : []}
+        avatarPreviewUrl={internalAdmitAvatarPreview}
+        onAvatarChange={(file) => {
+          setInternalAdmitAvatarFile(file);
+          if (file) {
+            const url = URL.createObjectURL(file);
+            setInternalAdmitAvatarPreview(url);
+          } else {
+            setInternalAdmitAvatarPreview(null);
+          }
+        }}
+        onSubmit={handleSubmitInternalAdmitPatient}
+        submitting={internalAdmitSubmitting}
+        disableDoctorSelect={true}
+        title={`Add Patient under ${doctorDisplayName}`}
+        description="Create and assign a patient directly to this specialist."
+      />
+
+      {/* autonomous modal: release patient from roster */}
+      <ReleasePatientModal
+        isOpen={isInternalReleaseOpen}
+        onClose={() => {
+          setIsInternalReleaseOpen(false);
+          setInternalPatientToRelease(null);
+        }}
+        patient={internalPatientToRelease}
+        loading={internalReleaseSubmitting}
+        onConfirmRelease={handleConfirmInternalReleasePatient}
+      />
+
+      {/* autonomous modal: unassign patient from doctor */}
+      <PatientDeleteModal
+        isOpen={isInternalRemoveOpen}
+        onClose={() => {
+          setIsInternalRemoveOpen(false);
+          setInternalPatientToRemove(null);
+        }}
+        patient={internalPatientToRemove}
+        title="Unassign Patient"
+        description="Are you sure you want to remove this patient from the doctor?"
+        confirmLabel="Unassign"
+        warningText={
+          <p>
+            Unassigning <strong>{internalPatientToRemove?.name}</strong> will remove them from{' '}
+            {doctorDisplayName}&apos;s patient roster.
+          </p>
+        }
+        loading={internalRemoveSubmitting}
+        onConfirm={handleConfirmInternalRemovePatient}
+      />
+
+      {/* autonomous sub-drawer: view patient details when no onViewPatient is passed */}
+      {internalViewingPatientId && (
+        <PatientDetailCard
+          patientId={internalViewingPatientId}
+          isOpen={Boolean(internalViewingPatientId)}
+          onClose={() => setInternalViewingPatientId(null)}
+          onViewDoctor={(docId) => {
+            setInternalViewingPatientId(null);
+            // if clicking back to another doctor
+            if (docId !== targetId) {
+              DoctorService.getDoctorById(docId).then((d) => setDoctor(d));
+            }
+          }}
+        />
+      )}
     </>
   );
 };

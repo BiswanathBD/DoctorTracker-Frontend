@@ -39,15 +39,25 @@ export const PatientDetailSkeleton: React.FC<{ animated?: boolean }> = ({ animat
         </div>
 
         {/* attending specialist card */}
-        <div className="p-4 rounded-2xl bg-card border border-border/80 space-y-2.5">
+        <div className="space-y-2.5">
           <div className="h-3.5 bg-foreground/15 rounded-md w-36" />
-          <div className="p-3 rounded-2xl bg-primary/5 border border-primary/15 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-              <Stethoscope className="w-5 h-5 text-primary/40" />
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-primary/25 border border-primary/20 space-y-2.5 shadow-xs">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="w-12 h-12 sm:w-13 sm:h-13 rounded-xl bg-white/20 border-2 border-white/40 flex items-center justify-center shrink-0">
+                  <Stethoscope className="w-6 h-6 text-white/50" />
+                </div>
+                <div className="space-y-1.5 flex-1 min-w-0">
+                  <div className="h-4 bg-white/30 rounded-md w-36" />
+                  <div className="w-20 h-4 bg-warning/40 rounded-md" />
+                  <div className="h-3 bg-white/20 rounded-md w-28" />
+                </div>
+              </div>
+              <div className="w-28 h-7 rounded-xl bg-white/30 shrink-0" />
             </div>
-            <div className="space-y-1.5 flex-1 min-w-0">
-              <div className="h-3.5 bg-foreground/15 rounded-md w-36" />
-              <div className="h-2.5 bg-muted-foreground/20 rounded-md w-28" />
+            <div className="pt-2 border-t border-white/15 flex items-center gap-3">
+              <div className="w-24 h-3 bg-white/20 rounded-md" />
+              <div className="w-32 h-3 bg-white/20 rounded-md" />
             </div>
           </div>
         </div>
