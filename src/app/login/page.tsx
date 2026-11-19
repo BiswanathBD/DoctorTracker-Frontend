@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import { Logo } from '@/components/common/Logo';
 import { Button, Input, toast } from '@/components/ui';
 import {
@@ -62,22 +61,11 @@ export default function LoginPage() {
           hideCloseButton={true}
           onPointerDownOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
-          className="w-full max-w-md p-0 border-none bg-transparent shadow-none outline-none select-none overflow-hidden no-scrollbar"
+          className="w-full max-w-md p-6 sm:p-7 rounded-3xl bg-card/95 backdrop-blur-2xl shadow-2xl shadow-primary/10 select-none overflow-hidden no-scrollbar space-y-4"
         >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.94, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{
-              type: 'spring',
-              stiffness: 320,
-              damping: 24,
-              mass: 0.8,
-            }}
-            className="relative w-full rounded-3xl bg-card/95 backdrop-blur-2xl shadow-2xl shadow-primary/10 overflow-hidden no-scrollbar p-6 sm:p-7 space-y-4"
-          >
-            {/* Ambient inner soft background glow */}
-            <div className="absolute -top-20 -right-20 w-44 h-44 rounded-full bg-primary/15 blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-44 h-44 rounded-full bg-secondary/15 blur-2xl pointer-events-none" />
+          {/* Ambient inner soft background glow */}
+          <div className="absolute -top-20 -right-20 w-44 h-44 rounded-full bg-primary/15 blur-2xl pointer-events-none" />
+          <div className="absolute -bottom-20 -left-20 w-44 h-44 rounded-full bg-secondary/15 blur-2xl pointer-events-none" />
 
             {/* Header & Branding */}
             <DialogHeader className="relative z-10 flex flex-col items-start text-left space-y-2">
@@ -165,7 +153,6 @@ export default function LoginPage() {
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
               <span>Protected by 256-bit JWT & bcrypt • Authorized Only</span>
             </div>
-          </motion.div>
         </DialogContent>
       </Dialog>
     </div>

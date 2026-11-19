@@ -81,7 +81,7 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
   };
 
   return (
-    <SideSheet isOpen={isOpen} onClose={onClose} width="xl" className="p-0">
+    <SideSheet isOpen={isOpen} onClose={onClose} width="lg" className="p-0">
       {/* drawer header using PageHeader size="sm" */}
       <PageHeader
         size="sm"
@@ -368,15 +368,16 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
       </div>
 
       {/* fixed footer matching Profile Drawer 1:1 */}
-      <div className="shrink-0 p-5 px-6 border-t border-border/80 flex items-center justify-end gap-2.5 bg-card/90">
+      <div className="shrink-0 p-4 sm:p-5 px-5 sm:px-6 border-t border-border/80 flex items-center justify-end gap-2 sm:gap-2.5 bg-card/90">
         <Button
           type="button"
           variant="outline"
           size="sm"
           onClick={() => onEdit(doctor)}
           leftIcon={<Edit2 className="w-3.5 h-3.5" />}
+          className="whitespace-nowrap"
         >
-          Edit Doctor
+          Edit
         </Button>
 
         {onDelete && (
@@ -386,8 +387,9 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
             size="sm"
             onClick={() => onDelete(doctor)}
             leftIcon={<Trash2 className="w-3.5 h-3.5" />}
+            className="whitespace-nowrap"
           >
-            Delete Doctor
+            Delete
           </Button>
         )}
       </div>

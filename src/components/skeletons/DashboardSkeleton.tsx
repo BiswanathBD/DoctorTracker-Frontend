@@ -83,77 +83,108 @@ export const DashboardSkeleton: React.FC<DashboardSkeletonProps> = ({
         <Container size="2xl">
           <div
             className={cn(
-              'w-full rounded-3xl bg-card/60 backdrop-blur-xl border border-primary/15 shadow-xl shadow-black/5 p-2.5 sm:p-3 md:py-2.5 md:px-3 flex items-center justify-between gap-3 relative overflow-hidden transition-all duration-300',
+              'w-full rounded-3xl bg-card shadow-xl shadow-black/5 dark:shadow-primary/5 p-2.5 sm:p-3 md:py-2.5 md:px-3 flex flex-col md:flex-row md:items-center justify-between gap-2.5 md:gap-0 relative overflow-hidden transition-all duration-300',
               animated && 'shimmer-active',
               !animated && 'opacity-70'
             )}
           >
-            {/* Soft decorative ambient glow */}
-            <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/15 blur-2xl" />
+            {/* stylish angled gradient background covering right portion with \ slant cut (desktop only) */}
+            <div
+              style={{
+                left: '240px',
+                clipPath: 'polygon(36px 0%, 100% 0%, 100% 100%, 0% 100%)',
+              }}
+              className="hidden md:block absolute inset-y-0 right-0 bg-linear-to-r from-primary via-primary-hover to-secondary pointer-events-none transition-all duration-200"
+            />
 
-            {/* Left Brand Identity */}
-            <div className="flex items-center gap-3 py-0.5">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-2xl bg-linear-to-br from-primary/30 to-secondary/30 flex items-center justify-center shadow-xs">
-                  <div className="w-4 h-4 rounded-full bg-primary/50" />
-                </div>
-                <div className="space-y-1">
-                  <Skeleton animated={animated} className="h-4 w-24 rounded bg-muted-foreground/20" />
-                  <Skeleton animated={animated} className="h-2.5 w-16 rounded bg-muted-foreground/15" />
-                </div>
-              </div>
-            </div>
+            {/* subtle highlight sheen on the angled edge (desktop only) */}
+            <div
+              style={{
+                left: '240px',
+                clipPath: 'polygon(36px 0%, 38px 0%, 2px 100%, 0% 100%)',
+              }}
+              className="hidden md:block absolute inset-y-0 w-10 bg-primary-foreground/20 pointer-events-none transition-all duration-200"
+            />
 
-            {/* Mobile controls on right (< md) */}
-            <div className="flex items-center gap-1.5 md:hidden">
-              <div className="p-2 rounded-xl border border-primary/15 bg-linear-to-br from-primary/8 to-secondary/8 text-primary/60">
-                <Sun className="w-4.5 h-4.5 text-warning/60" strokeWidth={1.5} />
-              </div>
-              <div className="flex items-center gap-2 p-1.5 rounded-2xl border border-primary/15 bg-linear-to-br from-primary/8 to-secondary/8">
-                <div className="w-7 h-7 rounded-xl bg-primary/10 text-primary/60 flex items-center justify-center">
-                  <ShieldCheck className="w-4 h-4" />
-                </div>
-              </div>
-            </div>
-
-            {/* Desktop center & right controls (md+) */}
-            <div className="relative z-10 hidden md:flex items-center justify-end gap-3 flex-1">
-              {/* Search input placeholder */}
-              <div className="flex-1 max-w-md relative flex items-center">
-                <div className="w-full h-10 rounded-2xl bg-card/60 border border-primary-foreground/15 px-3.5 flex items-center justify-between text-muted-foreground text-xs shadow-2xs">
-                  <div className="flex items-center gap-2 flex-1">
-                    <Search className="w-4 h-4 text-primary/60" />
-                    <Skeleton animated={animated} className="h-3.5 w-44 rounded bg-muted-foreground/15" />
+            {/* top row on < md / left section on md+ */}
+            <div className="relative z-10 flex items-center justify-between w-full md:w-auto shrink-0">
+              {/* brand identity */}
+              <div className="flex items-center gap-2 sm:gap-3 py-0.5 pr-2 md:pr-4">
+                <div className="p-2 rounded-2xl bg-muted/60 lg:hidden shrink-0">
+                  <div className="w-5 h-5 flex flex-col justify-center gap-1">
+                    <span className="w-4 h-0.5 rounded-full bg-muted-foreground/40" />
+                    <span className="w-5 h-0.5 rounded-full bg-muted-foreground/40" />
+                    <span className="w-3.5 h-0.5 rounded-full bg-muted-foreground/40" />
                   </div>
-                  <kbd className="hidden sm:inline-flex items-center gap-0.5 px-2 py-0.5 text-[10px] font-semibold bg-muted/50 rounded-md border border-border/40 opacity-50">
-                    <Command className="w-2.5 h-2.5" /> K
-                  </kbd>
+                </div>
+
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-2xl bg-linear-to-br from-primary/30 to-secondary/30 flex items-center justify-center shadow-xs">
+                    <div className="w-4 h-4 rounded-full bg-primary/50" />
+                  </div>
+                  <div className="space-y-1">
+                    <Skeleton animated={animated} className="h-4 w-24 rounded bg-muted-foreground/20" />
+                    <Skeleton animated={animated} className="h-2.5 w-16 rounded bg-muted-foreground/15" />
+                  </div>
                 </div>
               </div>
 
-              {/* Theme toggle skeleton */}
-              <div className="w-10 h-10 rounded-2xl border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground/60 flex items-center justify-center shadow-2xs">
-                <Sun className="w-4.5 h-4.5" strokeWidth={1.5} />
+              {/* mobile controls (< md) */}
+              <div className="flex items-center gap-1.5 md:hidden">
+                <div className="p-2 rounded-xl border border-primary/20 bg-linear-to-br from-primary/10 to-secondary/10 text-primary/70">
+                  <Sun className="w-4.5 h-4.5 text-warning/70" strokeWidth={1.5} />
+                </div>
+                <div className="flex items-center gap-2 p-1.5 rounded-2xl border border-primary/20 bg-linear-to-br from-primary/10 to-secondary/10">
+                  <div className="w-7 h-7 rounded-xl bg-primary/15 text-primary flex items-center justify-center">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop center & right controls (md+) over angled gradient */}
+            <div className="relative z-10 hidden md:flex items-center justify-end gap-2 sm:gap-3 grow min-w-0 pl-10 lg:pl-12">
+              {/* Search input placeholder over gradient */}
+              <div className="flex-1 max-w-xs lg:max-w-md mx-2 sm:mx-4">
+                <div className="w-full h-10 rounded-2xl border border-primary-foreground/25 bg-primary-foreground/15 backdrop-blur-md px-3.5 flex items-center justify-between text-primary-foreground/80 text-xs shadow-xs">
+                  <div className="flex items-center gap-2 flex-1">
+                    <Search className="w-4 h-4 text-primary-foreground" />
+                    <Skeleton animated={animated} className="h-3.5 w-44 rounded bg-primary-foreground/35" />
+                  </div>
+                  <div className="hidden lg:flex items-center gap-0.5 px-1.5 py-0.5 rounded-lg border border-primary-foreground/20 bg-primary-foreground/15 text-[10px] text-primary-foreground/80 shadow-xs">
+                    <Command className="w-2.5 h-2.5" />
+                    <span>K</span>
+                  </div>
+                </div>
               </div>
 
-              {/* Profile pill skeleton */}
+              {/* Theme toggle skeleton over gradient */}
+              <div className="p-2 rounded-full border border-primary-foreground/25 bg-primary-foreground/15 backdrop-blur-md text-primary-foreground shadow-xs">
+                <Sun className="w-5 h-5 text-warning/90" strokeWidth={1.5} />
+              </div>
+
+              <div className="h-6 w-px bg-primary-foreground/25 mx-0.5" />
+
+              {/* Profile pill skeleton over gradient */}
               <div
                 className={cn(
-                  'flex items-center gap-2.5 p-1.5 pr-3 rounded-2xl border border-primary-foreground/20 shadow-2xs transition-colors',
+                  'flex items-center gap-2.5 p-1.5 lg:pr-3 rounded-2xl border transition-all shadow-sm',
                   isProfile
-                    ? 'bg-primary-foreground/25 text-primary-foreground'
-                    : 'bg-primary-foreground/10 text-primary-foreground'
+                    ? 'bg-card text-card-foreground border-card shadow-md'
+                    : 'bg-primary-foreground/15 backdrop-blur-md text-primary-foreground border-primary-foreground/25'
                 )}
               >
-                <div className="relative w-8 h-8 rounded-xl bg-primary-foreground/20 flex items-center justify-center shrink-0">
-                  <ShieldCheck className="w-4 h-4 text-primary-foreground/70" />
-                  <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-card bg-success/80" />
+                <div className="relative shrink-0">
+                  <div className="w-8 h-8 rounded-xl bg-primary-foreground/25 flex items-center justify-center border border-primary-foreground/30 shadow-xs">
+                    <ShieldCheck className="w-4 h-4 text-primary-foreground" />
+                    <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-primary bg-success" />
+                  </div>
                 </div>
-                <div className="flex flex-col space-y-1">
-                  <Skeleton animated={animated} className="h-3 w-18 rounded bg-primary-foreground/30" />
-                  <Skeleton animated={animated} className="h-2 w-22 rounded bg-primary-foreground/18" />
+                <div className="hidden lg:flex flex-col space-y-1">
+                  <Skeleton animated={animated} className="h-3 w-18 rounded bg-primary-foreground/40" />
+                  <Skeleton animated={animated} className="h-2 w-22 rounded bg-primary-foreground/25" />
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-primary-foreground/50" />
+                <ChevronDown className="w-3.5 h-3.5 text-primary-foreground/70" />
               </div>
             </div>
           </div>

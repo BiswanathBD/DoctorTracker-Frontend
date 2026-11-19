@@ -203,3 +203,60 @@ body {
     transparent 100%
   );
 }
+
+/* smooth modal dialog & overlay keyframe animations */
+@keyframes dialogOverlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dialogOverlayFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes dialogContentZoomIn {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes dialogContentZoomOut {
+  from {
+    opacity: 1;
+    scale: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 0.96;
+  }
+}
+
+.dialog-overlay[data-state="open"] {
+  animation: dialogOverlayFadeIn 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.dialog-overlay[data-state="closed"] {
+  animation: dialogOverlayFadeOut 180ms ease-in forwards;
+}
+
+.dialog-content[data-state="open"] {
+  animation: dialogContentZoomIn 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.dialog-content[data-state="closed"] {
+  animation: dialogContentZoomOut 180ms ease-in forwards;
+}

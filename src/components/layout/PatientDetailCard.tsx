@@ -93,7 +93,7 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
     : 'N/A';
 
   return (
-    <SideSheet isOpen={isOpen} onClose={onClose} width="xl" className="p-0">
+    <SideSheet isOpen={isOpen} onClose={onClose} width="lg" className="p-0">
       {/* drawer header using PageHeader size="sm" */}
       <PageHeader
         size="sm"
@@ -369,7 +369,7 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
       </div>
 
       {/* fixed action footer matching Profile Drawer 1:1 */}
-      <div className="shrink-0 p-5 px-6 border-t border-border/80 flex items-center justify-end gap-2.5 bg-card/90">
+      <div className="shrink-0 p-4 sm:p-5 px-5 sm:px-6 border-t border-border/80 flex items-center justify-end gap-2 sm:gap-2.5 bg-card/90">
         {!patient.isReleased && onRelease && (
           <Button
             type="button"
@@ -377,8 +377,9 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
             size="sm"
             onClick={() => onRelease(patient)}
             leftIcon={<UserCheck className="w-3.5 h-3.5" />}
+            className="whitespace-nowrap"
           >
-            Release Patient
+            Release
           </Button>
         )}
         <Button
@@ -387,8 +388,9 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
           size="sm"
           onClick={() => onEdit(patient)}
           leftIcon={<Edit2 className="w-3.5 h-3.5" />}
+          className="whitespace-nowrap"
         >
-          Edit Patient
+          Edit
         </Button>
         <Button
           type="button"
@@ -396,8 +398,9 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
           size="sm"
           onClick={() => onDelete(patient)}
           leftIcon={<Trash2 className="w-3.5 h-3.5" />}
+          className="whitespace-nowrap"
         >
-          Delete Patient
+          Delete
         </Button>
       </div>
     </SideSheet>
