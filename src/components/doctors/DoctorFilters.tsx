@@ -1,12 +1,11 @@
 'use client';
 
 import React from 'react';
-import { Card, Button } from '@/components/ui';
+import { Card } from '@/components/ui';
 import { Select } from '@/components/ui/Select';
 import { DateRangeFilter } from '@/components/common/DateRangeFilter';
 import {
   SlidersHorizontal,
-  RotateCcw,
   Search,
   Loader2,
   X,
@@ -125,18 +124,6 @@ export const DoctorFilters: React.FC<DoctorFiltersProps> = ({
               </button>
             )}
           </div>
-
-          {hasActiveFilters && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={onResetFilters}
-              leftIcon={<RotateCcw className="w-3 h-3 text-primary" />}
-            >
-              Reset
-            </Button>
-          )}
         </div>
       </div>
 

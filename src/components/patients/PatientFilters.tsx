@@ -7,7 +7,6 @@ import { DateRangeFilter } from '@/components/common/DateRangeFilter';
 import type { Doctor } from '@/server/doctor.service';
 import {
   SlidersHorizontal,
-  RotateCcw,
   Search,
   Loader2,
   X,
@@ -138,18 +137,6 @@ export const PatientFilters: React.FC<PatientFiltersProps> = ({
               </button>
             )}
           </div>
-
-          {hasActiveFilters && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={onResetFilters}
-              leftIcon={<RotateCcw className="w-3 h-3 text-secondary" />}
-            >
-              Reset
-            </Button>
-          )}
         </div>
       </div>
 
