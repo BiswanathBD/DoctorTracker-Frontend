@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
 import { Logo } from '@/components/common/Logo';
 import { Button, Input, toast } from '@/components/ui';
 import {
@@ -12,6 +11,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { useAuth } from '@/providers/AuthProvider';
+import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeleton';
 import { Lock, Mail, Eye, EyeOff, ArrowRight, ShieldCheck, ShieldLock } from 'lucide-react';
 
 export default function LoginPage() {
@@ -49,17 +49,9 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center p-4 bg-background text-foreground overflow-hidden no-scrollbar">
-      {/* dashboard live backdrop preview with 1st screenshot */}
+      {/* dashboard skeleton background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
-        <Image
-          src="/screenshots/01-dashboard-desktop.png"
-          alt="Doctor Tracking Live Dashboard"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-top opacity-35 dark:opacity-20 blur-2xs scale-102"
-        />
-        <div className="absolute inset-0 bg-background/65 backdrop-blur-sm" />
+        <DashboardSkeleton withLayout={true} animated={false} />
       </div>
 
       {/* Login Modal */}
@@ -68,7 +60,7 @@ export default function LoginPage() {
           hideCloseButton={true}
           onPointerDownOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
-          className="w-full max-w-md p-6 sm:p-7 rounded-3xl bg-card/95 backdrop-blur-2xl shadow-2xl shadow-primary/10 select-none overflow-hidden no-scrollbar space-y-4"
+          className="w-full max-w-md p-6 sm:p-7 rounded-3xl bg-card/95 shadow-2xl shadow-primary/10 select-none overflow-hidden no-scrollbar space-y-4"
         >
           {/* Ambient inner soft background glow */}
           <div className="absolute -top-20 -right-20 w-44 h-44 rounded-full bg-primary/15 blur-2xl pointer-events-none" />
