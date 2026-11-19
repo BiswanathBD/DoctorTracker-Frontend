@@ -11,7 +11,7 @@ export default async function AppDashboardLayout({
   const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;
 
-  // server-side instant auth guard: abort rendering and redirect before any child html streams
+  // server auth guard
   if (!token) {
     redirect('/login');
   }

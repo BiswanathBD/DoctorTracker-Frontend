@@ -29,7 +29,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const isPublicRoute = pathname === '/login';
 
-  // refresh admin profile from /auth/me using HTTP-only cookie
+  // refresh profile
   const refreshProfile = useCallback(async (): Promise<AdminUser | null> => {
     try {
       const profile = await AuthService.getProfile();
@@ -43,11 +43,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const hasVerified = useRef(false);
 
-  // initial auth verification on every page reload/mount
+  // verify auth on mount
   useEffect(() => {
     let isMounted = true;
 
-    // if already verified and authenticated, skip re-verification on protected route changes
     if (hasVerified.current && user && !isPublicRoute) {
       setLoading(false);
       return;
@@ -63,7 +62,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           hasVerified.current = true;
         }
 
-        // if authenticated and currently on login page, redirect to dashboard
         if (isPublicRoute) {
           router.replace('/dashboard');
         }
@@ -74,7 +72,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           hasVerified.current = true;
         }
 
-        // if unauthenticated and on protected route, clean redirect directly to login
         if (!isPublicRoute) {
           router.replace('/login');
         }
@@ -88,18 +85,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, [isPublicRoute, router, user]);
 
-  // login handler
+  // login
   const login = useCallback(
     async (email: string, password: string) => {
       const res = await AuthService.login(email, password);
       setUser(res.admin);
+
+      // check return destination
+      if (typeof window !== 'undefined') {
+        const searchParams = new URLSearchParams(window.location.search);
+        const from = searchParams.get('from');
+        if (from && from.startsWith('/') && !from.startsWith('//')) {
+          router.replace(from);
+          return { admin: res.admin };
+        }
+      }
+
       router.replace('/dashboard');
       return { admin: res.admin };
     },
     [router]
   );
 
-  // logout handler
+  // logout
   const logout = useCallback(async () => {
     hasVerified.current = false;
     setUser(null);
@@ -118,7 +126,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     [user, loading, login, logout, refreshProfile]
   );
 
-  // on protected routes, if unauthenticated or verifying, NEVER render protected page content
+  // prevent unauthorized children flash
   if (!isPublicRoute && (!user || loading)) {
     return (
       <AuthContext.Provider value={value}>
@@ -130,7 +138,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// custom hook to access auth state anywhere in the application
+// auth hook
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
