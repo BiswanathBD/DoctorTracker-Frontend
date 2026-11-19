@@ -23,7 +23,7 @@ export const Logo: React.FC<LogoProps> = ({
   return (
     <Link href="/" className={`inline-flex items-center gap-3 group select-none ${className}`}>
       {/* logo icon */}
-      <div 
+      <div
         style={{ width: icon, height: icon }}
         className="relative shrink-0 rounded-2xl bg-linear-to-br from-primary to-secondary p-2 shadow-md shadow-primary/20 group-hover:scale-105 transition-transform duration-200 text-primary-foreground"
       >
@@ -45,7 +45,7 @@ export const Logo: React.FC<LogoProps> = ({
       {/* logo text */}
       {showText && (
         <div className="flex flex-col leading-none">
-          <span className={`font-extrabold text-foreground tracking-tight ${text}`}>
+          <span className={`font-bold text-foreground  ${text}`}>
             Doctor<span className="text-primary">Tracker</span>
           </span>
           <span className={`font-semibold uppercase text-muted-foreground tracking-wider mt-1 ${sub}`}>

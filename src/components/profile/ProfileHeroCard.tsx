@@ -169,7 +169,7 @@ export const ProfileHeroCard: React.FC<ProfileHeroCardProps> = ({ admin, onSignO
 
           {/* admin name */}
           <div className="space-y-1">
-            <h2 className="text-xl font-semibold text-foreground tracking-tight truncate">
+            <h2 className="text-xl font-semibold text-foreground  truncate">
               {admin?.name || 'System Administrator'}
             </h2>
           </div>

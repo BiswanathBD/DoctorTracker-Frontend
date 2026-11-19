@@ -193,13 +193,13 @@ export const DoctorModals: React.FC<DoctorModalsProps> = ({
         patient={patientToRemove ? { name: patientToRemove.name, _id: patientToRemove.id } : null}
         onConfirm={onConfirmRemovePatient}
         loading={patientRemoveSubmitting}
-        title="Remove Assigned Patient"
+        title="Unassign Patient"
         description="Are you sure you want to unassign this patient from the doctor?"
-        confirmLabel="Remove Patient"
+        confirmLabel="Unassign Patient"
         warningText={
           <p>
-            Deleting <strong>{patientToRemove?.name}</strong> will permanently remove their record and admission history from{' '}
-            {doctorDisplayName} and the patient directory. This action cannot be reversed.
+            Unassigning <strong>{patientToRemove?.name}</strong> will remove them from{' '}
+            {doctorDisplayName}&apos;s patient roster. Their medical profile and history will remain safe in the directory as an unassigned patient.
           </p>
         }
       />

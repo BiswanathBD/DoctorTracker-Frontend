@@ -120,19 +120,19 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
   // format admission date
   const formattedAdmissionDate = activePatient?.admissionDate
     ? new Date(activePatient.admissionDate).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      })
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
     : 'N/A';
 
   // format registered date
   const formattedRegisteredDate = activePatient?.createdAt
     ? new Date(activePatient.createdAt).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      })
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
     : 'N/A';
 
   return (
@@ -205,7 +205,7 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
 
                 {/* patient identity info */}
                 <div className="space-y-1.5 flex-1 min-w-0">
-                  <span className="text-base font-extrabold tracking-tight truncate block">
+                  <span className="text-base font-bold  truncate block">
                     {activePatient.name}
                   </span>
 
@@ -231,9 +231,8 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
                 </div>
                 <span className="font-bold flex items-center gap-1.5">
                   <span
-                    className={`w-2 h-2 rounded-full ${
-                      activePatient.isReleased ? 'bg-muted-foreground' : 'bg-emerald-300 animate-pulse'
-                    }`}
+                    className={`w-2 h-2 rounded-full ${activePatient.isReleased ? 'bg-muted-foreground' : 'bg-emerald-300 animate-pulse'
+                      }`}
                   />
                   {activePatient.isReleased ? 'Discharged / Released' : 'Admitted & Under Care'}
                 </span>

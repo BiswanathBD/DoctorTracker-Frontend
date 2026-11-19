@@ -66,9 +66,8 @@ export const PatientTrendLineChart: React.FC<PatientTrendLineChartProps> = ({
   const curveD = getCurvePath();
   const areaD =
     points.length > 0
-      ? `${curveD} L ${points[points.length - 1].x} ${height - paddingBottom} L ${points[0].x} ${
-          height - paddingBottom
-        } Z`
+      ? `${curveD} L ${points[points.length - 1].x} ${height - paddingBottom} L ${points[0].x} ${height - paddingBottom
+      } Z`
       : '';
 
   const activePoint = hoverIndex !== null && points[hoverIndex] ? points[hoverIndex] : null;
@@ -85,7 +84,7 @@ export const PatientTrendLineChart: React.FC<PatientTrendLineChartProps> = ({
             <Activity className="w-4 h-4 text-secondary" />
           </div>
           <div>
-            <h3 className="font-bold text-base text-foreground tracking-tight flex items-center gap-2">
+            <h3 className="font-bold text-base text-foreground  flex items-center gap-2">
               Patient Admission Trend
             </h3>
             <p className="text-xs text-muted-foreground font-medium">
@@ -207,11 +206,10 @@ export const PatientTrendLineChart: React.FC<PatientTrendLineChartProps> = ({
                   cx={p.x}
                   cy={p.y}
                   r={hoverIndex === idx ? 6 : p.data.value > 0 ? 3.5 : 2}
-                  className={`transition-all duration-150 ${
-                    hoverIndex === idx
+                  className={`transition-all duration-150 ${hoverIndex === idx
                       ? 'fill-secondary stroke-card stroke-2 ring-4 ring-secondary/30'
                       : 'fill-card stroke-secondary stroke-2'
-                  }`}
+                    }`}
                 />
                 {/* transparent hover target overlay */}
                 <rect

@@ -66,14 +66,6 @@ export const PatientDeleteModal: React.FC<PatientDeleteModalProps> = ({
           <Button
             variant="destructive"
             size="sm"
-            onClick={onClose}
-            disabled={loading}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="destructive"
-            size="sm"
             loading={loading}
             onClick={onConfirm}
             leftIcon={<Trash2 className="w-3.5 h-3.5" />}

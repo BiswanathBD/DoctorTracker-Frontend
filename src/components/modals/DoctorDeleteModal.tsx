@@ -48,14 +48,6 @@ export const DoctorDeleteModal: React.FC<DoctorDeleteModalProps> = ({
           <Button
             variant="destructive"
             size="sm"
-            disabled={loading}
-            onClick={onClose}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="destructive"
-            size="sm"
             loading={loading}
             onClick={onConfirm}
             leftIcon={<Trash2 className="w-3.5 h-3.5" />}

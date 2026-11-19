@@ -244,21 +244,26 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  // Submit patient delete
+  // Submit patient delete or unassign from doctor
   const handleConfirmDeletePatient = async () => {
     if (!patientToDelete?._id) return;
     try {
       setPatientDeleteSubmitting(true);
-      await PatientService.deletePatient(patientToDelete._id);
-      toast.success('Record Removed', 'Patient record was removed.');
+      if (selectedDoctorId) {
+        await DoctorService.removePatientFromDoctor(selectedDoctorId, patientToDelete._id);
+        toast.success('Patient Unassigned', `${patientToDelete.name} was unassigned from the specialist.`);
+      } else {
+        await PatientService.deletePatient(patientToDelete._id);
+        toast.success('Record Removed', 'Patient record was removed.');
+      }
       setPatientToDelete(null);
       if (selectedPatientId === patientToDelete._id) {
         setSelectedPatientId(null);
       }
       setDrawerRefreshKey((prev) => prev + 1);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to remove patient.';
-      toast.error('Delete Failed', msg);
+      const msg = err instanceof Error ? err.message : 'Failed to process patient.';
+      toast.error('Action Failed', msg);
     } finally {
       setPatientDeleteSubmitting(false);
     }
@@ -405,6 +410,20 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             patient={patientToDelete}
             onConfirm={handleConfirmDeletePatient}
             loading={patientDeleteSubmitting}
+            title={selectedDoctorId ? 'Unassign Patient' : 'Confirm Patient Deletion'}
+            description={
+              selectedDoctorId
+                ? 'Are you sure you want to unassign this patient from the specialist?'
+                : 'Are you sure you want to remove this patient from the directory?'
+            }
+            confirmLabel={selectedDoctorId ? 'Unassign Patient' : 'Confirm Delete'}
+            warningText={
+              selectedDoctorId ? (
+                <p>
+                  Unassigning <strong>{patientToDelete?.name}</strong> will remove them from the specialist&apos;s active patient roster. Their medical record will remain safe in the system as an unassigned patient.
+                </p>
+              ) : undefined
+            }
           />
         </Container>
       </div>

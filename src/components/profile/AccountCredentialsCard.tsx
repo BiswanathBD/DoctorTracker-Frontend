@@ -43,7 +43,7 @@ export const AccountCredentialsCard: React.FC<AccountCredentialsCardProps> = ({ 
               <User className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm text-primary-foreground tracking-tight">Account Identity & Credentials</h3>
+              <h3 className="font-semibold text-sm text-primary-foreground ">Account Identity & Credentials</h3>
               <p className="text-xs text-primary-foreground/80 font-medium">Verified administrator attributes and access privileges</p>
             </div>
           </div>
@@ -62,7 +62,7 @@ export const AccountCredentialsCard: React.FC<AccountCredentialsCardProps> = ({ 
                 KEY-ADMIN
               </span>
             </div>
-            <p className="font-semibold text-primary-foreground text-sm tracking-tight">{admin?.name || 'System Administrator'}</p>
+            <p className="font-semibold text-primary-foreground text-sm ">{admin?.name || 'System Administrator'}</p>
             <p className="text-xs text-primary-foreground/75 font-medium">Primary identity bound to audit and action logs</p>
           </div>
 

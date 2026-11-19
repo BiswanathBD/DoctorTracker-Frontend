@@ -102,7 +102,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
             </div>
 
             <div className="min-w-0 flex-1 space-y-1">
-              <h3 className="font-semibold text-primary-foreground text-xl tracking-tight">
+              <h3 className="font-semibold text-primary-foreground text-xl ">
                 {admin?.name || 'Super Admin'}
               </h3>
 

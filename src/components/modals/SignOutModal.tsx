@@ -40,15 +40,6 @@ export const SignOutModal: React.FC<SignOutModalProps> = ({
         <MotionWrapper animationType="fadeUp" delay={0.15} duration={0.25}>
           <div className="flex items-center justify-end gap-2.5 pt-2">
             <Button
-              variant="outline"
-              size="sm"
-              onClick={onClose}
-              disabled={loading}
-              className="rounded-full px-4 cursor-pointer"
-            >
-              Cancel
-            </Button>
-            <Button
               variant="destructive"
               size="sm"
               loading={loading}

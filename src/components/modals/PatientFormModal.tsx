@@ -296,15 +296,6 @@ export const PatientFormModal: React.FC<PatientFormModalProps> = ({
       {/* fixed footer following Profile Drawer 1:1 */}
       <div className="shrink-0 p-5 px-6 border-t border-border/80 bg-card/95 backdrop-blur-md flex items-center justify-end gap-2.5 z-10">
         <Button
-          type="button"
-          variant="destructive"
-          size="sm"
-          disabled={submitting}
-          onClick={onClose}
-        >
-          Cancel
-        </Button>
-        <Button
           type="submit"
           variant="secondary"
           size="sm"

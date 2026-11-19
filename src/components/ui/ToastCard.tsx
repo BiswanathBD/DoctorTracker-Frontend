@@ -65,7 +65,7 @@ export const ToastCard: React.FC<ToastCardProps> = ({ id, type, title, descripti
         )}
       >
         <div className="min-w-0 flex-1 space-y-0.5">
-          <h4 className="text-xs sm:text-sm font-bold tracking-tight truncate leading-tight text-white">
+          <h4 className="text-xs sm:text-sm font-bold  truncate leading-tight text-white">
             {title}
           </h4>
           {description && (

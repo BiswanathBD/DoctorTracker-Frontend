@@ -39,6 +39,7 @@ export interface PatientQueryParams {
   condition?: string;
   gender?: string;
   doctorId?: string;
+  unassigned?: boolean | string;
   startDate?: string;
   endDate?: string;
   isReleased?: string | boolean;

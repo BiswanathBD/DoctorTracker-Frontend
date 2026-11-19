@@ -21,6 +21,7 @@ export const PatientService = {
         condition: params.condition,
         gender: params.gender,
         doctorId: params.doctorId,
+        unassigned: params.unassigned,
         startDate: params.startDate,
         endDate: params.endDate,
         sortBy: params.sortBy,
