@@ -6,16 +6,21 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const protectedRoutes = ['/dashboard', '/doctors', '/patients', '/profile'];
-  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
+  const isProtectedRoute = protectedRoutes.some((route) =>
+    pathname === route || pathname.startsWith(`${route}/`)
+  );
 
-  // not authenticated attempts redirect to login
-  if (isProtectedRoute && !token) {
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(loginUrl);
+  // 1. Root route: if authenticated go to /dashboard, else go to /login
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL(token ? '/dashboard' : '/login', request.url));
   }
 
-  // already authenticated attempts redirect to dashboard
+  // 2. Accessing protected route without token → redirect cleanly to /login
+  if (isProtectedRoute && !token) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  // 3. Already logged in and visiting /login → redirect to /dashboard
   if (pathname === '/login' && token) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
@@ -25,6 +30,7 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/',
     '/dashboard/:path*',
     '/doctors/:path*',
     '/patients/:path*',

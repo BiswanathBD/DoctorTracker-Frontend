@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback, useSyncExternalStore } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { MotionWrapper } from '@/components/common/MotionWrapper';
 import { Button, PageHeader, toast } from '@/components/ui';
 import { DoctorFormModal } from '@/components/modals/DoctorFormModal';
@@ -8,12 +8,7 @@ import { PatientFormModal } from '@/components/modals/PatientFormModal';
 import { DoctorService, type Doctor, type DoctorFormData } from '@/server/doctor.service';
 import { PatientService } from '@/server/patient.service';
 import type { PatientFormData } from '@/types/patient.types';
-import {
-  AuthService,
-  subscribeAuth,
-  getAuthSnapshot,
-  getAuthServerSnapshot,
-} from '@/server/auth.service';
+import { useAuth } from '@/providers/AuthProvider';
 import { DashboardService, type DashboardStats } from '@/server/dashboard.service';
 import { CircleStatCard } from '@/components/dashboard/CircleStatCard';
 import { DailyActivityChart, type DailyActivityItem } from '@/components/dashboard/DailyActivityChart';
@@ -29,9 +24,8 @@ import {
 } from 'lucide-react';
 
 export default function DashboardPage() {
-  const admin = useSyncExternalStore(subscribeAuth, getAuthSnapshot, getAuthServerSnapshot);
+  const { user: admin, loading: authLoading } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
   const [timelineDays, setTimelineDays] = useState<7 | 14 | 30>(14);
 
   // modal states
@@ -92,18 +86,12 @@ export default function DashboardPage() {
   // initial data load
   useEffect(() => {
     let isMounted = true;
-    AuthService.getProfile().catch((err) => {
-      console.error('failed to fetch admin profile:', err);
-    });
 
     DashboardService.getStats(30)
       .then((data) => {
         if (isMounted) setStats(data);
       })
-      .catch((err) => console.error('failed to fetch dashboard statistics:', err))
-      .finally(() => {
-        if (isMounted) setLoading(false);
-      });
+      .catch((err) => console.error('failed to fetch dashboard statistics:', err));
 
     return () => {
       isMounted = false;
@@ -322,7 +310,7 @@ export default function DashboardPage() {
                 ? `${overview.activeDoctors} active • Top: ${topSpecialty.specialization} (${totalSpecialties} depts)`
                 : `${overview.activeDoctors} active • ${totalSpecialties} departments`
             }
-            loading={loading}
+            loading={authLoading}
           />
         </MotionWrapper>
 
@@ -345,7 +333,7 @@ export default function DashboardPage() {
             trendPositive={true}
             sparkline={patientSparkline}
             insightText={`${overview.activePatients} under care • ${overview.releasedPatients} discharged`}
-            loading={loading}
+            loading={authLoading}
           />
         </MotionWrapper>
 
@@ -372,7 +360,7 @@ export default function DashboardPage() {
             trendPositive={true}
             sparkline={workloadSparkline}
             insightText={`${overview.avgPatientsPerDoctor.toFixed(1)} patients per doctor`}
-            loading={loading}
+            loading={authLoading}
           />
         </MotionWrapper>
 
@@ -395,7 +383,7 @@ export default function DashboardPage() {
             trendPositive={true}
             sparkline={hospitalSparkline}
             insightText={`${overview.activeHospitals} active • ${overview.totalHospitals - overview.activeHospitals} standby`}
-            loading={loading}
+            loading={authLoading}
           />
         </MotionWrapper>
       </div>
@@ -404,25 +392,25 @@ export default function DashboardPage() {
       <MotionWrapper delay={0.24} direction="up">
         <DailyActivityChart
           data={dailyTimelineData}
-          loading={loading}
+          loading={authLoading}
           daysRange={timelineDays}
           onDaysRangeChange={handleTimelineDaysChange}
         />
       </MotionWrapper>
 
-      {/* medical insights & specialist caseload distribution */}
+      {/* specialist caseload distribution & medical insights */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <MotionWrapper delay={0.28} direction="up">
-          <SpecialtyDonutChart
-            data={stats?.specializationStats || []}
-            loading={loading}
+        <MotionWrapper delay={0.28} direction="up" className="h-full">
+          <DoctorWorkloadCard
+            doctors={stats?.patientsPerDoctor || []}
+            loading={authLoading}
           />
         </MotionWrapper>
 
-        <MotionWrapper delay={0.32} direction="up">
-          <DoctorWorkloadCard
-            doctors={stats?.patientsPerDoctor || []}
-            loading={loading}
+        <MotionWrapper delay={0.32} direction="up" className="h-full">
+          <SpecialtyDonutChart
+            data={stats?.specializationStats || []}
+            loading={authLoading}
           />
         </MotionWrapper>
       </div>

@@ -1,21 +1,20 @@
-import { AuthService } from './auth.service';
+import { apiClient } from './api.client';
 import type { DashboardStats } from '@/types/dashboard.types';
 
 export type { DashboardStats };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+interface ApiResponse<T> {
+  statusCode: number;
+  success: boolean;
+  message: string;
+  data: T;
+}
 
 export const DashboardService = {
   async getStats(days: number = 30): Promise<DashboardStats> {
-    const token = AuthService.getToken();
-    const res = await fetch(`${API_URL}/dashboard/stats?days=${days}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const res = await apiClient<ApiResponse<DashboardStats>>('/dashboard/stats', {
+      params: { days },
     });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'failed to fetch dashboard statistics');
-    return data.data;
+    return res.data;
   },
 };

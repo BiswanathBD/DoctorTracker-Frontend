@@ -1,27 +1,17 @@
 'use client';
 
-import React, { useState, useEffect, useSyncExternalStore } from 'react';
+import React, { useState } from 'react';
 import { Sidebar } from './Sidebar';
+import { MobileNav } from './MobileNav';
 import { DashboardHeader } from './DashboardHeader';
 import { ProfileCard } from './ProfileCard';
 import { Container } from '@/components/ui';
-import {
-  AuthService,
-  subscribeAuth,
-  getAuthSnapshot,
-  getAuthServerSnapshot,
-} from '@/server/auth.service';
+import { useAuth } from '@/providers/AuthProvider';
 
 export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const admin = useSyncExternalStore(subscribeAuth, getAuthSnapshot, getAuthServerSnapshot);
-
-  useEffect(() => {
-    AuthService.getProfile().catch((err) => {
-      console.error('failed to fetch admin profile in layout:', err);
-    });
-  }, []);
+  const { user: admin } = useAuth();
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-x-clip">
@@ -48,11 +38,15 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
       {/* main content */}
       <div className="relative flex-1 w-full flex flex-col py-3">
         <Container size="2xl" className="flex-1 flex gap-6 items-start">
-          <Sidebar
+          {/* Mobile navigation drawer */}
+          <MobileNav
             isOpen={sidebarOpen}
             onClose={() => setSidebarOpen(false)}
             admin={admin}
           />
+
+          {/* Large screen desktop sidebar */}
+          <Sidebar admin={admin} />
 
           <main className="flex-1 min-w-0 space-y-8">
             {children}

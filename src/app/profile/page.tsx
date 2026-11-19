@@ -1,14 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useSyncExternalStore } from 'react';
+import React, { useState } from 'react';
 import { PageHeader } from '@/components/ui';
 import { SignOutModal } from '@/components/modals/SignOutModal';
-import {
-  AuthService,
-  subscribeAuth,
-  getAuthSnapshot,
-  getAuthServerSnapshot,
-} from '@/server/auth.service';
+import { useAuth } from '@/providers/AuthProvider';
 import { Shield } from 'lucide-react';
 import { ProfileHeroCard } from '@/components/profile/ProfileHeroCard';
 import { AccountCredentialsCard } from '@/components/profile/AccountCredentialsCard';
@@ -17,15 +12,8 @@ import { CloudInfrastructureCard } from '@/components/profile/CloudInfrastructur
 import { ProfileFooter } from '@/components/profile/ProfileFooter';
 
 export default function ProfilePage() {
-  const admin = useSyncExternalStore(subscribeAuth, getAuthSnapshot, getAuthServerSnapshot);
+  const { user: admin, logout } = useAuth();
   const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
-
-  // refresh admin profile from backend on mount
-  useEffect(() => {
-    AuthService.getProfile().catch((err) => {
-      console.warn('unable to re-sync admin profile:', err);
-    });
-  }, []);
 
   return (
     <div className="w-full max-w-6xl space-y-6 mx-auto pb-10">
@@ -62,7 +50,7 @@ export default function ProfilePage() {
       <SignOutModal
         isOpen={isSignOutModalOpen}
         onClose={() => setIsSignOutModalOpen(false)}
-        onConfirm={() => AuthService.logout()}
+        onConfirm={() => logout()}
       />
     </div>
   );

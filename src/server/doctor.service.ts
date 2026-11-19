@@ -1,65 +1,46 @@
-import { AuthService } from './auth.service';
+import { apiClient } from './api.client';
 import type { Doctor, DoctorPatient, DoctorQueryParams, DoctorsResponse, DoctorFormData } from '@/types/doctor.types';
 
 export type { Doctor, DoctorPatient, DoctorQueryParams, DoctorsResponse, DoctorFormData };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+interface ApiResponse<T> {
+  statusCode: number;
+  success: boolean;
+  message: string;
+  data: T;
+}
 
 export const DoctorService = {
   // get all doctors with query params
   async getAllDoctors(params: DoctorQueryParams = {}): Promise<DoctorsResponse> {
-    const query = new URLSearchParams();
-    if (params.page) query.append('page', params.page.toString());
-    if (params.limit) query.append('limit', params.limit.toString());
-    if (params.searchTerm) query.append('searchTerm', params.searchTerm);
-    if (params.specialization) query.append('specialization', params.specialization);
-    if (params.hospital) query.append('hospital', params.hospital);
-    if (params.startDate) query.append('startDate', params.startDate);
-    if (params.endDate) query.append('endDate', params.endDate);
-    if (params.sortBy) query.append('sortBy', params.sortBy);
-    if (params.sortOrder) query.append('sortOrder', params.sortOrder);
-
-    const token = AuthService.getToken();
-    const res = await fetch(`${API_URL}/doctors?${query.toString()}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    return apiClient<DoctorsResponse>('/doctors', {
+      params: {
+        page: params.page,
+        limit: params.limit,
+        searchTerm: params.searchTerm,
+        specialization: params.specialization,
+        hospital: params.hospital,
+        startDate: params.startDate,
+        endDate: params.endDate,
+        sortBy: params.sortBy,
+        sortOrder: params.sortOrder,
       },
     });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'failed to fetch doctors');
-    return data;
   },
 
   // get single doctor by id
   async getDoctorById(id: string): Promise<Doctor> {
-    const token = AuthService.getToken();
-    const res = await fetch(`${API_URL}/doctors/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'failed to fetch doctor details');
-    return data.data;
+    const res = await apiClient<ApiResponse<Doctor>>(`/doctors/${id}`);
+    return res.data;
   },
 
   // create new doctor
   async createDoctor(payload: Omit<Doctor, '_id' | 'createdAt' | 'updatedAt'>): Promise<Doctor> {
-    const token = AuthService.getToken();
-    const res = await fetch(`${API_URL}/doctors`, {
+    const res = await apiClient<ApiResponse<Doctor>>('/doctors', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
       body: JSON.stringify(payload),
     });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'failed to create doctor');
-    return data.data;
+    return res.data;
   },
 
   // update doctor by id
@@ -67,67 +48,38 @@ export const DoctorService = {
     id: string,
     payload: Partial<Omit<Doctor, '_id' | 'createdAt' | 'updatedAt'>>
   ): Promise<Doctor> {
-    const token = AuthService.getToken();
-    const res = await fetch(`${API_URL}/doctors/${id}`, {
+    const res = await apiClient<ApiResponse<Doctor>>(`/doctors/${id}`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
       body: JSON.stringify(payload),
     });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'failed to update doctor');
-    return data.data;
+    return res.data;
   },
 
   // update doctor avatar
   async updateAvatar(doctorId: string, file: File): Promise<Doctor> {
-    const token = AuthService.getToken();
     const formData = new FormData();
     formData.append('avatar', file);
 
-    const res = await fetch(`${API_URL}/doctors/${doctorId}/avatar`, {
+    const res = await apiClient<ApiResponse<Doctor>>(`/doctors/${doctorId}/avatar`, {
       method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
       body: formData,
     });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'failed to update doctor avatar');
-    return data.data;
+    return res.data;
   },
 
   // delete doctor avatar
   async deleteAvatar(doctorId: string): Promise<Doctor> {
-    const token = AuthService.getToken();
-    const res = await fetch(`${API_URL}/doctors/${doctorId}/avatar`, {
+    const res = await apiClient<ApiResponse<Doctor>>(`/doctors/${doctorId}/avatar`, {
       method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'failed to delete doctor avatar');
-    return data.data;
+    return res.data;
   },
 
   // delete doctor by id
   async deleteDoctor(id: string): Promise<void> {
-    const token = AuthService.getToken();
-    const res = await fetch(`${API_URL}/doctors/${id}`, {
+    await apiClient(`/doctors/${id}`, {
       method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'failed to delete doctor');
   },
 
   // add patient directly to a doctor
@@ -143,60 +95,29 @@ export const DoctorService = {
       admissionDate?: string;
     }
   ): Promise<DoctorPatient> {
-    const token = AuthService.getToken();
-    const res = await fetch(`${API_URL}/doctors/${doctorId}/patients`, {
+    const res = await apiClient<ApiResponse<DoctorPatient>>(`/doctors/${doctorId}/patients`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
       body: JSON.stringify(payload),
     });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'failed to add patient under doctor');
-    return data.data;
+    return res.data;
   },
 
   // remove patient from doctor
   async removePatientFromDoctor(doctorId: string, patientId: string): Promise<void> {
-    const token = AuthService.getToken();
-    const res = await fetch(`${API_URL}/doctors/${doctorId}/patients/${patientId}`, {
+    await apiClient(`/doctors/${doctorId}/patients/${patientId}`, {
       method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'failed to remove patient from doctor');
   },
 
   // get distinct specializations
   async getSpecializations(): Promise<string[]> {
-    const token = AuthService.getToken();
-    const res = await fetch(`${API_URL}/doctors/specializations`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'failed to fetch specializations');
-    return data.data || [];
+    const res = await apiClient<ApiResponse<string[]>>('/doctors/specializations');
+    return res.data || [];
   },
 
   // get distinct hospitals
   async getHospitals(): Promise<string[]> {
-    const token = AuthService.getToken();
-    const res = await fetch(`${API_URL}/doctors/hospitals`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'failed to fetch hospitals');
-    return data.data || [];
+    const res = await apiClient<ApiResponse<string[]>>('/doctors/hospitals');
+    return res.data || [];
   },
 };

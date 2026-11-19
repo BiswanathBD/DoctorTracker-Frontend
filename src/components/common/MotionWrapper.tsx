@@ -17,6 +17,7 @@ export type AnimationType =
 
 export type AnimationConfig = {
   initial?: Record<string, number | string> | false;
+  animate?: Record<string, number | string | number[]>;
   whileInView?: Record<string, number | string | number[]>;
   exit?: Record<string, number | string>;
   transition?: Transition;
@@ -63,7 +64,6 @@ export const Motion: React.FC<MotionProps> = ({
   delay = 0,
   duration = 0.3,
   hoverScale = 1.1,
-  once = true,
   transition,
   id,
   direction,
@@ -108,55 +108,49 @@ export const Motion: React.FC<MotionProps> = ({
     const configs: Record<AnimationType, AnimationConfig> = {
       fade: {
         initial: { opacity: 0 },
-        whileInView: { opacity: 1 },
+        animate: { opacity: 1 },
         exit: { opacity: 0 },
         transition: transition ?? defaultTransition,
-        viewport: { once },
       },
 
       fadeLeft: {
         initial: { opacity: 0, x: 20 },
-        whileInView: { opacity: 1, x: 0 },
+        animate: { opacity: 1, x: 0 },
         exit: { opacity: 0, x: 20 },
         transition: transition ?? defaultTransition,
-        viewport: { once },
       },
 
       fadeRight: {
         initial: { opacity: 0, x: -20 },
-        whileInView: { opacity: 1, x: 0 },
+        animate: { opacity: 1, x: 0 },
         exit: { opacity: 0, x: -20 },
         transition: transition ?? defaultTransition,
-        viewport: { once },
       },
 
       fadeUp: {
         initial: { opacity: 0, y: 20 },
-        whileInView: { opacity: 1, y: 0 },
+        animate: { opacity: 1, y: 0 },
         exit: { opacity: 0, y: 20 },
         transition: transition ?? defaultTransition,
-        viewport: { once },
       },
 
       fadeDown: {
         initial: { opacity: 0, y: -20 },
-        whileInView: { opacity: 1, y: 0 },
+        animate: { opacity: 1, y: 0 },
         exit: { opacity: 0, y: -20 },
         transition: transition ?? defaultTransition,
-        viewport: { once },
       },
 
       scale: {
         initial: { opacity: 0, scale: 0.9 },
-        whileInView: { opacity: 1, scale: 1 },
+        animate: { opacity: 1, scale: 1 },
         exit: { opacity: 0, scale: 0.9 },
         transition: transition ?? defaultTransition,
-        viewport: { once },
       },
 
       button: {
         initial: { opacity: 0, scale: 0.95 },
-        whileInView: { opacity: 1, scale: 1 },
+        animate: { opacity: 1, scale: 1 },
         exit: { opacity: 0, scale: 0.95 },
         whileHover: { scale: hoverScale },
         whileTap: { scale: 0.95 },
@@ -164,31 +158,27 @@ export const Motion: React.FC<MotionProps> = ({
           duration: 0.2,
           ease: 'easeOut',
         },
-        viewport: { once },
       },
 
       line: {
         initial: { width: 0 },
-        whileInView: { width: 40 },
+        animate: { width: 40 },
         exit: { width: 0 },
         transition: transition ?? defaultTransition,
-        viewport: { once },
       },
 
       heightIncrease: {
         initial: { scaleY: 0, opacity: 0, originY: 0 },
-        whileInView: { scaleY: 1, opacity: 1 },
+        animate: { scaleY: 1, opacity: 1 },
         exit: { scaleY: 0, opacity: 0 },
         transition: transition ?? defaultTransition,
-        viewport: { once },
       },
 
       widthIncrease: {
         initial: { scaleX: 0, opacity: 0, originX: 0 },
-        whileInView: { scaleX: 1, opacity: 1 },
+        animate: { scaleX: 1, opacity: 1 },
         exit: { scaleX: 0, opacity: 0 },
         transition: transition ?? defaultTransition,
-        viewport: { once },
       },
     };
 

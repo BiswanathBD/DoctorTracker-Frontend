@@ -4,13 +4,21 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Logo } from '@/components/common/Logo';
-import { MotionWrapper } from '@/components/common/MotionWrapper';
 import { Button, Input, toast } from '@/components/ui';
-import { AuthService } from '@/server/auth.service';
-import { Lock, Mail, Eye, EyeOff, ArrowRight, ShieldCheck, Sparkles, Activity } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { useAuth } from '@/providers/AuthProvider';
+import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeleton';
+import { Lock, Mail, Eye, EyeOff, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -33,7 +41,7 @@ export default function LoginPage() {
 
     try {
       setLoading(true);
-      const { admin } = await AuthService.login(email, password);
+      const { admin } = await login(email, password);
       toast.success(`Welcome back, ${admin.name}!`, 'Redirecting to your dashboard...');
 
       router.push('/dashboard');
@@ -47,138 +55,124 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-4 bg-background text-foreground overflow-hidden">
-      {/* animated floating ambient background orbs using theme colors */}
-      <motion.div
-        animate={{
-          scale: [1, 1.2, 1],
-          x: [0, 20, 0],
-          y: [0, -20, 0],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-        className="absolute top-1/4 -left-20 w-80 h-80 rounded-full blur-3xl pointer-events-none opacity-20 bg-primary"
-      />
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 bg-background text-foreground overflow-hidden no-scrollbar">
+      {/* 1. Authentic executive dashboard skeleton background (Static, animation off) */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+        <DashboardSkeleton withLayout={true} animated={false} />
+      </div>
 
-      <motion.div
-        animate={{
-          scale: [1, 1.25, 1],
-          x: [0, -30, 0],
-          y: [0, 25, 0],
-        }}
-        transition={{
-          duration: 12,
-          repeat: Infinity,
-          ease: 'easeInOut',
-          delay: 1,
-        }}
-        className="absolute bottom-1/4 -right-20 w-96 h-96 rounded-full blur-3xl pointer-events-none opacity-20 bg-secondary"
-      />
-
-      {/* main animated card */}
-      <MotionWrapper
-        direction="up"
-        duration={0.6}
-        scale={true}
-        className="relative z-10 w-full max-w-md bg-card text-card-foreground rounded-3xl border border-border shadow-2xl p-8 sm:p-10 space-y-7"
-      >
-        {/* header & brand */}
-        <div className="text-center space-y-3">
-          <MotionWrapper delay={0.1} direction="down" className="flex justify-center">
-            <Logo size="lg" />
-          </MotionWrapper>
-
-          <MotionWrapper delay={0.2} direction="up">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent text-accent-foreground text-xs font-semibold mb-2">
-              <Activity className="w-3.5 h-3.5 text-primary animate-pulse" />
-              <span>Doctor Tracker Portal</span>
-            </div>
-            <h1 className="text-2xl font-extrabold text-foreground tracking-tight">
-              Administrative Portal
-            </h1>
-            <p className="text-xs text-muted-foreground mt-1">
-              Sign in with your admin credentials to manage doctors and patients.
-            </p>
-          </MotionWrapper>
-        </div>
-
-        {/* quick demo fill banner */}
-        <MotionWrapper delay={0.25} direction="up">
-          <motion.button
-            whileHover={{ scale: 1.015 }}
-            whileTap={{ scale: 0.985 }}
-            type="button"
-            onClick={handleQuickDemo}
-            className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-accent hover:bg-accent/80 border border-border text-accent-foreground text-xs font-medium transition-all group shadow-sm cursor-pointer"
+      {/* 2. Redesigned Unique Vertical Login Modal with Smooth Spring Animation & No Scrollbar */}
+      <Dialog open={true}>
+        <DialogContent
+          hideCloseButton={true}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          className="w-full max-w-md p-0 border-none bg-transparent shadow-none outline-none select-none overflow-hidden no-scrollbar"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.94, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{
+              type: 'spring',
+              stiffness: 320,
+              damping: 24,
+              mass: 0.8,
+            }}
+            className="relative w-full rounded-3xl bg-card/95 backdrop-blur-2xl shadow-2xl shadow-primary/10 overflow-hidden no-scrollbar p-6 sm:p-7 space-y-4"
           >
-            <span className="flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5 text-primary" />
-              <span>
-                Demo Admin: <strong className="font-semibold">admin@doctortracker.com</strong>
-              </span>
-            </span>
-            <span className="text-[11px] underline opacity-80 group-hover:opacity-100">Click to fill</span>
-          </motion.button>
-        </MotionWrapper>
+            {/* Ambient inner soft background glow */}
+            <div className="absolute -top-20 -right-20 w-44 h-44 rounded-full bg-primary/15 blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-44 h-44 rounded-full bg-secondary/15 blur-2xl pointer-events-none" />
 
-        {/* login form */}
-        <form onSubmit={handleLogin} className="space-y-4">
-          <MotionWrapper delay={0.3} direction="up">
-            <Input
-              label="Admin Email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@doctortracker.com"
-              leftIcon={<Mail className="w-4 h-4" />}
-            />
-          </MotionWrapper>
+            {/* Header & Branding */}
+            <DialogHeader className="relative z-10 flex flex-col items-start text-left space-y-2">
+              <div className="flex items-center pb-1">
+                <Logo size="md" />
+              </div>
 
-          <MotionWrapper delay={0.35} direction="up">
-            <Input
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••••••"
-              leftIcon={<Lock className="w-4 h-4" />}
-              rightIcon={
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="cursor-pointer hover:text-foreground transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              }
-            />
-          </MotionWrapper>
+              <div className="space-y-0.5">
+                <DialogTitle className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+                  Administrative Portal
+                </DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground leading-normal">
+                  Secure access for hospital telemetry and specialist records
+                </DialogDescription>
+              </div>
+            </DialogHeader>
 
-          <MotionWrapper delay={0.4} direction="up" className="pt-2">
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              loading={loading}
-              rightIcon={<ArrowRight className="w-4 h-4" />}
-              className="w-full"
+            {/* Quick Demo Autofill Banner */}
+            <button
+              type="button"
+              onClick={handleQuickDemo}
+              className="relative z-10 w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-linear-to-r from-primary/10 via-secondary/10 to-primary/5 hover:from-primary/15 hover:to-secondary/15 border-0 border-none outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 text-foreground text-xs font-medium transition-all group shadow-2xs cursor-pointer active:scale-98"
             >
-              Sign In to Portal
-            </Button>
-          </MotionWrapper>
-        </form>
+              <span className="flex items-center gap-2 min-w-0">
+                <span className="w-5 h-5 rounded-md bg-primary/15 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-3 h-3 text-primary" />
+                </span>
+                <span className="truncate text-[11px]">
+                  Demo: <strong className="font-semibold text-foreground">admin@doctortracker.com</strong>
+                </span>
+              </span>
+              <span className="text-[10px] font-bold text-primary bg-primary/10 group-hover:bg-primary group-hover:text-primary-foreground px-2 py-0.5 rounded-md transition-all shrink-0">
+                Auto Fill
+              </span>
+            </button>
 
-        {/* security notice */}
-        <MotionWrapper delay={0.45} direction="up" className="pt-2 border-t border-border flex items-center justify-center gap-2 text-[11px] text-muted-foreground text-center">
-          <ShieldCheck className="w-3.5 h-3.5 text-success" />
-          <span>Protected by 256-bit JWT & bcrypt</span>
-        </MotionWrapper>
-      </MotionWrapper>
+            {/* Form */}
+            <form onSubmit={handleLogin} className="relative z-10 space-y-3.5">
+              <Input
+                label="Admin Email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@doctortracker.com"
+                leftIcon={<Mail className="w-4 h-4" />}
+              />
+
+              <Input
+                label="Password"
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+                leftIcon={<Lock className="w-4 h-4" />}
+                rightIcon={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors p-1"
+                    title={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                }
+              />
+
+              <div className="pt-1">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  loading={loading}
+                  rightIcon={<ArrowRight className="w-4 h-4" />}
+                  className="w-full h-11 text-sm font-bold shadow-lg shadow-primary/25 rounded-full bg-linear-to-r from-primary to-secondary hover:opacity-95 transition-opacity"
+                >
+                  Sign In to Dashboard
+                </Button>
+              </div>
+            </form>
+
+            {/* Security Notice */}
+            <div className="relative z-10 pt-2 border-t border-border/60 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground text-center">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              <span>Protected by 256-bit JWT & bcrypt • Authorized Only</span>
+            </div>
+          </motion.div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

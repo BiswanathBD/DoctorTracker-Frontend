@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import Image from 'next/image';
+import { useTheme } from 'next-themes';
 import { Menu, Search, Moon, Sun, ShieldCheck, ChevronDown, Command, ChevronLeft } from 'lucide-react';
 import { type AdminUser } from '@/server/auth.service';
 import { Logo } from '@/components/common/Logo';
@@ -14,22 +15,7 @@ interface DashboardHeaderProps {
   admin: AdminUser | null;
 }
 
-// theme store for hydration-safe external subscription
-let themeListeners: Array<() => void> = [];
-
-const subscribeTheme = (callback: () => void) => {
-  themeListeners.push(callback);
-  return () => {
-    themeListeners = themeListeners.filter((l) => l !== callback);
-  };
-};
-
-const getThemeSnapshot = (): boolean => {
-  if (typeof window === 'undefined') return false;
-  return document.documentElement.classList.contains('dark');
-};
-
-const getThemeServerSnapshot = (): boolean => false;
+const emptySubscribe = () => () => {};
 
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   onMenuToggle,
@@ -37,10 +23,13 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   isProfileOpen,
   admin,
 }) => {
-  const isDark = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getThemeServerSnapshot);
+  const { setTheme, resolvedTheme } = useTheme();
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const [searchQuery, setSearchQuery] = useState('');
   const brandRef = useRef<HTMLDivElement>(null);
   const [slantOffset, setSlantOffset] = useState<number>(240);
+
+  const isDark = mounted ? resolvedTheme === 'dark' : false;
 
   // measure brand section width dynamically to ensure angled gradient never overlaps logo
   useEffect(() => {
@@ -60,18 +49,9 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     };
   }, []);
 
-  // toggle theme
+  // toggle theme using next-themes
   const handleThemeToggle = () => {
-    const root = document.documentElement;
-    const nextDark = !root.classList.contains('dark');
-    if (nextDark) {
-      root.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      root.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-    themeListeners.forEach((l) => l());
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
   };
 
   return (
