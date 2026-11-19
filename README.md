@@ -110,24 +110,25 @@ flowchart TD
 
 ### Desktop Views
 
-#### 1. Interactive Analytics Dashboard (KPIs, 14-Day Timeline & Specialization Distribution)
-![Dashboard Desktop View](./public/screenshots/dashboard-desktop.png)
+#### 1. Interactive Analytics Dashboard (KPIs, Activity Timeline & Specialty Distribution)
+![Dashboard Desktop View](./public/screenshots/01-dashboard-desktop.png)
 
-#### 2. Specialist Doctor Directory (Multi-Criteria Filters, Search & Capacity Meters)
-![Doctor Directory Desktop](./public/screenshots/doctor-directory.png)
+#### 2. Specialist Doctor Directory (Capacity Tracking, Multi-Criteria Filters & Search)
+![Doctor Directory Desktop](./public/screenshots/02-doctor-directory.png)
 
-#### 3. Doctor Dossier Slide-Over Drawer (Patient Roster, Contact Channels & Admit / Assign Controls)
-![Doctor Dossier Drawer](./public/screenshots/doctor-dossier-drawer.jpg)
+#### 3. Patient Management Directory (Responsive Status Subnav, Search & Filter Controls)
+![Patient Directory Desktop](./public/screenshots/03-patient-directory.png)
 
-#### 4. Patient Assignment Station (Unassigned Patient Selection Modal)
-![Assign Patient Modal](./public/screenshots/assign-patient-modal.png)
+#### 4. Doctor Dossier Slide-Over Drawer (Patient Roster, Hospital Affiliation & Action Stations)
+![Doctor Dossier Drawer](./public/screenshots/04-doctor-dossier.png)
 
 ---
 
 ### Mobile Views
 
-#### 5. Mobile Responsive View (Collapsible Drawer, Touch Controls & Compact Data Grid)
-![Mobile Responsive View](./public/screenshots/mobile-view.jpg)
+| 5. Mobile Dashboard & Header (Icon-Only Logo & KPIs) | 6. Mobile Patient Directory (Adaptive 2x2 Subnav & Cards) |
+| :---: | :---: |
+| <img src="./public/screenshots/05-mobile-dashboard.png" width="380" alt="Mobile Dashboard View" /> | <img src="./public/screenshots/06-mobile-patients.png" width="380" alt="Mobile Patient Directory View" /> |
 
 ---
 
