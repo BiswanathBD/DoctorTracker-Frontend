@@ -73,6 +73,7 @@ export const NavbarGlobalSearch: React.FC<NavbarGlobalSearchProps> = ({
         setDoctors([]);
         setPatients([]);
         setHasSearched(true);
+        setIsOpen(true);
       })
       .finally(() => {
         if (isMounted) setIsSearching(false);
@@ -175,7 +176,14 @@ export const NavbarGlobalSearch: React.FC<NavbarGlobalSearchProps> = ({
           ref={inputRef}
           type="text"
           value={searchQuery}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck={false}
           onFocus={() => {
+            if (searchQuery.trim().length >= 2) setIsOpen(true);
+          }}
+          onClick={() => {
             if (searchQuery.trim().length >= 2) setIsOpen(true);
           }}
           onChange={(e) => {
@@ -229,7 +237,7 @@ export const NavbarGlobalSearch: React.FC<NavbarGlobalSearchProps> = ({
       {isOpen && searchQuery.trim().length >= 2 && (
         <div
           className={cn(
-            'absolute left-0 right-0 w-full top-full mt-2.5 z-50 rounded-3xl bg-card/95 backdrop-blur-2xl border border-border/80 shadow-2xl shadow-black/25 text-foreground overflow-hidden max-h-[75vh] flex flex-col'
+            'absolute left-0 right-0 w-full top-full mt-2.5 z-100 rounded-3xl bg-card/95 backdrop-blur-2xl border border-border/80 shadow-2xl shadow-black/25 text-foreground overflow-hidden max-h-[75vh] flex flex-col'
           )}
         >
           {/* Header pill */}

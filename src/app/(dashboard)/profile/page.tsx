@@ -9,14 +9,14 @@ import { ProfileHeroCard } from '@/components/profile/ProfileHeroCard';
 import { AccountCredentialsCard } from '@/components/profile/AccountCredentialsCard';
 import { SecurityProtocolsCard } from '@/components/profile/SecurityProtocolsCard';
 import { CloudInfrastructureCard } from '@/components/profile/CloudInfrastructureCard';
-import { ProfileFooter } from '@/components/profile/ProfileFooter';
+import Footer from '@/components/common/Footer';
 
 export default function ProfilePage() {
   const { user: admin, logout } = useAuth();
   const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
 
   return (
-    <div className="w-full max-w-6xl space-y-6 mx-auto pb-10">
+    <div className="w-full space-y-6 mx-auto pb-10">
       {/* page header */}
       <PageHeader
         size="md"
@@ -44,7 +44,7 @@ export default function ProfilePage() {
       </div>
 
       {/* copyright footer */}
-      <ProfileFooter />
+      <Footer />
 
       {/* modal: sign out confirmation */}
       <SignOutModal

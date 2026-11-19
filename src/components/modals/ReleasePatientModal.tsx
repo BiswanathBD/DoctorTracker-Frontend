@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Modal, Button, Badge } from '@/components/ui';
+import { Modal, Button, Badge, DatePicker } from '@/components/ui';
 import { MotionWrapper } from '@/components/common/MotionWrapper';
 import type { Patient } from '@/types/patient.types';
 import { UserCheck, Calendar, FileText, Stethoscope, HeartPulse, Building2, Phone } from 'lucide-react';
@@ -27,10 +27,14 @@ const ReleaseForm: React.FC<ReleaseFormProps> = ({
   onClose,
   loading,
 }) => {
-  const [releaseDate, setReleaseDate] = useState<string>(
-    () => new Date().toISOString().split('T')[0]
-  );
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(() => new Date());
   const [remark, setRemark] = useState<string>(() => patient.note || '');
+
+  const todayEnd = React.useMemo(() => {
+    const d = new Date();
+    d.setHours(23, 59, 59, 999);
+    return d;
+  }, []);
 
   const attendingDoctor =
     patient.doctorId && typeof patient.doctorId === 'object'
@@ -40,7 +44,15 @@ const ReleaseForm: React.FC<ReleaseFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!patient._id) return;
-    onConfirmRelease(patient._id, releaseDate, remark);
+    const targetDate = selectedDate || new Date();
+    if (targetDate > todayEnd) return;
+
+    const year = targetDate.getFullYear();
+    const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const day = String(targetDate.getDate()).padStart(2, '0');
+    const releaseDateStr = `${year}-${month}-${day}`;
+
+    onConfirmRelease(patient._id, releaseDateStr, remark);
   };
 
   return (
@@ -61,11 +73,9 @@ const ReleaseForm: React.FC<ReleaseFormProps> = ({
                 {patient.condition}
               </Badge>
             </div>
-            <div className="text-[11px] text-muted-foreground space-y-0.5">
-              <p>
-                {patient.age} yrs • {patient.gender}
-              </p>
-              <p className="flex items-center gap-1.5 font-mono text-foreground/80">
+            <div className="inline-flex text-[11px] text-muted-foreground space-y-0.5">
+                <span>{patient.age} yrs • {patient.gender} •</span>
+                <p className="text-foreground/80 flex items-center gap-1 ml-1">
                 <Phone className="w-3 h-3 text-muted-foreground shrink-0" />
                 <span className="whitespace-nowrap">{patient.phone}</span>
               </p>
@@ -108,21 +118,21 @@ const ReleaseForm: React.FC<ReleaseFormProps> = ({
 
       {/* balanced 2-column inputs */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-        {/* discharge date */}
+        {/* discharge date with shadcn datepicker */}
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
             <Calendar className="w-3.5 h-3.5 text-secondary" />
             Discharge / Release Date <span className="text-destructive">*</span>
           </label>
-          <input
-            type="date"
-            value={releaseDate}
-            onChange={(e) => setReleaseDate(e.target.value)}
-            required
-            className="w-full px-3 py-2 rounded-xl border border-border bg-card text-foreground text-xs focus:outline-hidden focus:ring-2 focus:ring-secondary/40 focus:border-secondary transition-all"
+          <DatePicker
+            date={selectedDate}
+            onSelect={setSelectedDate}
+            disabled={{ after: todayEnd }}
+            endMonth={todayEnd}
+            placeholder="Select discharge date"
           />
-          <p className="text-[10.5px] text-muted-foreground">
-            Official discharge timestamp for clinical caseload records.
+          <p className="text-[10.5px] text-muted-foreground text-left">
+            Official discharge timestamp (future dates disabled).
           </p>
         </div>
 
@@ -171,7 +181,7 @@ const ReleaseForm: React.FC<ReleaseFormProps> = ({
         type="submit"
         variant="secondary"
         size="sm"
-        disabled={loading || !releaseDate}
+        disabled={loading || !selectedDate}
         leftIcon={<UserCheck className="w-3.5 h-3.5" />}
       >
         {loading ? 'Discharging...' : 'Confirm Release'}

@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Card, Badge } from '@/components/ui';
-import { Layers } from 'lucide-react';
+import { PieChart as PieChartIcon } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SpecialtyDonutSkeleton } from '@/components/skeletons/SpecialtyDonutSkeleton';
@@ -18,14 +18,14 @@ interface SpecialtyDonutChartProps {
 }
 
 const PALETTE = [
-  '#198dc7', // primary blue
-  '#1ac3b5', // secondary teal
-  '#6366f1', // indigo
-  '#10b981', // emerald
+  '#198dc7', // blue
+  '#1ac3b5', // teal
+  '#8b5cf6', // violet
   '#f59e0b', // amber
   '#ec4899', // rose pink
-  '#8b5cf6', // violet
+  '#10b981', // emerald
   '#06b6d4', // cyan
+  '#f97316', // orange
 ];
 
 interface CustomTooltipProps {
@@ -50,11 +50,11 @@ const CustomPieTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => 
         <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
         <span className="font-bold text-foreground truncate">{item.specialization}</span>
       </div>
-      <div className="flex items-center justify-between text-muted-foreground pt-1 border-t border-border/50 text-[11px]">
+      <div className="flex items-center justify-between text-muted-foreground pt-1 border-t border-border/50 text-xs">
         <span>Specialists:</span>
         <strong className="text-foreground font-mono">{item.count}</strong>
       </div>
-      <div className="flex items-center justify-between text-muted-foreground text-[11px]">
+      <div className="flex items-center justify-between text-muted-foreground text-xs">
         <span>Share:</span>
         <strong className="text-foreground font-mono">{item.percent}%</strong>
       </div>
@@ -87,29 +87,29 @@ export const SpecialtyDonutChart: React.FC<SpecialtyDonutChartProps> = ({
   const activeItem = hoveredIdx !== null ? chartData[hoveredIdx] : null;
 
   return (
-    <Card className="p-6 space-y-4 h-full flex flex-col justify-between hover:border-primary/30 transition-all duration-300">
-      {/* header */}
-      <div className="flex items-center justify-between pb-3 border-b border-border/60">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
-            <Layers className="w-4 h-4 text-primary" />
+    <Card className="p-5 sm:p-6 rounded-3xl border border-border/80 bg-card shadow-xs h-full flex flex-col justify-between space-y-4">
+      {/* Header: Clean & minimal */}
+      <div className="flex items-center justify-between pb-3 border-b border-border/50 gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center shrink-0 border border-secondary/20 shadow-2xs">
+            <PieChartIcon className="w-4.5 h-4.5 text-secondary" />
           </div>
-          <div>
-            <h3 className="font-bold text-base text-foreground tracking-tight">
+          <div className="min-w-0 space-y-0.5">
+            <h3 className="font-bold text-sm sm:text-base text-foreground truncate">
               Specialization Distribution
             </h3>
-            <p className="text-xs text-muted-foreground font-medium">
-              Medical discipline share across active specialists
+            <p className="text-xs text-muted-foreground font-medium truncate">
+              Discipline share across active specialists
             </p>
           </div>
         </div>
 
-        <Badge variant="outline" className="text-xs py-0.5 px-2.5 font-medium">
+        <Badge variant="outline" className="text-xs py-1 px-2.5 rounded-xl font-medium shrink-0">
           {data.length} {data.length === 1 ? 'Discipline' : 'Disciplines'}
         </Badge>
       </div>
 
-      {/* dynamic content with cross-fade */}
+      {/* Dynamic content with cross-fade */}
       <div className="grid grid-cols-1 grid-rows-1 w-full flex-1">
         <AnimatePresence>
           {loading ? (
@@ -118,7 +118,7 @@ export const SpecialtyDonutChart: React.FC<SpecialtyDonutChartProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
               className="col-start-1 row-start-1 w-full h-full flex items-center"
             >
               <SpecialtyDonutSkeleton />
@@ -129,8 +129,8 @@ export const SpecialtyDonutChart: React.FC<SpecialtyDonutChartProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="col-start-1 row-start-1 w-full h-full flex items-center justify-center py-14 text-xs text-muted-foreground"
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="col-start-1 row-start-1 w-full h-full flex items-center justify-center py-12 text-xs text-muted-foreground"
             >
               No specialization records registered.
             </motion.div>
@@ -140,11 +140,11 @@ export const SpecialtyDonutChart: React.FC<SpecialtyDonutChartProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="col-start-1 row-start-1 w-full h-full flex flex-col items-center justify-between gap-4 py-1"
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="col-start-1 row-start-1 w-full h-full flex flex-col items-center justify-between gap-4 py-0.5"
             >
-              {/* Top: Modern Recharts Donut with gaps and rounded corners */}
-              <div className="relative shrink-0 w-48 h-48 sm:w-52 sm:h-52 flex items-center justify-center mx-auto my-auto">
+              {/* Donut ring */}
+              <div className="relative shrink-0 w-44 h-44 sm:w-48 sm:h-48 flex items-center justify-center mx-auto my-auto">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -152,9 +152,9 @@ export const SpecialtyDonutChart: React.FC<SpecialtyDonutChartProps> = ({
                       cx="50%"
                       cy="50%"
                       innerRadius={62}
-                      outerRadius={84}
-                      cornerRadius={4}
-                      paddingAngle={chartData.length > 1 ? 4 : 0}
+                      outerRadius={82}
+                      cornerRadius={5}
+                      paddingAngle={chartData.length > 1 ? 3 : 0}
                       dataKey="count"
                       nameKey="specialization"
                       startAngle={90}
@@ -169,7 +169,7 @@ export const SpecialtyDonutChart: React.FC<SpecialtyDonutChartProps> = ({
                           key={`cell-${index}`}
                           fill={entry.color}
                           opacity={hoveredIdx === null || hoveredIdx === index ? 1 : 0.35}
-                          className="transition-all duration-300 cursor-pointer"
+                          className="transition-all duration-200 cursor-pointer"
                         />
                       ))}
                     </Pie>
@@ -178,18 +178,20 @@ export const SpecialtyDonutChart: React.FC<SpecialtyDonutChartProps> = ({
                 </ResponsiveContainer>
 
                 {/* Center text display */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none px-3">
-                  <span className="text-2xl sm:text-3xl font-black tracking-tight text-foreground leading-none">
-                    {activeItem ? `${activeItem.percent}%` : totalSpecialists}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mt-1.5 truncate max-w-32">
-                    {activeItem ? activeItem.specialization : 'Specialists'}
-                  </span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none px-2">
+                  <div className="w-20 h-20 rounded-full bg-card/85 backdrop-blur-xs border border-border/40 flex flex-col items-center justify-center shadow-2xs">
+                    <span className="text-2xl sm:text-3xl font-bold text-foreground leading-none font-mono">
+                      {activeItem ? `${activeItem.percent}%` : totalSpecialists}
+                    </span>
+                    <span className="text-[11px] font-semibold text-muted-foreground mt-1 truncate max-w-16">
+                      {activeItem ? activeItem.specialization : 'Specialists'}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* Bottom: Modern Interactive Pills */}
-              <div className="w-full flex flex-wrap items-center justify-center gap-2 pt-3 border-t border-border/50">
+              {/* Bottom modern 2-column discipline grid */}
+              <div className="grid grid-cols-2 gap-2 w-full pt-3 border-t border-border/50">
                 {chartData.map((item, idx) => {
                   const isHovered = hoveredIdx === idx;
                   return (
@@ -198,38 +200,33 @@ export const SpecialtyDonutChart: React.FC<SpecialtyDonutChartProps> = ({
                       type="button"
                       onMouseEnter={() => setHoveredIdx(idx)}
                       onMouseLeave={() => setHoveredIdx(null)}
-                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs transition-all duration-200 cursor-pointer ${
+                      className={`flex items-center justify-between p-2 sm:p-2.5 rounded-xl border text-xs transition-all duration-200 cursor-pointer text-left ${
                         isHovered
-                          ? 'border-primary/60 bg-primary/10 shadow-xs scale-105'
-                          : 'border-border/60 bg-muted/20 hover:bg-muted/40 hover:border-border'
+                          ? 'shadow-2xs'
+                          : 'bg-muted/15 border-border/40 hover:bg-muted/25 hover:border-border/70'
                       }`}
                       style={{
-                        backgroundColor: isHovered ? `${item.color}15` : undefined,
-                        borderColor: isHovered ? item.color : undefined,
+                        backgroundColor: isHovered ? `${item.color}22` : `${item.color}0d`,
+                        borderColor: isHovered ? item.color : `${item.color}30`,
                       }}
                     >
-                      <span
-                        className="w-2.5 h-2.5 rounded-full shrink-0 transition-transform"
-                        style={{
-                          backgroundColor: item.color,
-                          boxShadow: `0 0 0 2px ${item.color}35`,
-                        }}
-                      />
-                      <span className="font-semibold text-foreground truncate max-w-36">
-                        {item.specialization}
-                      </span>
-                      <span className="text-muted-foreground text-[11px] font-medium">
-                        ({item.count})
-                      </span>
-                      <span
-                        className="font-bold text-[11px] font-mono px-1.5 py-0.2 rounded-md"
-                        style={{
-                          backgroundColor: `${item.color}15`,
-                          color: item.color,
-                        }}
-                      >
-                        {item.percent}%
-                      </span>
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0 shadow-2xs"
+                          style={{ backgroundColor: item.color }}
+                        />
+                        <span className="font-medium text-foreground truncate text-xs">
+                          {item.specialization}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0 pl-1 font-mono">
+                        <span className="text-xs font-bold" style={{ color: item.color }}>
+                          {item.count}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          ({item.percent}%)
+                        </span>
+                      </div>
                     </button>
                   );
                 })}

@@ -12,6 +12,7 @@ import {
   Activity,
   UserRoundShield,
 } from 'lucide-react';
+import { Footer } from '@/components/common/Footer';
 import { cn } from '@/lib/utils';
 
 export interface DashboardPageSkeletonProps {
@@ -81,53 +82,127 @@ export const DashboardPageSkeleton: React.FC<DashboardPageSkeletonProps> = ({
         />
       </div>
 
-      {/* 3. Daily Operations & Activity Timeline Skeleton Card */}
-      <Card
-        className={cn(
-          'p-5 sm:p-6 space-y-6 border border-primary/15 bg-card/50 backdrop-blur-md shadow-xs',
-          animated && 'shimmer-active'
-        )}
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-border/40">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-              <Activity className="w-4.5 h-4.5" />
-            </div>
-            <div className="space-y-1">
+      {/* 3. Daily Operations & Activity Timeline and Today's Report Skeleton Cards */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-stretch">
+        <div className="xl:col-span-8 h-full">
+          <Card
+            className={cn(
+              'p-5 sm:p-6 space-y-6 border border-primary/15 bg-card/50 backdrop-blur-md shadow-xs h-full',
+              animated && 'shimmer-active'
+            )}
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-border/40">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                  <Activity className="w-4.5 h-4.5" />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Skeleton animated={animated} className="h-4 w-40 rounded" />
+                    <span className="w-2 h-2 rounded-full bg-accent/80 animate-ping" />
+                  </div>
+                  <Skeleton animated={animated} className="h-3 w-56 rounded bg-muted-foreground/20" />
+                </div>
+              </div>
+
               <div className="flex items-center gap-2">
-                <Skeleton animated={animated} className="h-4 w-40 rounded" />
-                <span className="w-2 h-2 rounded-full bg-accent/80 animate-ping" />
-              </div>
-              <Skeleton animated={animated} className="h-3 w-56 rounded bg-muted-foreground/20" />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/40 border border-border/40">
-              <div className="px-3 py-1 rounded-lg bg-card text-xs">
-                <Skeleton animated={animated} className="h-3 w-10 rounded" />
-              </div>
-              <div className="px-3 py-1 rounded-lg text-xs">
-                <Skeleton animated={animated} className="h-3 w-10 rounded" />
+                <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/40 border border-border/40">
+                  <div className="px-3 py-1 rounded-lg bg-card text-xs">
+                    <Skeleton animated={animated} className="h-3 w-10 rounded" />
+                  </div>
+                  <div className="px-3 py-1 rounded-lg text-xs">
+                    <Skeleton animated={animated} className="h-3 w-10 rounded" />
+                  </div>
+                </div>
               </div>
             </div>
+
+            <div className="pt-2">
+              <DailyActivityChartSkeleton animated={animated} />
+            </div>
+          </Card>
+        </div>
+
+        <div className="xl:col-span-4 h-full">
+          <div
+            className={cn(
+              'relative overflow-hidden p-5 sm:p-6 rounded-3xl bg-linear-to-b from-primary via-primary-hover to-secondary text-primary-foreground shadow-xl shadow-primary/25 border border-primary-foreground/20 flex flex-col justify-between h-full space-y-4',
+              animated && 'shimmer-active'
+            )}
+          >
+            <div className="flex items-center gap-3 pb-3 border-b border-primary-foreground/15">
+              <div className="w-9 h-9 rounded-2xl bg-primary-foreground/20 flex items-center justify-center">
+                <Activity className="w-4.5 h-4.5 text-primary-foreground/40 animate-pulse" />
+              </div>
+              <div className="space-y-1.5 flex-1">
+                <Skeleton animated={animated} className="h-4 w-28 rounded bg-primary-foreground/30" />
+                <Skeleton animated={animated} className="h-3 w-36 rounded bg-primary-foreground/20" />
+              </div>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-primary-foreground/15 border border-primary-foreground/20 flex items-center justify-between">
+              <Skeleton animated={animated} className="h-4 w-36 rounded bg-primary-foreground/30" />
+              <Skeleton animated={animated} className="h-5 w-16 rounded bg-primary-foreground/35" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3 flex-1">
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="p-3 sm:p-3.5 rounded-2xl bg-primary-foreground/12 border border-primary-foreground/15 flex items-center justify-between gap-3"
+                >
+                  <div className="space-y-1 flex-1">
+                    <Skeleton animated={animated} className="h-5 w-10 rounded bg-primary-foreground/30" />
+                    <Skeleton animated={animated} className="h-3 w-20 rounded bg-primary-foreground/20" />
+                  </div>
+                  <Skeleton animated={animated} className="w-8 h-8 rounded-xl bg-primary-foreground/25 shrink-0" />
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-3 border-t border-primary-foreground/15 space-y-2">
+              <Skeleton animated={animated} className="h-1.5 w-full rounded-full bg-primary-foreground/20" />
+              <div className="flex justify-between">
+                <Skeleton animated={animated} className="h-3 w-28 rounded bg-primary-foreground/25" />
+                <Skeleton animated={animated} className="h-3 w-20 rounded bg-primary-foreground/25" />
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div className="pt-2">
-          <DailyActivityChartSkeleton animated={animated} />
-        </div>
-      </Card>
-
-      {/* 4. Bottom Grid: Specialty Donut & Doctor Workload Skeletons */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <div className="lg:col-span-5">
-          <SpecialtyDonutSkeleton animated={animated} />
-        </div>
-        <div className="lg:col-span-7">
-          <DoctorWorkloadSkeleton animated={animated} />
         </div>
       </div>
+
+      {/* 4. Bottom Grid: Specialty Donut & Doctor Workload Skeletons */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+        <Card className="p-5 sm:p-6 rounded-3xl border border-border/80 bg-card shadow-xs h-full flex flex-col justify-between space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-border/50 gap-3">
+            <div className="flex items-center gap-3">
+              <Skeleton animated={animated} className="w-10 h-10 rounded-2xl bg-secondary/15" />
+              <div className="space-y-1">
+                <Skeleton animated={animated} className="h-4 w-44 rounded" />
+                <Skeleton animated={animated} className="h-3 w-56 rounded bg-muted-foreground/20" />
+              </div>
+            </div>
+            <Skeleton animated={animated} className="h-6 w-24 rounded-xl" />
+          </div>
+          <SpecialtyDonutSkeleton animated={animated} />
+        </Card>
+
+        <Card className="p-5 sm:p-6 rounded-3xl border border-border/80 bg-card shadow-xs h-full flex flex-col justify-between space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-border/50 gap-3">
+            <div className="flex items-center gap-3">
+              <Skeleton animated={animated} className="w-10 h-10 rounded-2xl bg-primary/15" />
+              <div className="space-y-1">
+                <Skeleton animated={animated} className="h-4 w-44 rounded" />
+                <Skeleton animated={animated} className="h-3 w-56 rounded bg-muted-foreground/20" />
+              </div>
+            </div>
+            <Skeleton animated={animated} className="h-6 w-16 rounded-xl" />
+          </div>
+          <DoctorWorkloadSkeleton animated={animated} />
+        </Card>
+      </div>
+
+      <Footer className="pt-6" />
     </div>
   );
 };

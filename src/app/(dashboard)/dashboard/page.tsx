@@ -14,6 +14,9 @@ import { CircleStatCard } from '@/components/dashboard/CircleStatCard';
 import { DailyActivityChart, type DailyActivityItem } from '@/components/dashboard/DailyActivityChart';
 import { SpecialtyDonutChart } from '@/components/dashboard/SpecialtyDonutChart';
 import { DoctorWorkloadCard } from '@/components/dashboard/DoctorWorkloadCard';
+import { TodaysReportCard } from '@/components/dashboard/TodaysReportCard';
+import { DashboardPageSkeleton } from '@/components/skeletons/DashboardPageSkeleton';
+import { Footer } from '@/components/common/Footer';
 import {
   Users,
   Stethoscope,
@@ -26,6 +29,7 @@ import {
 export default function DashboardPage() {
   const { user: admin, loading: authLoading } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [statsError, setStatsError] = useState<string | null>(null);
   const [timelineDays, setTimelineDays] = useState<7 | 14 | 30>(14);
 
   // modal states
@@ -61,9 +65,13 @@ export default function DashboardPage() {
 
   // refresh dashboard statistics (always loads 30 days of timeline history)
   const fetchStats = useCallback(() => {
+    setStatsError(null);
     DashboardService.getStats(30)
       .then((data) => setStats(data))
-      .catch((err) => console.error('failed to fetch dashboard statistics:', err));
+      .catch((err) => {
+        console.error('failed to fetch dashboard statistics:', err);
+        setStatsError(err instanceof Error ? err.message : 'Failed to fetch dashboard data');
+      });
   }, []);
 
   // instant client-side timeframe switch without API refetch or extra loading state
@@ -91,7 +99,12 @@ export default function DashboardPage() {
       .then((data) => {
         if (isMounted) setStats(data);
       })
-      .catch((err) => console.error('failed to fetch dashboard statistics:', err));
+      .catch((err) => {
+        console.error('failed to fetch dashboard statistics:', err);
+        if (isMounted) {
+          setStatsError(err instanceof Error ? err.message : 'Failed to fetch dashboard data');
+        }
+      });
 
     return () => {
       isMounted = false;
@@ -198,26 +211,22 @@ export default function DashboardPage() {
     }
   };
 
-  const overview = stats?.overview || {
-    totalDoctors: 0,
-    activeDoctors: 0,
-    inactiveDoctors: 0,
-    activeDoctorPercent: 0,
+  // While stats are loading or null, render the identical skeleton layout so there is no empty-page flash
+  if (!stats) {
+    if (statsError) {
+      return (
+        <div className="w-full min-h-[60vh] flex flex-col items-center justify-center text-center p-6 space-y-4">
+          <p className="text-sm font-semibold text-destructive">{statsError}</p>
+          <Button onClick={fetchStats} variant="outline" size="sm">
+            Retry
+          </Button>
+        </div>
+      );
+    }
+    return <DashboardPageSkeleton />;
+  }
 
-    totalPatients: 0,
-    activePatients: 0,
-    unassignedPatients: 0,
-    releasedPatients: 0,
-    activePatientPercent: 0,
-
-    totalHospitals: 0,
-    activeHospitals: 0,
-    activeHospitalPercent: 0,
-
-    avgPatientsPerDoctor: 0,
-    avgActivePatientsPerActiveDoctor: 0,
-    ratioText: '0:0',
-  };
+  const overview = stats.overview;
 
   // generate continuous calendar timeline for smooth analytics
   const patientMap = new Map(stats?.timeline?.patients?.map((p) => [p.date, p.patients]) || []);
@@ -339,19 +348,19 @@ export default function DashboardPage() {
 
         <MotionWrapper delay={0.16} direction="up">
           <CircleStatCard
-            title="Doctor : Patient"
-            value={overview.ratioText || `${overview.totalDoctors}:${overview.totalPatients}`}
+            title="Patients Per Doctor"
+            value={overview.avgPatientsPerDoctor.toFixed(1)}
             subtitle="Clinician to patient ratio"
             icon={<Activity className="w-4 h-4 text-emerald-500" />}
             percentage={50}
-            percentLabel={`${overview.avgPatientsPerDoctor.toFixed(1)}x`}
+            percentLabel={overview.ratioText || `${overview.totalDoctors}:${overview.totalPatients}`}
             sublabel="RATIO"
             pieMode={true}
             pieSlices={[
               { value: overview.totalPatients || 1, color: '#1ac3b5' },
               { value: overview.totalDoctors || 1, color: '#198dc7' },
             ]}
-            badgeText="Ratio"
+            badgeText="Workload"
             badgeVariant="success"
             gradientId="card-grad-ratio"
             gradientFrom="#1ac3b5"
@@ -359,7 +368,7 @@ export default function DashboardPage() {
             trendText={`Ratio ${overview.ratioText}`}
             trendPositive={true}
             sparkline={workloadSparkline}
-            insightText={`${overview.avgPatientsPerDoctor.toFixed(1)} patients per doctor`}
+            insightText={`${overview.totalPatients} patients across ${overview.totalDoctors} doctors`}
             loading={authLoading}
           />
         </MotionWrapper>
@@ -388,32 +397,46 @@ export default function DashboardPage() {
         </MotionWrapper>
       </div>
 
-      {/* daily date-based operations chart */}
-      <MotionWrapper delay={0.24} direction="up">
-        <DailyActivityChart
-          data={dailyTimelineData}
-          loading={authLoading}
-          daysRange={timelineDays}
-          onDaysRangeChange={handleTimelineDaysChange}
-        />
-      </MotionWrapper>
-
-      {/* specialist caseload distribution & medical insights */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <MotionWrapper delay={0.28} direction="up" className="h-full">
-          <DoctorWorkloadCard
-            doctors={stats?.patientsPerDoctor || []}
+      {/* daily date-based operations chart & today's report card */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-stretch">
+        <MotionWrapper delay={0.24} direction="up" className="xl:col-span-8 h-full">
+          <DailyActivityChart
+            data={dailyTimelineData}
             loading={authLoading}
+            daysRange={timelineDays}
+            onDaysRangeChange={handleTimelineDaysChange}
           />
         </MotionWrapper>
 
-        <MotionWrapper delay={0.32} direction="up" className="h-full">
-          <SpecialtyDonutChart
-            data={stats?.specializationStats || []}
+        <MotionWrapper delay={0.26} direction="up" className="xl:col-span-4 h-full">
+          <TodaysReportCard
+            report={stats.todaysReport}
+            todayTimelineItem={dailyTimelineData[dailyTimelineData.length - 1]}
+            overview={overview}
             loading={authLoading}
           />
         </MotionWrapper>
       </div>
+
+      {/* specialization distribution & specialist caseload distribution */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+        <MotionWrapper delay={0.28} direction="up" className="h-full flex flex-col">
+          <SpecialtyDonutChart
+            data={stats.specializationStats || []}
+            loading={authLoading}
+          />
+        </MotionWrapper>
+
+        <MotionWrapper delay={0.32} direction="up" className="h-full flex flex-col">
+          <DoctorWorkloadCard
+            doctors={stats.patientsPerDoctor || []}
+            loading={authLoading}
+          />
+        </MotionWrapper>
+      </div>
+
+      {/* footer */}
+      <Footer className="pt-6" />
 
       {/* modals */}
       <DoctorFormModal

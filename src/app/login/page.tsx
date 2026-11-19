@@ -43,7 +43,6 @@ export default function LoginPage() {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Invalid email or password.';
       toast.error('Authentication Failed', message);
-    } finally {
       setLoading(false);
     }
   };
@@ -137,13 +136,13 @@ export default function LoginPage() {
               <div className="pt-1">
                 <Button
                   type="submit"
-                  variant="primary"
                   size="lg"
+                  capsule={false}
                   loading={loading}
                   rightIcon={<ArrowRight className="w-4 h-4" />}
-                  className="w-full h-11 text-sm font-bold shadow-lg shadow-primary/25 rounded-full bg-linear-to-r from-primary to-secondary hover:opacity-95 transition-opacity"
+                  className="w-full h-11 text-sm font-bold shadow-lg shadow-primary/25 rounded-full bg-linear-to-r from-primary to-secondary text-primary-foreground hover:opacity-95 transition-opacity flex items-center justify-center cursor-pointer"
                 >
-                  Sign In to Dashboard
+                  {loading ? 'Signing In...' : 'Sign In to Dashboard'}
                 </Button>
               </div>
             </form>

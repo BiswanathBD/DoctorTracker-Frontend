@@ -1,10 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Card } from '@/components/ui';
-import { BarChart3, Building2, ArrowUpRight } from 'lucide-react';
+import { Activity, Building2, ArrowUpRight, Stethoscope } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { DoctorWorkloadSkeleton } from '@/components/skeletons/DoctorWorkloadSkeleton';
 import type { PatientsPerDoctorItem } from '@/types/dashboard.types';
 
@@ -13,48 +15,126 @@ interface DoctorWorkloadCardProps {
   loading?: boolean;
 }
 
-const getInitials = (name?: string): string => {
-  if (!name || typeof name !== 'string') return 'DR';
-  const cleanName = name.replace(/^(Dr\.|Doctor|Prof\.|MD)\s+/i, '').trim();
-  const parts = cleanName.split(/\s+/);
-  if (parts.length >= 2) {
-    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-  }
-  return cleanName.slice(0, 2).toUpperCase() || 'DR';
+// Colors derived directly from globals.css theme variables
+const CARD_THEMES = [
+  {
+    bg: 'bg-primary/5 hover:bg-primary/10',
+    border: 'border-primary/25 hover:border-primary/45',
+    avatarBg: 'bg-primary/15 text-primary border-primary/25',
+    iconColor: 'text-primary',
+    badge: 'bg-primary/15 text-primary border-primary/25',
+    bar: 'bg-primary',
+  },
+  {
+    bg: 'bg-secondary/5 hover:bg-secondary/10',
+    border: 'border-secondary/25 hover:border-secondary/45',
+    avatarBg: 'bg-secondary/15 text-secondary border-secondary/25',
+    iconColor: 'text-secondary',
+    badge: 'bg-secondary/15 text-secondary border-secondary/25',
+    bar: 'bg-secondary',
+  },
+  {
+    bg: 'bg-chart-3/5 hover:bg-chart-3/10',
+    border: 'border-chart-3/25 hover:border-chart-3/45',
+    avatarBg: 'bg-chart-3/15 text-chart-3 border-chart-3/25',
+    iconColor: 'text-chart-3',
+    badge: 'bg-chart-3/15 text-chart-3 border-chart-3/25',
+    bar: 'bg-chart-3',
+  },
+  {
+    bg: 'bg-warning/5 hover:bg-warning/10',
+    border: 'border-warning/25 hover:border-warning/45',
+    avatarBg: 'bg-warning/15 text-warning border-warning/25',
+    iconColor: 'text-warning',
+    badge: 'bg-warning/15 text-warning border-warning/25',
+    bar: 'bg-warning',
+  },
+  {
+    bg: 'bg-chart-5/5 hover:bg-chart-5/10',
+    border: 'border-chart-5/25 hover:border-chart-5/45',
+    avatarBg: 'bg-chart-5/15 text-chart-5 border-chart-5/25',
+    iconColor: 'text-chart-5',
+    badge: 'bg-chart-5/15 text-chart-5 border-chart-5/25',
+    bar: 'bg-chart-5',
+  },
+  {
+    bg: 'bg-accent/5 hover:bg-accent/10',
+    border: 'border-accent/25 hover:border-accent/45',
+    avatarBg: 'bg-accent/15 text-accent border-accent/25',
+    iconColor: 'text-accent',
+    badge: 'bg-accent/15 text-accent border-accent/25',
+    bar: 'bg-accent',
+  },
+];
+
+const DoctorAvatar: React.FC<{
+  url?: string;
+  name: string;
+  avatarBg: string;
+  iconColor: string;
+}> = ({ url, name, avatarBg, iconColor }) => {
+  const [hasError, setHasError] = useState(false);
+
+  return (
+    <div
+      className={cn(
+        'relative w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-2xs overflow-hidden group-hover:scale-105 transition-all duration-200 border',
+        avatarBg
+      )}
+    >
+      {url && !hasError ? (
+        <Image
+          src={url}
+          alt={name}
+          fill
+          sizes="40px"
+          className="object-cover"
+          onError={() => setHasError(true)}
+        />
+      ) : (
+        <Stethoscope className={cn('w-5 h-5', iconColor)} />
+      )}
+    </div>
+  );
 };
 
 export const DoctorWorkloadCard: React.FC<DoctorWorkloadCardProps> = ({
   doctors,
   loading = false,
 }) => {
+  const maxCaseload = React.useMemo(() => {
+    if (!doctors.length) return 1;
+    return Math.max(...doctors.map((d) => d.patientCount), 1);
+  }, [doctors]);
+
   return (
-    <Card className="p-6 space-y-5 h-full flex flex-col justify-between hover:border-primary/30 transition-all duration-300">
-      {/* header */}
-      <div className="flex items-center justify-between pb-3 border-b border-border/60">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
-            <BarChart3 className="w-4 h-4 text-primary" />
+    <Card className="p-5 sm:p-6 rounded-3xl border border-border/80 bg-card shadow-xs h-full flex flex-col justify-between space-y-4">
+      {/* Header: Modern, clean & stylish */}
+      <div className="flex items-center justify-between pb-3 border-b border-border/50 gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/20 shadow-2xs">
+            <Activity className="w-4.5 h-4.5 text-primary" />
           </div>
-          <div>
-            <h3 className="font-bold text-base text-foreground tracking-tight">
+          <div className="min-w-0 space-y-0.5">
+            <h3 className="font-bold text-sm sm:text-base text-foreground truncate">
               Specialist Caseload Distribution
             </h3>
-            <p className="text-xs text-muted-foreground font-medium">
-              Patients currently assigned per attending physician
+            <p className="text-xs text-muted-foreground font-medium truncate">
+              Active clinical assignments per specialist
             </p>
           </div>
         </div>
 
         <Link
           href="/doctors"
-          className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1 group py-1 px-2.5 rounded-lg hover:bg-primary/5"
+          className="text-xs font-semibold text-primary hover:text-primary-hover transition-colors inline-flex items-center gap-1 group py-1 px-2.5 rounded-xl hover:bg-primary/10 border border-transparent hover:border-primary/20 shrink-0"
         >
           <span>View All</span>
           <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </Link>
       </div>
 
-      {/* dynamic content with cross-fade */}
+      {/* Dynamic content with cross-fade: 2-column grid cards with colored backgrounds */}
       <div className="grid grid-cols-1 grid-rows-1 w-full flex-1">
         <AnimatePresence>
           {loading ? (
@@ -63,7 +143,7 @@ export const DoctorWorkloadCard: React.FC<DoctorWorkloadCardProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
               className="col-start-1 row-start-1 w-full h-full flex items-center"
             >
               <DoctorWorkloadSkeleton />
@@ -74,10 +154,10 @@ export const DoctorWorkloadCard: React.FC<DoctorWorkloadCardProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="col-start-1 row-start-1 w-full h-full flex items-center justify-center py-14 text-xs text-muted-foreground"
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="col-start-1 row-start-1 w-full h-full flex items-center justify-center py-12 text-xs text-muted-foreground"
             >
-              No doctor assignments recorded yet.
+              No specialist assignments recorded yet.
             </motion.div>
           ) : (
             <motion.div
@@ -85,50 +165,72 @@ export const DoctorWorkloadCard: React.FC<DoctorWorkloadCardProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="col-start-1 row-start-1 w-full h-full space-y-2.5 py-1 flex flex-col justify-between"
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="col-start-1 row-start-1 w-full h-full grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 py-0.5 content-between"
             >
-              {doctors.slice(0, 5).map((doc, idx) => {
+              {doctors.slice(0, 6).map((doc, idx) => {
+                const theme = CARD_THEMES[idx % CARD_THEMES.length];
                 return (
                   <div
                     key={doc._id || idx}
-                    className="p-3.5 rounded-2xl border border-border/40 bg-card/40 hover:bg-muted/30 hover:border-primary/25 transition-all duration-200 flex items-center justify-between gap-4 group"
+                    className={cn(
+                      'p-3 sm:p-3.5 rounded-2xl border transition-all duration-200 flex items-stretch justify-between gap-3 group shadow-2xs',
+                      theme.bg,
+                      theme.border
+                    )}
                   >
-                    {/* Left: Avatar & Info */}
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      {/* Doctor Avatar */}
-                      <div className="w-9 h-9 rounded-full bg-linear-to-br from-primary/15 to-secondary/15 text-primary border border-primary/20 flex items-center justify-center text-xs font-bold shrink-0 tracking-tight shadow-xs">
-                        {getInitials(doc.name)}
+                    {/* Left Section: Avatar, Info, Hospital & Progress bar */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between gap-2.5">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <DoctorAvatar
+                          url={doc.avatar?.url}
+                          name={doc.name}
+                          avatarBg={theme.avatarBg}
+                          iconColor={theme.iconColor}
+                        />
+
+                        <div className="min-w-0 flex-1 space-y-0.5">
+                          <p className="font-bold text-xs sm:text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                            {doc.name}
+                          </p>
+                          <p className="text-[11px] sm:text-xs text-muted-foreground truncate font-medium">
+                            {doc.specialization}
+                          </p>
+                        </div>
                       </div>
 
-                      {/* Doctor Name & Details */}
-                      <div className="min-w-0 flex-1">
-                        <p className="font-bold text-sm text-foreground truncate group-hover:text-primary transition-colors">
-                          {doc.name}
-                        </p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5 truncate">
-                          <span className="font-medium text-foreground/80 truncate">
-                            {doc.specialization}
-                          </span>
-                          {doc.hospital && (
-                            <>
-                              <span className="text-muted-foreground/40">•</span>
-                              <span className="flex items-center gap-1 truncate text-muted-foreground">
-                                <Building2 className="w-3 h-3 shrink-0 text-muted-foreground/60" />
-                                <span className="truncate">{doc.hospital}</span>
-                              </span>
-                            </>
-                          )}
+                      {/* Hospital & relative caseload bar */}
+                      <div className="space-y-1.5 pt-1.5 border-t border-border/30">
+                        <div className="flex items-center gap-1 text-[11px] text-muted-foreground/80 truncate">
+                          <Building2 className="w-3 h-3 shrink-0 text-muted-foreground/50" />
+                          <span className="truncate">{doc.hospital || 'Medical Center'}</span>
+                        </div>
+
+                        <div className="w-full h-1 rounded-full bg-muted/60 overflow-hidden">
+                          <div
+                            className={cn(
+                              'h-full rounded-full transition-all duration-500',
+                              theme.bar
+                            )}
+                            style={{
+                              width: `${Math.min(100, Math.max(12, Math.round((doc.patientCount / maxCaseload) * 100)))}%`,
+                            }}
+                          />
                         </div>
                       </div>
                     </div>
 
-                    {/* Right: Large Patient Count in minimal styling */}
-                    <div className="flex flex-col items-end shrink-0 pl-2">
-                      <span className="text-2xl sm:text-3xl font-black font-mono text-primary leading-none tracking-tight">
+                    {/* Right Section: Full card height big number with small text below number */}
+                    <div
+                      className={cn(
+                        'w-16 sm:w-20 rounded-xl flex flex-col items-center justify-center text-center p-2 border shrink-0 shadow-2xs self-stretch',
+                        theme.badge
+                      )}
+                    >
+                      <span className="text-2xl sm:text-3xl font-bold font-mono leading-none">
                         {doc.patientCount}
                       </span>
-                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-1">
+                      <span className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider opacity-80 mt-1 leading-tight">
                         {doc.patientCount === 1 ? 'Patient' : 'Patients'}
                       </span>
                     </div>

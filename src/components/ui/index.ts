@@ -12,4 +12,6 @@ export * from './Calendar';
 export * from './dialog';
 export * from './drawer';
 export * from './Skeleton';
+export * from './popover';
+export * from './DatePicker';
 export * from '../common/Pagination';

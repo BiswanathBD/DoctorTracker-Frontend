@@ -29,7 +29,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const hasIcon = Boolean(leftIcon || loading);
+    const isCapsule = Boolean(capsule && leftIcon);
 
     // shadow by size helper - ensures small/medium buttons don't have excessive blur that gets clipped
     const shadowBySize = {
@@ -102,7 +102,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }[size];
 
     // capsule layout with icon badge
-    if (capsule && hasIcon) {
+    if (isCapsule) {
       return (
         <motion.button
           ref={ref}

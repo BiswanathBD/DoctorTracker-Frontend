@@ -36,22 +36,24 @@ const DialogContent = React.forwardRef<
 >(({ className, children, hideCloseButton = false, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
-      className={cn(
-        'fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-100 flex flex-col w-[calc(100%-2rem)] sm:w-full max-w-lg max-h-[90vh] rounded-3xl bg-card text-card-foreground border border-border/80 p-0 shadow-2xl outline-none overflow-hidden no-scrollbar dialog-content will-change-[scale,opacity]',
-        className
-      )}
-      {...props}
-    >
-      {children}
-      {!hideCloseButton && (
-        <DialogPrimitive.Close className="absolute right-5 top-5 w-8 aspect-square flex items-center justify-center rounded-lg bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors duration-200 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring z-20">
-          <X className="w-4 h-4" />
-          <span className="sr-only">Close</span>
-        </DialogPrimitive.Close>
-      )}
-    </DialogPrimitive.Content>
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-3 sm:p-5 overflow-y-auto pointer-events-none">
+      <DialogPrimitive.Content
+        ref={ref}
+        className={cn(
+          'pointer-events-auto relative flex flex-col w-full max-w-lg max-h-[calc(100vh-2.5rem)] sm:max-h-[calc(100vh-3.5rem)] rounded-3xl bg-card text-card-foreground border border-border/80 p-0 shadow-2xl outline-none overflow-hidden no-scrollbar dialog-content will-change-[scale,opacity]',
+          className
+        )}
+        {...props}
+      >
+        {children}
+        {!hideCloseButton && (
+          <DialogPrimitive.Close className="absolute right-5 top-5 w-8 aspect-square flex items-center justify-center rounded-lg bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors duration-200 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring z-20">
+            <X className="w-4 h-4" />
+            <span className="sr-only">Close</span>
+          </DialogPrimitive.Close>
+        )}
+      </DialogPrimitive.Content>
+    </div>
   </DialogPortal>
 ));
 DialogContent.displayName = DialogPrimitive.Content.displayName;

@@ -46,7 +46,7 @@ export const Modal: React.FC<ModalProps> = ({
     >
       <DialogContent
         hideCloseButton={true}
-        className={`w-[calc(100%-2rem)] sm:w-full ${maxWidthClass} max-h-[90vh] p-0 flex flex-col overflow-hidden rounded-3xl bg-card border border-border/80 shadow-2xl`}
+        className={`w-full ${maxWidthClass} max-h-[calc(100vh-2.5rem)] sm:max-h-[calc(100vh-3.5rem)] p-0 flex flex-col overflow-hidden rounded-3xl bg-card border border-border/80 shadow-2xl`}
       >
         {/* accessible hidden title & description for ARIA compliance */}
         <DialogHeader className="sr-only">

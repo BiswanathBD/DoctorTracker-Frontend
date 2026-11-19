@@ -68,7 +68,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         'mt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full',
       contentGap: 'gap-4',
       iconBox:
-        'w-16 h-16 text-secondary flex items-center justify-center shrink-0 [&_svg]:w-10 [&_svg]:h-10 mr-4',
+        'w-16 h-16 text-secondary flex items-center justify-center shrink-0 [&_svg]:w-10 [&_svg]:h-10',
       divider: 'h-16 w-px bg-primary/20 shrink-0',
       title: 'text-xl sm:text-2xl font-bold text-foreground leading-tight',
       subtitle: 'text-xs sm:text-sm text-muted-foreground leading-relaxed',

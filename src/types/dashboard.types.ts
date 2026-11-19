@@ -25,6 +25,10 @@ export interface PatientsPerDoctorItem {
   specialization: string;
   hospital: string;
   patientCount: number;
+  avatar?: {
+    url: string;
+    key?: string;
+  };
 }
 
 export interface SpecializationStatItem {
@@ -43,8 +47,17 @@ export interface TimelinePoint {
   doctors?: number;
 }
 
+export interface TodaysReport {
+  newAdmissions: number;
+  newDoctors: number;
+  releasedToday: number;
+  activeUnderCare: number;
+  occupancyRate?: number;
+}
+
 export interface DashboardStats {
   overview: DashboardOverview;
+  todaysReport?: TodaysReport;
   timelineDays: number;
   patientsPerDoctor: PatientsPerDoctorItem[];
   specializationStats: SpecializationStatItem[];

@@ -200,7 +200,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         {/* md+ one line all: search, theme toggle, and profile over angled gradient */}
         <div className="relative z-10 hidden md:flex items-center justify-end gap-2 sm:gap-3 grow min-w-0 pl-10 lg:pl-12">
           {/* command-style search input styled for gradient background */}
-          <div className="flex-1 max-w-xs lg:max-w-md mx-2 sm:mx-4">
+          <div className="flex-1 max-w-xs lg:max-w-md mx-2 sm:mx-4 relative z-20">
             <NavbarGlobalSearch
               variant="desktop"
               onSelectDoctor={onSelectDoctor || (() => {})}

@@ -17,7 +17,7 @@ export const ProfilePageSkeleton: React.FC<ProfilePageSkeletonProps> = ({
   return (
     <div
       className={cn(
-        'w-full max-w-6xl space-y-6 mx-auto pb-10 transition-opacity duration-300',
+        'w-full space-y-6 mx-auto pb-10 transition-opacity duration-300',
         !animated && 'opacity-70',
         className
       )}
