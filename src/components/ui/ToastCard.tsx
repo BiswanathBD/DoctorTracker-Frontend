@@ -3,6 +3,7 @@
 import React from 'react';
 import { toast as sonnerToast } from 'sonner';
 import { Check, Trash2, Info, AlertTriangle, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ToastCardProps {
   id: string | number;
@@ -14,64 +15,76 @@ interface ToastCardProps {
 export const ToastCard: React.FC<ToastCardProps> = ({ id, type, title, description }) => {
   const config = {
     success: {
-      gradient: 'from-success/25 via-success/10 to-transparent',
-      iconBox: 'bg-success/20 text-success border border-success/30 shadow-success/20',
-      icon: <Check className="w-5 h-5 stroke-[2.5]" />,
-      titleColor: 'text-card-foreground',
+      container: 'bg-card text-success shadow-lg',
+      iconColor: 'text-success',
+      icon: <Check className="w-6 h-6 stroke-[2.5] mr-1 ml-2" />,
+      bodyBg: 'bg-success text-success-foreground',
     },
     error: {
-      gradient: 'from-destructive/30 via-destructive/10 to-transparent',
-      iconBox: 'bg-destructive/20 text-destructive border border-destructive/30 shadow-destructive/20',
-      icon: <Trash2 className="w-5 h-5 stroke-[2.2]" />,
-      titleColor: 'text-destructive',
+      container: 'bg-card text-destructive shadow-lg',
+      iconColor: 'text-destructive',
+      icon: <Trash2 className="w-6 h-6 stroke-[2.5] mr-1 ml-2" />,
+      bodyBg: 'bg-destructive text-destructive-foreground',
     },
     info: {
-      gradient: 'from-primary/30 via-primary/10 to-transparent',
-      iconBox: 'bg-primary/20 text-primary border border-primary/30 shadow-primary/20',
-      icon: <Info className="w-5 h-5 stroke-[2.2]" />,
-      titleColor: 'text-card-foreground',
+      container: 'bg-card text-primary shadow-lg',
+      iconColor: 'text-primary',
+      icon: <Info className="w-6 h-6 stroke-[2.5] mr-1 ml-2" />,
+      bodyBg: 'bg-primary text-primary-foreground',
     },
     warning: {
-      gradient: 'from-warning/30 via-warning/10 to-transparent',
-      iconBox: 'bg-warning/20 text-warning border border-warning/30 shadow-warning/20',
-      icon: <AlertTriangle className="w-5 h-5 stroke-[2.2]" />,
-      titleColor: 'text-warning',
+      container: 'bg-card text-warning shadow-lg',
+      iconColor: 'text-warning',
+      icon: <AlertTriangle className="w-6 h-6 stroke-[2.5] mr-1 ml-2" />,
+      bodyBg: 'bg-warning text-warning-foreground',
     },
   }[type];
 
   return (
-    <div className="relative w-full sm:min-w-[340px] max-w-sm rounded-[20px] p-3.5 pr-4 bg-card text-card-foreground border border-border shadow-2xl overflow-hidden backdrop-blur-xl flex items-center justify-between gap-3.5 transition-all">
-      {/* ambient left glowing splash from the reference image */}
+    <div
+      className={cn(
+        'group inline-flex items-stretch w-full sm:min-w-85 max-w-md rounded-full p-0 overflow-hidden select-none transition-all shadow-xl backdrop-blur-md',
+        config.container
+      )}
+    >
+      {/* 1. Left Icon Section (container background with colored icon) */}
       <div
-        className={`absolute -left-6 -top-6 -bottom-6 w-32 bg-gradient-to-r ${config.gradient} blur-xl pointer-events-none`}
-      />
-
-      {/* left iconic rounded badge */}
-      <div
-        className={`relative z-10 w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm ${config.iconBox}`}
+        className={cn(
+          'flex items-center justify-center shrink-0 transition-colors p-3.5',
+          config.iconColor
+        )}
       >
         {config.icon}
       </div>
 
-      {/* title & description text block */}
-      <div className="relative z-10 flex-1 min-w-0 pr-1">
-        <h4 className={`text-sm font-bold tracking-tight leading-snug ${config.titleColor}`}>
-          {title}
-        </h4>
-        {description && (
-          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed truncate">
-            {description}
-          </p>
+      {/* 2. Right Text Section (solid colored background with white text) */}
+      <div
+        className={cn(
+          'flex-1 flex items-center justify-between gap-3 px-4 py-2.5 sm:py-3 min-w-0 transition-colors font-medium',
+          config.bodyBg
         )}
-      </div>
-
-      {/* close button */}
-      <button
-        onClick={() => sonnerToast.dismiss(id)}
-        className="relative z-10 p-1.5 text-muted-foreground hover:text-card-foreground hover:bg-muted/80 rounded-xl transition-colors cursor-pointer"
       >
-        <X className="w-4 h-4" />
-      </button>
+        <div className="min-w-0 flex-1 space-y-0.5">
+          <h4 className="text-xs sm:text-sm font-bold tracking-tight truncate leading-tight text-white">
+            {title}
+          </h4>
+          {description && (
+            <p className="text-[11px] sm:text-xs leading-snug truncate font-medium text-white/90">
+              {description}
+            </p>
+          )}
+        </div>
+
+        {/* 3. Dismiss Button */}
+        <button
+          type="button"
+          onClick={() => sonnerToast.dismiss(id)}
+          className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-white/80 hover:text-white hover:bg-black/15 transition-colors cursor-pointer"
+          title="Dismiss notification"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
     </div>
   );
 };
@@ -84,7 +97,7 @@ const parseDescription = (options?: ToastOptions): string | undefined => {
   return undefined;
 };
 
-// modern stylish toast triggers matching the reference image
+// modern stylish toast triggers matching capsule button design
 export const toast = {
   success: (title: string, options?: ToastOptions) => {
     const description = parseDescription(options);
@@ -111,3 +124,5 @@ export const toast = {
     ));
   },
 };
+
+export default toast;

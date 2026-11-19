@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { useAuth } from '@/providers/AuthProvider';
 import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeleton';
-import { Lock, Mail, Eye, EyeOff, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, ArrowRight, ShieldCheck, ShieldLock } from 'lucide-react';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -49,12 +49,12 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center p-4 bg-background text-foreground overflow-hidden no-scrollbar">
-      {/* 1. Authentic executive dashboard skeleton background (Static, animation off) */}
+      {/* dashboard skeleton background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
         <DashboardSkeleton withLayout={true} animated={false} />
       </div>
 
-      {/* 2. Redesigned Unique Vertical Login Modal with Smooth Spring Animation & No Scrollbar */}
+      {/* Login Modal */}
       <Dialog open={true}>
         <DialogContent
           hideCloseButton={true}
@@ -68,7 +68,7 @@ export default function LoginPage() {
 
             {/* Header & Branding */}
             <DialogHeader className="relative z-10 flex flex-col items-start text-left space-y-2">
-              <div className="flex items-center pb-1">
+              <div className="flex items-center pb-4 border-b border-border w-full">
                 <Logo size="md" />
               </div>
 
@@ -90,13 +90,13 @@ export default function LoginPage() {
             >
               <span className="flex items-center gap-2 min-w-0">
                 <span className="w-5 h-5 rounded-md bg-primary/15 flex items-center justify-center shrink-0">
-                  <Sparkles className="w-3 h-3 text-primary" />
+                  <ShieldLock className="w-3 h-3 text-primary" />
                 </span>
                 <span className="truncate text-[11px]">
                   Demo: <strong className="font-semibold text-foreground">admin@doctortracker.com</strong>
                 </span>
               </span>
-              <span className="text-[10px] font-bold text-primary bg-primary/10 group-hover:bg-primary group-hover:text-primary-foreground px-2 py-0.5 rounded-md transition-all shrink-0">
+              <span className="text-[10px] font-bold text-primary bg-primary/10 group-hover:bg-primary group-hover:text-primary-foreground px-2 py-1 rounded-md transition-all shrink-0">
                 Auto Fill
               </span>
             </button>
@@ -150,7 +150,7 @@ export default function LoginPage() {
             {/* Security Notice */}
             <div className="relative z-10 pt-2 border-t border-border/60 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground text-center">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-              <span>Protected by 256-bit JWT & bcrypt • Authorized Only</span>
+              <span>Protected • Authorized Only</span>
             </div>
         </DialogContent>
       </Dialog>

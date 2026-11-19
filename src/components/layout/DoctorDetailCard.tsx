@@ -215,7 +215,7 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
                     </span>
                     <span className="text-[11px] font-semibold flex items-center gap-1 text-primary-foreground/90 bg-black/10 px-2 py-0.5 rounded-full">
                       <Building2 className="w-3 h-3 shrink-0" />
-                      <span className="truncate max-w-[150px]">{activeDoctor.hospital}</span>
+                      <span className="truncate max-w-37.5">{activeDoctor.hospital}</span>
                     </span>
                   </div>
                 </div>

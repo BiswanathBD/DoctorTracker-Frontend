@@ -188,7 +188,7 @@ export const DailyActivityChart: React.FC<DailyActivityChartProps> = ({
 
       {/* Chart Canvas Area */}
       <div className="space-y-4 flex-1 flex flex-col justify-between">
-        <div className="grid grid-cols-1 grid-rows-1 w-full min-h-[250px] sm:min-h-[270px] flex-1 pt-1">
+        <div className="grid grid-cols-1 grid-rows-1 w-full min-h-62.5 sm:min-h-67.5 flex-1 pt-1">
           <AnimatePresence>
             {loading ? (
               <motion.div
