@@ -118,11 +118,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     [user, loading, login, logout, refreshProfile]
   );
 
-  // while verifying authentication on protected routes, render route-specific dashboard skeleton
-  if (loading && !isPublicRoute) {
+  // on protected routes, if unauthenticated or verifying, NEVER render protected page content
+  if (!isPublicRoute && (!user || loading)) {
     return (
       <AuthContext.Provider value={value}>
-        <DashboardSkeleton withLayout={true} pathname={pathname} />
+        <DashboardSkeleton withLayout={true} pathname={pathname} animated={false} />
       </AuthContext.Provider>
     );
   }
