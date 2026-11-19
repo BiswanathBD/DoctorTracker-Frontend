@@ -13,7 +13,6 @@ import {
   ChevronRight,
   Command,
   HeartPulse,
-  Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -243,7 +242,7 @@ export const NavbarGlobalSearch: React.FC<NavbarGlobalSearchProps> = ({
           {/* Header pill */}
           <div className="p-3 px-4 border-b border-border/60 bg-muted/30 flex items-center justify-between text-xs text-muted-foreground">
             <span className="font-bold flex items-center gap-1.5 text-foreground">
-              <Sparkles className="w-3.5 h-3.5 text-primary" />
+              <Search className="w-3.5 h-3.5 text-primary" />
               Search Suggestions
             </span>
             <span className="text-[11px] font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">

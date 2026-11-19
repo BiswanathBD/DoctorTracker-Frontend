@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { Card, Badge } from '@/components/ui';
-import { TrendingUp, Sparkles, Activity } from 'lucide-react';
+import { TrendingUp, Activity } from 'lucide-react';
 
 export interface TimelineDataPoint {
   date: string;
@@ -113,7 +113,7 @@ export const PatientTrendLineChart: React.FC<PatientTrendLineChartProps> = ({
             </div>
           ) : (
             <span className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-secondary" />
+              <Activity className="w-3.5 h-3.5 text-secondary" />
               Hover across the trajectory line to inspect individual days
             </span>
           )}

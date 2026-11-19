@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { MotionWrapper } from '@/components/common/MotionWrapper';
 import { Card } from '@/components/ui';

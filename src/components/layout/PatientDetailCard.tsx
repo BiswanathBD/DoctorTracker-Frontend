@@ -49,7 +49,7 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
 
   const targetId = patientId || initialPatient?._id;
 
-  // Whenever drawer opens or targetId changes, fetch fresh data by ID
+  // fetch patient details on open
   useEffect(() => {
     if (!isOpen || !targetId) return;
 

@@ -23,12 +23,12 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
   const [profileOpen, setProfileOpen] = useState(false);
   const { user: admin } = useAuth();
 
-  // Target IDs for global detail drawers
+  // drawer target ids
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null);
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   const [drawerRefreshKey, setDrawerRefreshKey] = useState<number>(0);
 
-  // Doctor modals & form states
+  // doctor modal states
   const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
   const [doctorForm, setDoctorForm] = useState<DoctorFormData>({
     name: '',
@@ -44,7 +44,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
   const [doctorToDelete, setDoctorToDelete] = useState<Doctor | null>(null);
   const [doctorDeleteSubmitting, setDoctorDeleteSubmitting] = useState(false);
 
-  // Patient modals & form states
+  // patient modal states
   const [isAddPatientModalOpen, setIsAddPatientModalOpen] = useState(false);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [patientForm, setPatientForm] = useState<PatientFormData>({

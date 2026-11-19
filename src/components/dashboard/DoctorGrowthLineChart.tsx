@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Card, Badge } from '@/components/ui';
-import { Stethoscope, ShieldCheck, TrendingUp, Sparkles } from 'lucide-react';
+import { Stethoscope, ShieldCheck, TrendingUp, Activity } from 'lucide-react';
 import type { TimelineDataPoint } from './PatientTrendLineChart';
 
 interface DoctorGrowthLineChartProps {
@@ -112,7 +112,7 @@ export const DoctorGrowthLineChart: React.FC<DoctorGrowthLineChartProps> = ({
             </div>
           ) : (
             <span className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-primary" />
+              <Activity className="w-3.5 h-3.5 text-primary" />
               Inspect faculty additions by hovering over data points
             </span>
           )}

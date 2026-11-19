@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { Card, Skeleton } from '@/components/ui';
 import { CircleStatCardSkeleton } from './CircleStatCardSkeleton';
