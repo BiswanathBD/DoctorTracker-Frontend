@@ -260,3 +260,36 @@ body {
 .dialog-content[data-state="closed"] {
   animation: dialogContentZoomOut 180ms ease-in forwards;
 }
+
+/* recharts & svg canvas focus outline suppression */
+.recharts-wrapper,
+.recharts-surface,
+.recharts-responsive-container,
+.recharts-wrapper:focus,
+.recharts-surface:focus,
+.recharts-responsive-container:focus,
+.recharts-wrapper *:focus,
+.recharts-surface *:focus,
+.recharts-wrapper:focus-visible,
+.recharts-surface:focus-visible,
+.recharts-responsive-container:focus-visible,
+.recharts-wrapper *:focus-visible,
+.recharts-surface *:focus-visible,
+.recharts-pie,
+.recharts-pie-sector,
+.recharts-layer,
+.recharts-sector,
+.recharts-curve {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+svg:focus,
+svg:focus-visible,
+svg *:focus,
+svg *:focus-visible {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}

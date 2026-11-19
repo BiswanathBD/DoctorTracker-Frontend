@@ -169,7 +169,7 @@ export const CircleStatCard: React.FC<CircleStatCardProps> = ({
 
                 {/* circle progress / recharts pie chart with gap and rounded corners */}
                 <div className="relative shrink-0 w-17 h-17 flex items-center justify-center">
-                  <PieChart width={68} height={68} className="overflow-visible">
+                  <PieChart width={68} height={68} className="overflow-visible outline-none focus:outline-none select-none">
                     <Pie
                       data={chartData}
                       cx={29}

@@ -227,10 +227,11 @@ export const DailyActivityChart: React.FC<DailyActivityChartProps> = ({
                     Loading chart...
                   </div>
                 ) : (
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" className="outline-none focus:outline-none">
                     <AreaChart
                       data={data}
                       margin={{ top: 12, right: 12, left: -14, bottom: 2 }}
+                      className="outline-none focus:outline-none select-none"
                     >
                       <defs>
                         {/* Soft modern gradient fill for Patients (Teal) */}

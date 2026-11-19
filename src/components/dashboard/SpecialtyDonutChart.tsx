@@ -145,8 +145,8 @@ export const SpecialtyDonutChart: React.FC<SpecialtyDonutChartProps> = ({
             >
               {/* Donut ring */}
               <div className="relative shrink-0 w-44 h-44 sm:w-48 sm:h-48 flex items-center justify-center mx-auto my-auto">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
+                <ResponsiveContainer width="100%" height="100%" className="outline-none focus:outline-none">
+                  <PieChart className="outline-none focus:outline-none select-none">
                     <Pie
                       data={chartData}
                       cx="50%"
