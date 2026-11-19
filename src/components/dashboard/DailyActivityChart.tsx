@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState, useSyncExternalStore } from 'react';
-import { Card, Badge } from '@/components/ui';
+import { Card, Badge, Skeleton } from '@/components/ui';
 import { Calendar, RefreshCw, Activity } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { DailyActivityChartSkeleton } from '@/components/skeletons/DailyActivityChartSkeleton';
 import {
   ResponsiveContainer,
   LineChart,
@@ -65,7 +67,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label })
         </div>
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#f97316] ring-2 ring-[#f97316]/25" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#198dc7] ring-2 ring-[#198dc7]/25" />
             <span className="text-muted-foreground font-medium">Doctors Registered</span>
           </div>
           <span className="font-bold text-foreground text-sm font-mono">{doctorsVal}</span>
@@ -98,8 +100,8 @@ export const DailyActivityChart: React.FC<DailyActivityChartProps> = ({
     data[0] || { displayDate: 'None', total: 0 }
   );
 
-  const maxPatients = Math.max(1, ...data.map((d) => d.patients));
-  const maxDoctors = Math.max(1, ...data.map((d) => d.doctors));
+  const maxPatients = Math.max(1, ...(data.length ? data.map((d) => d.patients) : [1]));
+  const maxDoctors = Math.max(1, ...(data.length ? data.map((d) => d.doctors) : [1]));
 
   return (
     <Card className="p-6 space-y-6">
@@ -172,7 +174,7 @@ export const DailyActivityChart: React.FC<DailyActivityChartProps> = ({
               onClick={() => setViewFilter('doctors')}
               className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 viewFilter === 'doctors'
-                  ? 'bg-[#f97316] text-white shadow-xs'
+                  ? 'bg-primary text-primary-foreground shadow-xs'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -182,30 +184,52 @@ export const DailyActivityChart: React.FC<DailyActivityChartProps> = ({
         </div>
       </div>
 
-      {loading ? (
-        <div className="py-20 flex flex-col items-center justify-center gap-2 text-muted-foreground">
-          <RefreshCw className="w-6 h-6 animate-spin text-primary" />
-          <span className="text-xs font-medium">Aggregating daily timeline records...</span>
-        </div>
-      ) : data.length === 0 ? (
-        <div className="py-16 text-center text-xs text-muted-foreground">
-          No daily records found for the past {daysRange} days.
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {/* Recharts 2-Line Biaxial Chart */}
-          <div className="w-full h-72 pt-2">
-            {!isMounted ? (
-              <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
-                <RefreshCw className="w-5 h-5 animate-spin text-primary mr-2" />
-                Loading chart...
-              </div>
+      <div className="space-y-6">
+        {/* Dynamic Chart Area with smooth cross-fade for API data */}
+        <div className="grid grid-cols-1 grid-rows-1 w-full h-72 pt-2">
+          <AnimatePresence>
+            {loading ? (
+              <motion.div
+                key="chart-skeleton-layer"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className="col-start-1 row-start-1 w-full h-full"
+              >
+                <DailyActivityChartSkeleton />
+              </motion.div>
+            ) : data.length === 0 ? (
+              <motion.div
+                key="chart-empty-layer"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className="col-start-1 row-start-1 w-full h-full flex items-center justify-center text-xs text-muted-foreground"
+              >
+                No daily records found for the past {daysRange} days.
+              </motion.div>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={data}
-                  margin={{ top: 14, right: 14, left: 6, bottom: 4 }}
-                >
+              <motion.div
+                key="chart-live-layer"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className="col-start-1 row-start-1 w-full h-full"
+              >
+                {!isMounted ? (
+                  <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+                    <RefreshCw className="w-5 h-5 animate-spin text-primary mr-2" />
+                    Loading chart...
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={data}
+                      margin={{ top: 14, right: 14, left: 6, bottom: 4 }}
+                    >
                   <CartesianGrid
                     strokeDasharray="3 3"
                     vertical={true}
@@ -239,16 +263,16 @@ export const DailyActivityChart: React.FC<DailyActivityChartProps> = ({
                     />
                   )}
 
-                  {/* Right Y Axis (Doctors - Orange Biaxial) */}
+                  {/* Right Y Axis (Doctors - Primary Biaxial) */}
                   {(viewFilter === 'all' || viewFilter === 'doctors') && (
                     <YAxis
                       yAxisId="right"
                       orientation="right"
                       width={32}
-                      stroke="#f97316"
+                      stroke="#198dc7"
                       tickLine={false}
-                      axisLine={{ stroke: '#f97316', opacity: 0.3 }}
-                      tick={{ fill: '#f97316', fontSize: 10, fontWeight: 600 }}
+                      axisLine={{ stroke: '#198dc7', opacity: 0.3 }}
+                      tick={{ fill: '#198dc7', fontSize: 10, fontWeight: 600 }}
                       domain={[0, Math.max(3, Math.ceil(maxDoctors * 1.35))]}
                       allowDecimals={false}
                     />
@@ -288,33 +312,36 @@ export const DailyActivityChart: React.FC<DailyActivityChartProps> = ({
                     />
                   )}
 
-                  {/* Doctors Line (Orange with Circular Dots) */}
+                  {/* Doctors Line (Primary with Circular Dots) */}
                   {(viewFilter === 'all' || viewFilter === 'doctors') && (
                     <Line
                       yAxisId={viewFilter === 'doctors' ? 'right' : 'right'}
                       type="monotone"
                       dataKey="doctors"
                       name="Doctors"
-                      stroke="#f97316"
+                      stroke="#198dc7"
                       strokeWidth={2.5}
                       dot={{
                         r: 4,
                         strokeWidth: 2,
-                        stroke: '#f97316',
+                        stroke: '#198dc7',
                         fill: 'var(--card)',
                       }}
                       activeDot={{
                         r: 6.5,
                         strokeWidth: 3,
-                        stroke: '#f97316',
-                        fill: '#f97316',
+                        stroke: '#198dc7',
+                        fill: '#198dc7',
                       }}
                     />
                   )}
-                </LineChart>
-              </ResponsiveContainer>
+                    </LineChart>
+                  </ResponsiveContainer>
+                )}
+              </motion.div>
             )}
-          </div>
+          </AnimatePresence>
+        </div>
 
           {/* Chart Legend & Summary matching Reference Image 5 */}
           <div className="pt-2 border-t border-border/60 flex flex-wrap items-center justify-between gap-4 text-xs">
@@ -322,29 +349,47 @@ export const DailyActivityChart: React.FC<DailyActivityChartProps> = ({
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-[#1ac3b5] ring-2 ring-[#1ac3b5]/25" />
                 <span className="font-semibold text-foreground">Patients Admitted</span>
-                <span className="font-mono text-muted-foreground">({totalPatients})</span>
+                {loading ? (
+                  <Skeleton className="w-6 h-3.5 rounded animate-pulse" />
+                ) : (
+                  <span className="font-mono text-muted-foreground">({totalPatients})</span>
+                )}
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-[#f97316] ring-2 ring-[#f97316]/25" />
+                <span className="w-3 h-3 rounded-full bg-[#198dc7] ring-2 ring-[#198dc7]/25" />
                 <span className="font-semibold text-foreground">Doctors Registered</span>
-                <span className="font-mono text-muted-foreground">({totalDoctors})</span>
+                {loading ? (
+                  <Skeleton className="w-6 h-3.5 rounded animate-pulse" />
+                ) : (
+                  <span className="font-mono text-muted-foreground">({totalDoctors})</span>
+                )}
               </div>
             </div>
 
             <div className="flex items-center gap-4 text-muted-foreground text-[11px]">
               <span className="flex items-center gap-1 font-medium">
                 <Activity className="w-3.5 h-3.5 text-primary" />
-                Total Operations: <strong className="text-foreground font-mono ml-0.5">{totalCombined}</strong>
+                Total Operations:{' '}
+                {loading ? (
+                  <Skeleton className="w-7 h-3 rounded animate-pulse inline-block ml-0.5" />
+                ) : (
+                  <strong className="text-foreground font-mono ml-0.5">{totalCombined}</strong>
+                )}
               </span>
               <span>•</span>
-              <span>
+              <span className="flex items-center gap-1">
                 Peak Volume:{' '}
-                <strong className="text-foreground font-semibold">{peakDay.displayDate}</strong> ({peakDay.total})
+                {loading ? (
+                  <Skeleton className="w-14 h-3 rounded animate-pulse inline-block ml-0.5" />
+                ) : (
+                  <>
+                    <strong className="text-foreground font-semibold">{peakDay.displayDate}</strong> ({peakDay.total})
+                  </>
+                )}
               </span>
             </div>
           </div>
         </div>
-      )}
     </Card>
   );
 };

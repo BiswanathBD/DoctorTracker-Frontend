@@ -11,4 +11,5 @@ export * from './Select';
 export * from './Calendar';
 export * from './dialog';
 export * from './drawer';
+export * from './Skeleton';
 export * from '../common/Pagination';

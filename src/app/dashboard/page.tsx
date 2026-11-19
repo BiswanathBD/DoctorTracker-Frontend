@@ -65,20 +65,16 @@ export default function DashboardPage() {
   const [patientAvatarPreviewUrl, setPatientAvatarPreviewUrl] = useState<string | null>(null);
   const [patientSubmitting, setPatientSubmitting] = useState(false);
 
-  // refresh dashboard statistics
-  const fetchStats = useCallback((days: number = timelineDays) => {
-    DashboardService.getStats(days)
+  // refresh dashboard statistics (always loads 30 days of timeline history)
+  const fetchStats = useCallback(() => {
+    DashboardService.getStats(30)
       .then((data) => setStats(data))
       .catch((err) => console.error('failed to fetch dashboard statistics:', err));
-  }, [timelineDays]);
+  }, []);
 
+  // instant client-side timeframe switch without API refetch or extra loading state
   const handleTimelineDaysChange = (newDays: 7 | 14 | 30) => {
     setTimelineDays(newDays);
-    setLoading(true);
-    DashboardService.getStats(newDays)
-      .then((data) => setStats(data))
-      .catch((err) => console.error('failed to fetch dashboard statistics for days:', err))
-      .finally(() => setLoading(false));
   };
 
   // load doctors for patient form
@@ -100,7 +96,7 @@ export default function DashboardPage() {
       console.error('failed to fetch admin profile:', err);
     });
 
-    DashboardService.getStats()
+    DashboardService.getStats(30)
       .then((data) => {
         if (isMounted) setStats(data);
       })
@@ -305,9 +301,9 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
         <MotionWrapper delay={0.08} direction="up">
           <CircleStatCard
-            title="Active Doctors"
-            value={overview.activeDoctors}
-            subtitle="Doctors with active patients"
+            title="Total Doctors"
+            value={overview.totalDoctors}
+            subtitle="Specialists registered in directory"
             icon={<Stethoscope className="w-4 h-4 text-primary" />}
             percentage={overview.activeDoctorPercent}
             percentLabel={`${overview.activeDoctorPercent}%`}
@@ -323,8 +319,8 @@ export default function DashboardPage() {
             sparkline={doctorSparkline}
             insightText={
               topSpecialty
-                ? `${overview.inactiveDoctors} with 0 patients • Top: ${topSpecialty.specialization}`
-                : `${overview.inactiveDoctors} with 0 patients • ${totalSpecialties} depts`
+                ? `${overview.activeDoctors} active • Top: ${topSpecialty.specialization} (${totalSpecialties} depts)`
+                : `${overview.activeDoctors} active • ${totalSpecialties} departments`
             }
             loading={loading}
           />
@@ -332,9 +328,9 @@ export default function DashboardPage() {
 
         <MotionWrapper delay={0.12} direction="up">
           <CircleStatCard
-            title="Active Patients"
-            value={overview.activePatients}
-            subtitle="Assigned in-care patients"
+            title="Total Patients"
+            value={overview.totalPatients}
+            subtitle="Admitted clinical registrations"
             icon={<Users className="w-4 h-4 text-secondary" />}
             percentage={overview.activePatientPercent}
             percentLabel={`${overview.activePatientPercent}%`}
@@ -348,14 +344,14 @@ export default function DashboardPage() {
             trendText={`${overview.activePatients} of ${overview.totalPatients} in care`}
             trendPositive={true}
             sparkline={patientSparkline}
-            insightText={`${overview.releasedPatients} discharged • ${overview.unassignedPatients} unassigned`}
+            insightText={`${overview.activePatients} under care • ${overview.releasedPatients} discharged`}
             loading={loading}
           />
         </MotionWrapper>
 
         <MotionWrapper delay={0.16} direction="up">
           <CircleStatCard
-            title="Doctor : Patient Ratio"
+            title="Doctor : Patient"
             value={overview.ratioText || `${overview.totalDoctors}:${overview.totalPatients}`}
             subtitle="Clinician to patient ratio"
             icon={<Activity className="w-4 h-4 text-emerald-500" />}
@@ -382,15 +378,15 @@ export default function DashboardPage() {
 
         <MotionWrapper delay={0.2} direction="up">
           <CircleStatCard
-            title="Active Hospitals"
-            value={overview.activeHospitals}
-            subtitle="Hospitals with active doctors"
+            title="Total Hospitals"
+            value={overview.totalHospitals}
+            subtitle="Affiliated healthcare networks"
             icon={<Building2 className="w-4 h-4 text-amber-500" />}
             percentage={overview.activeHospitalPercent}
             percentLabel={`${overview.activeHospitalPercent}%`}
             sublabel="ACTIVE"
             singleColor="#f59e0b"
-            badgeText="Active Centers"
+            badgeText="Hospital Network"
             badgeVariant="warning"
             gradientId="card-grad-hospitals"
             gradientFrom="#f59e0b"
@@ -398,7 +394,7 @@ export default function DashboardPage() {
             trendText={`${overview.activeHospitals} of ${overview.totalHospitals} active`}
             trendPositive={true}
             sparkline={hospitalSparkline}
-            insightText={`${overview.totalHospitals - overview.activeHospitals} centers on standby`}
+            insightText={`${overview.activeHospitals} active • ${overview.totalHospitals - overview.activeHospitals} standby`}
             loading={loading}
           />
         </MotionWrapper>

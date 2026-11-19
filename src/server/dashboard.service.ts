@@ -6,7 +6,7 @@ export type { DashboardStats };
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 export const DashboardService = {
-  async getStats(days: number = 14): Promise<DashboardStats> {
+  async getStats(days: number = 30): Promise<DashboardStats> {
     const token = AuthService.getToken();
     const res = await fetch(`${API_URL}/dashboard/stats?days=${days}`, {
       headers: {
