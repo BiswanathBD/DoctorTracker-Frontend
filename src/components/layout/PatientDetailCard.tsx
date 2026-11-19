@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { PatientService, type Patient } from '@/server/patient.service';
 import { Button, SideSheet, toast, PageHeader } from '@/components/ui';
 import { PatientDetailSkeleton } from '@/components/skeletons/PatientDetailSkeleton';
+import { AssignDoctorToPatientModal } from '@/components/modals/AssignDoctorToPatientModal';
 import {
   Stethoscope,
   Phone,
@@ -15,7 +16,6 @@ import {
   Camera,
   Users,
   Clock,
-  Sparkles,
   FileText,
   UserCheck,
 } from 'lucide-react';
@@ -44,7 +44,8 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [fetchedPatient, setFetchedPatient] = useState<Patient | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(() => Boolean(!initialPatient && Boolean(patientId)));
+  const [isAssignDoctorModalOpen, setIsAssignDoctorModalOpen] = useState(false);
 
   const targetId = patientId || initialPatient?._id;
 
@@ -53,36 +54,28 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
     if (!isOpen || !targetId) return;
 
     let isMounted = true;
-    const loadTimer = setTimeout(() => {
-      if (isMounted) setIsLoading(true);
-    }, 0);
 
     PatientService.getPatientById(targetId)
       .then((data) => {
         if (isMounted) {
           setFetchedPatient(data);
+          setIsLoading(false);
         }
       })
       .catch((err) => {
         if (isMounted) {
           console.error('Failed to fetch patient details:', err);
           toast.error('Load Failed', 'Could not fetch patient details.');
-        }
-      })
-      .finally(() => {
-        if (isMounted) {
           setIsLoading(false);
         }
       });
 
     return () => {
       isMounted = false;
-      clearTimeout(loadTimer);
     };
   }, [isOpen, targetId]);
 
-  const activePatient =
-    isOpen && targetId && fetchedPatient?._id === targetId ? fetchedPatient : initialPatient;
+  const activePatient = initialPatient || fetchedPatient;
 
   if (!isOpen && !activePatient && !targetId) return null;
 
@@ -136,7 +129,8 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
     : 'N/A';
 
   return (
-    <SideSheet isOpen={isOpen} onClose={onClose} width="lg" className="p-0">
+    <>
+      <SideSheet isOpen={isOpen} onClose={onClose} width="lg" className="p-0">
       {/* drawer header using PageHeader size="sm" */}
       <PageHeader
         size="sm"
@@ -241,7 +235,21 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
 
             {/* attending specialist section */}
             <div className="p-4 rounded-2xl bg-card border border-border/80 shadow-xs space-y-2.5">
-              <span className="text-xs font-bold text-foreground">Attending Specialist</span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-foreground">Attending Specialist</span>
+                {attendingDoctor && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setIsAssignDoctorModalOpen(true)}
+                    className="h-7 px-2.5 text-[11px] text-primary"
+                    leftIcon={<Stethoscope className="w-3 h-3 text-primary" />}
+                  >
+                    Change Specialist
+                  </Button>
+                )}
+              </div>
               {attendingDoctor ? (
                 <div className="p-3 rounded-2xl bg-primary/5 border border-primary/20 flex items-center gap-3">
                   <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-primary/10 border border-primary/25 shrink-0 flex items-center justify-center text-primary">
@@ -274,19 +282,25 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
                   </div>
                 </div>
               ) : (
-                <div className="p-5 rounded-2xl bg-muted/20 border border-dashed border-border text-center space-y-2">
-                  <p className="text-xs text-muted-foreground">No attending specialist assigned yet</p>
-                  {onEdit && (
+                <div className="p-5 rounded-2xl bg-muted/20 border border-dashed border-border text-center space-y-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mx-auto">
+                    <Stethoscope className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-bold text-foreground">No attending specialist assigned yet</p>
+                    <p className="text-[11px] text-muted-foreground">Assign a specialist to oversee consultations and clinical care.</p>
+                  </div>
+                  <div className="pt-1 flex justify-center">
                     <Button
                       type="button"
                       size="sm"
-                      variant="outline"
-                      onClick={() => onEdit(activePatient)}
-                      leftIcon={<Sparkles className="w-3.5 h-3.5 text-secondary" />}
+                      variant="primary"
+                      onClick={() => setIsAssignDoctorModalOpen(true)}
+                      leftIcon={<Stethoscope className="w-3.5 h-3.5" />}
                     >
                       Assign Specialist
                     </Button>
-                  )}
+                  </div>
                 </div>
               )}
             </div>
@@ -410,5 +424,17 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
         </div>
       )}
     </SideSheet>
-  );
+
+    {/* modal to assign an attending specialist to this unassigned patient */}
+    <AssignDoctorToPatientModal
+      isOpen={isAssignDoctorModalOpen}
+      onClose={() => setIsAssignDoctorModalOpen(false)}
+      patient={activePatient}
+      onSuccess={(updated) => {
+        setFetchedPatient(updated);
+        onAvatarUpdated?.(updated);
+      }}
+    />
+  </>
+);
 };

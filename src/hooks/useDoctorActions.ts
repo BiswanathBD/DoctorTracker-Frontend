@@ -297,7 +297,7 @@ export function useDoctorActions({
       const doctorTitle = selectedDoctor.name.startsWith('Dr.')
         ? selectedDoctor.name
         : `Dr. ${selectedDoctor.name}`;
-      toast.success('Patient Assigned', `${patientForm.name} is now under ${doctorTitle}.`);
+      toast.success('Patient Admitted', `${patientForm.name} is now admitted under ${doctorTitle}.`);
       setIsAddPatientModalOpen(false);
       setPatientAvatarFile(null);
       setPatientAvatarPreviewUrl(null);
@@ -345,45 +345,26 @@ export function useDoctorActions({
     try {
       setPatientRemoveSubmitting(true);
       await DoctorService.removePatientFromDoctor(selectedDoctor._id, patientToRemove.id);
-      toast.success('Patient Deleted', `${patientToRemove.name}'s record has been removed.`);
+      const doctorTitle = selectedDoctor.name.startsWith('Dr.')
+        ? selectedDoctor.name
+        : `Dr. ${selectedDoctor.name}`;
+      toast.success(
+        'Patient Unassigned',
+        `${patientToRemove.name} was successfully unassigned from ${doctorTitle}.`
+      );
       setIsPatientDeleteModalOpen(false);
-      const removedId = patientToRemove.id;
       setPatientToRemove(null);
 
-      // update selected doctor drawer immediately
-      setSelectedDoctor((prev) => {
-        if (!prev) return prev;
-        const currentPatients = prev.assignedPatients || prev.patients || [];
-        const nextPatients = currentPatients.filter((p) => {
-          const id = typeof p === 'string' ? p : p._id;
-          return id !== removedId;
-        });
-        return {
-          ...prev,
-          patientCount: Math.max(0, (prev.patientCount ?? currentPatients.length) - 1),
-          patients: nextPatients,
-          assignedPatients: nextPatients,
-        };
-      });
-
-      // update doctor card in background list immediately
+      // recall doctor details api immediately to get updated patient roster
+      const refreshedDoc = await DoctorService.getDoctorById(selectedDoctor._id);
+      setSelectedDoctor(refreshedDoc);
       setDoctors((prev) =>
         prev.map((doc) =>
           doc._id === selectedDoctor._id
-            ? { ...doc, patientCount: Math.max(0, (doc.patientCount || 1) - 1) }
+            ? { ...doc, patientCount: refreshedDoc.patientCount ?? Math.max(0, (doc.patientCount || 1) - 1) }
             : doc
         )
       );
-
-      const refreshedDoc = await DoctorService.getDoctorById(selectedDoctor._id);
-      setSelectedDoctor(refreshedDoc);
-      if (typeof refreshedDoc.patientCount === 'number') {
-        setDoctors((prev) =>
-          prev.map((d) =>
-            d._id === refreshedDoc._id ? { ...d, patientCount: refreshedDoc.patientCount } : d
-          )
-        );
-      }
       refreshDoctors();
     } catch (err: unknown) {
       console.error('remove patient error:', err);

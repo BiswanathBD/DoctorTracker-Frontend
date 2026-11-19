@@ -53,7 +53,7 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [fetchedDoctor, setFetchedDoctor] = useState<Doctor | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(() => Boolean(!initialDoctor && Boolean(doctorId)));
   const [isAssignModalOpen, setIsAssignModalOpen] = useState<boolean>(false);
 
   const targetId = doctorId || initialDoctor?._id;
@@ -63,36 +63,28 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
     if (!isOpen || !targetId) return;
 
     let isMounted = true;
-    const loadTimer = setTimeout(() => {
-      if (isMounted) setIsLoading(true);
-    }, 0);
 
     DoctorService.getDoctorById(targetId)
       .then((data) => {
         if (isMounted) {
           setFetchedDoctor(data);
+          setIsLoading(false);
         }
       })
       .catch((err) => {
         if (isMounted) {
           console.error('Failed to fetch doctor details:', err);
           toast.error('Load Failed', 'Could not fetch doctor details.');
-        }
-      })
-      .finally(() => {
-        if (isMounted) {
           setIsLoading(false);
         }
       });
 
     return () => {
       isMounted = false;
-      clearTimeout(loadTimer);
     };
   }, [isOpen, targetId]);
 
-  const activeDoctor =
-    isOpen && targetId && fetchedDoctor?._id === targetId ? fetchedDoctor : initialDoctor;
+  const activeDoctor = initialDoctor || fetchedDoctor;
 
   if (!isOpen && !activeDoctor && !targetId) return null;
 

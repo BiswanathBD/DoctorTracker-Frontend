@@ -5,6 +5,8 @@ import { PatientService, type Patient } from '@/server/patient.service';
 import { DoctorService, type Doctor } from '@/server/doctor.service';
 import { toast } from '@/components/ui';
 
+export type PatientStatusFilter = 'under_care' | 'unassigned' | 'released' | 'all';
+
 export function usePatients(limit = 9) {
   // state for patients list & pagination
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -23,7 +25,7 @@ export function usePatients(limit = 9) {
   const [doctorId, setDoctorId] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'under_care' | 'released' | 'all'>('under_care');
+  const [statusFilter, setStatusFilter] = useState<PatientStatusFilter>('under_care');
   const [sortValue, setSortValue] = useState('createdAt-desc');
 
   // filter options fetched directly from database
@@ -84,7 +86,12 @@ export function usePatients(limit = 9) {
       'asc' | 'desc'
     ];
     const isReleasedParam =
-      statusFilter === 'under_care' ? false : statusFilter === 'released' ? true : undefined;
+      statusFilter === 'under_care' || statusFilter === 'unassigned'
+        ? false
+        : statusFilter === 'released'
+        ? true
+        : undefined;
+    const unassignedParam = statusFilter === 'unassigned' ? true : undefined;
 
     PatientService.getAllPatients({
       page,
@@ -92,7 +99,8 @@ export function usePatients(limit = 9) {
       searchTerm: debouncedSearch.trim() || undefined,
       condition: condition || undefined,
       gender: gender || undefined,
-      doctorId: doctorId || undefined,
+      doctorId: statusFilter === 'unassigned' ? undefined : doctorId || undefined,
+      unassigned: unassignedParam,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
       isReleased: isReleasedParam,
@@ -121,7 +129,12 @@ export function usePatients(limit = 9) {
       'asc' | 'desc'
     ];
     const isReleasedParam =
-      statusFilter === 'under_care' ? false : statusFilter === 'released' ? true : undefined;
+      statusFilter === 'under_care' || statusFilter === 'unassigned'
+        ? false
+        : statusFilter === 'released'
+        ? true
+        : undefined;
+    const unassignedParam = statusFilter === 'unassigned' ? true : undefined;
 
     PatientService.getAllPatients({
       page,
@@ -129,7 +142,8 @@ export function usePatients(limit = 9) {
       searchTerm: debouncedSearch.trim() || undefined,
       condition: condition || undefined,
       gender: gender || undefined,
-      doctorId: doctorId || undefined,
+      doctorId: statusFilter === 'unassigned' ? undefined : doctorId || undefined,
+      unassigned: unassignedParam,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
       isReleased: isReleasedParam,

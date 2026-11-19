@@ -17,6 +17,7 @@ import {
   Filter,
   Calendar,
   UserCheck,
+  UserMinus,
 } from 'lucide-react';
 
 export interface PatientFiltersProps {
@@ -36,8 +37,8 @@ export interface PatientFiltersProps {
   setEndDate: (val: string) => void;
   gender: string;
   setGender: (val: string) => void;
-  statusFilter?: 'under_care' | 'released' | 'all';
-  setStatusFilter?: (val: 'under_care' | 'released' | 'all') => void;
+  statusFilter?: 'under_care' | 'unassigned' | 'released' | 'all';
+  setStatusFilter?: (val: 'under_care' | 'unassigned' | 'released' | 'all') => void;
   sortValue: string;
   setSortValue: (val: string) => void;
   total: number;
@@ -157,6 +158,21 @@ export const PatientFilters: React.FC<PatientFiltersProps> = ({
           >
             <HeartPulse className="w-3.5 h-3.5" />
             Under Care
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setStatusFilter?.('unassigned');
+              setPage(1);
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+              statusFilter === 'unassigned'
+                ? 'bg-warning text-warning-foreground shadow-xs'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <UserMinus className="w-3.5 h-3.5" />
+            Unassigned
           </button>
           <button
             type="button"

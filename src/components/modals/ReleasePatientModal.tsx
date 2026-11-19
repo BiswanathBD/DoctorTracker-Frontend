@@ -17,14 +17,12 @@ export interface ReleasePatientModalProps {
 interface ReleaseFormProps {
   patient: Patient;
   onConfirmRelease: (patientId: string, releaseDate: string, remark: string) => Promise<void> | void;
-  onClose: () => void;
   loading: boolean;
 }
 
 const ReleaseForm: React.FC<ReleaseFormProps> = ({
   patient,
   onConfirmRelease,
-  onClose,
   loading,
 }) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(() => new Date());
@@ -204,7 +202,6 @@ export const ReleasePatientModal: React.FC<ReleasePatientModalProps> = ({
         key={patient._id}
         patient={patient}
         onConfirmRelease={onConfirmRelease}
-        onClose={onClose}
         loading={loading}
       />
     </Modal>
