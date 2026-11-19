@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Users,
   UserCheck,
+  Building2,
 } from 'lucide-react';
 
 export interface PatientCardProps {
@@ -53,8 +54,8 @@ export const PatientCard: React.FC<PatientCardProps> = ({
 
         {/* top section: avatar, name, condition, demographics, actions */}
         <div className="space-y-3 relative z-10">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center justify-between gap-2.5">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
               {/* patient avatar */}
               <div className="relative w-12 h-12 rounded-2xl bg-secondary/10 text-secondary overflow-hidden flex items-center justify-center font-bold text-sm shrink-0 border border-secondary/20 shadow-xs group-hover:scale-105 transition-transform duration-300">
                 {patient.avatar?.url ? (
@@ -70,37 +71,23 @@ export const PatientCard: React.FC<PatientCardProps> = ({
                 )}
               </div>
 
-              <div className="min-w-0">
+              {/* name & demographics */}
+              <div className="min-w-0 flex-1">
                 <h3
                   onClick={() => onViewDetails(patient)}
-                  className="font-bold text-foreground group-hover:text-secondary transition-colors text-sm truncate cursor-pointer"
+                  className="font-bold text-foreground group-hover:text-secondary transition-colors text-sm sm:text-base truncate cursor-pointer leading-tight"
                   title={patient.name}
                 >
                   {patient.name}
                 </h3>
-                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                  <Badge variant="warning" className="text-[10px] font-semibold">
-                    <HeartPulse className="w-2.5 h-2.5 mr-1" />
-                    {patient.condition}
-                  </Badge>
-                  {patient.isReleased ? (
-                    <Badge variant="outline" className="text-[10px] text-emerald-500 border-emerald-500/40 bg-emerald-500/10 font-bold">
-                      Released
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="text-[10px] text-primary border-primary/30 font-semibold">
-                      Under Care
-                    </Badge>
-                  )}
-                  <span className="text-[11px] text-muted-foreground font-medium">
-                    {patient.age} yrs • {patient.gender}
-                  </span>
-                </div>
+                <p className="text-[11px] text-muted-foreground font-medium mt-0.5 truncate">
+                  {patient.age} yrs • {patient.gender}
+                </p>
               </div>
             </div>
 
             {/* card top actions */}
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
               {!patient.isReleased && onRelease && (
                 <button
                   type="button"
@@ -108,7 +95,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({
                   className="p-1.5 rounded-lg text-secondary hover:bg-secondary/15 transition-colors cursor-pointer"
                   title="Release Patient"
                 >
-                  <UserCheck className="w-3.5 h-3.5" />
+                  <UserCheck className="w-4 h-4" />
                 </button>
               )}
               <button
@@ -117,7 +104,7 @@ export const PatientCard: React.FC<PatientCardProps> = ({
                 className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
                 title="Edit Patient"
               >
-                <Edit2 className="w-3.5 h-3.5" />
+                <Edit2 className="w-4 h-4" />
               </button>
               <button
                 type="button"
@@ -125,50 +112,74 @@ export const PatientCard: React.FC<PatientCardProps> = ({
                 className="p-1.5 rounded-lg text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
                 title="Delete Patient"
               >
-                <Trash2 className="w-3.5 h-3.5" />
+                <Trash2 className="w-4 h-4" />
               </button>
             </div>
           </div>
 
+          {/* status & condition badges (full width row) */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <Badge variant="warning" className="text-[10px] font-semibold max-w-full">
+              <HeartPulse className="w-2.5 h-2.5 mr-1 shrink-0" />
+              <span className="truncate">{patient.condition}</span>
+            </Badge>
+            {patient.isReleased ? (
+              <Badge variant="outline" className="text-[10px] text-emerald-500 border-emerald-500/40 bg-emerald-500/10 font-bold shrink-0">
+                Released
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="text-[10px] text-primary border-primary/30 font-semibold shrink-0">
+                Under Care
+              </Badge>
+            )}
+          </div>
+
           {/* attending specialist banner */}
-          <div className="p-3 rounded-2xl bg-muted/40 border border-border/70 space-y-1.5">
+          <div className="p-3 rounded-2xl bg-muted/40 border border-border/70 space-y-2">
             <div className="flex items-center justify-between text-[11px]">
               <span className="text-muted-foreground font-semibold flex items-center gap-1">
                 <Stethoscope className="w-3 h-3 text-secondary" />
                 Attending Doctor
               </span>
-              {docObj && (
-                <span className="text-[10px] font-mono text-muted-foreground truncate max-w-30">
-                  {docObj.hospital}
-                </span>
-              )}
             </div>
 
             {docObj ? (
-              <div className="flex items-center gap-2">
-                {docObj.avatar?.url ? (
-                  <div className="relative w-6 h-6 rounded-lg overflow-hidden border border-secondary/20 shrink-0">
-                    <Image
-                      src={docObj.avatar.url}
-                      alt={docObj.name}
-                      fill
-                      sizes="24px"
-                      className="object-cover"
-                    />
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  {docObj.avatar?.url ? (
+                    <div className="relative w-6 h-6 rounded-lg overflow-hidden border border-secondary/20 shrink-0">
+                      <Image
+                        src={docObj.avatar.url}
+                        alt={docObj.name}
+                        fill
+                        sizes="24px"
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-6 h-6 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center font-bold text-[10px] shrink-0">
+                      <Stethoscope className="w-3.5 h-3.5 text-secondary" />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold text-foreground truncate">
+                      {docObj.name}
+                    </p>
+                    <p className="text-[10px] text-secondary font-medium truncate">
+                      {docObj.specialization}
+                    </p>
                   </div>
-                ) : (
-                  <div className="w-6 h-6 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center font-bold text-[10px] shrink-0">
-                    <Stethoscope className="w-3.5 h-3.5 text-secondary" />
+                </div>
+
+                {/* hospital name in a separate line with clean simple font */}
+                {docObj.hospital && (
+                  <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground pt-1 border-t border-border/50">
+                    <Building2 className="w-3 h-3 text-muted-foreground/80 shrink-0" />
+                    <span className="truncate font-normal" title={docObj.hospital}>
+                      {docObj.hospital}
+                    </span>
                   </div>
                 )}
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold text-foreground truncate">
-                    {docObj.name}
-                  </p>
-                  <p className="text-[10px] text-secondary font-medium truncate">
-                    {docObj.specialization}
-                  </p>
-                </div>
               </div>
             ) : (
               <p className="text-xs text-muted-foreground italic">

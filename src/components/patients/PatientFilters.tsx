@@ -141,23 +141,23 @@ export const PatientFilters: React.FC<PatientFiltersProps> = ({
         </div>
       </div>
 
-      {/* status tabs row (Under Care default | Released | All Patients) */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/60 border border-border/80 text-xs shadow-2xs">
+      {/* status subnav tabs (Under Care | Unassigned | Released | All Patients) */}
+      <div className="w-full pt-1">
+        <div className="grid grid-cols-2 min-[480px]:grid-cols-4 sm:inline-flex sm:w-auto items-center gap-1 p-1 rounded-2xl bg-muted/60 border border-border/80 text-xs shadow-2xs w-full">
           <button
             type="button"
             onClick={() => {
               setStatusFilter?.('under_care');
               setPage(1);
             }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`px-2.5 py-2 sm:px-3 sm:py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
               statusFilter === 'under_care'
                 ? 'bg-secondary text-secondary-foreground shadow-xs'
-                : 'text-muted-foreground hover:text-foreground'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
             }`}
           >
-            <HeartPulse className="w-3.5 h-3.5" />
-            Under Care
+            <HeartPulse className="w-3.5 h-3.5 shrink-0" />
+            <span>Under Care</span>
           </button>
           <button
             type="button"
@@ -165,14 +165,14 @@ export const PatientFilters: React.FC<PatientFiltersProps> = ({
               setStatusFilter?.('unassigned');
               setPage(1);
             }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`px-2.5 py-2 sm:px-3 sm:py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
               statusFilter === 'unassigned'
                 ? 'bg-warning text-warning-foreground shadow-xs'
-                : 'text-muted-foreground hover:text-foreground'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
             }`}
           >
-            <UserMinus className="w-3.5 h-3.5" />
-            Unassigned
+            <UserMinus className="w-3.5 h-3.5 shrink-0" />
+            <span>Unassigned</span>
           </button>
           <button
             type="button"
@@ -180,14 +180,14 @@ export const PatientFilters: React.FC<PatientFiltersProps> = ({
               setStatusFilter?.('released');
               setPage(1);
             }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`px-2.5 py-2 sm:px-3 sm:py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
               statusFilter === 'released'
                 ? 'bg-primary text-primary-foreground shadow-xs'
-                : 'text-muted-foreground hover:text-foreground'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
             }`}
           >
-            <UserCheck className="w-3.5 h-3.5" />
-            Released
+            <UserCheck className="w-3.5 h-3.5 shrink-0" />
+            <span>Released</span>
           </button>
           <button
             type="button"
@@ -195,14 +195,14 @@ export const PatientFilters: React.FC<PatientFiltersProps> = ({
               setStatusFilter?.('all');
               setPage(1);
             }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`px-2.5 py-2 sm:px-3 sm:py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
               statusFilter === 'all'
                 ? 'bg-card text-foreground shadow-xs'
-                : 'text-muted-foreground hover:text-foreground'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/80'
             }`}
           >
-            <Users className="w-3.5 h-3.5" />
-            All Patients
+            <Users className="w-3.5 h-3.5 shrink-0" />
+            <span>All Patients</span>
           </button>
         </div>
       </div>

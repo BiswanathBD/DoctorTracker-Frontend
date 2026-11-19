@@ -5,7 +5,7 @@ import { ThemeProvider } from '@/providers/ThemeProvider';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Doctor Tracker',
+  title: 'Doctor Tracking | Doctor and Patient Directory',
   description: 'Healthcare administration portal for managing doctors, assigned patients, and real-time medical analytics.',
   icons: {
     icon: '/favicon.svg',

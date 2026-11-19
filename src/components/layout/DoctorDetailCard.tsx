@@ -219,12 +219,15 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
                     </div>
 
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/20 border border-white/20 backdrop-blur-xs">
+                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/20 border border-white/20 backdrop-blur-xs shrink-0">
                         {activeDoctor.specialization}
                       </span>
-                      <span className="text-[11px] font-semibold flex items-center gap-1 text-primary-foreground/90 bg-black/10 px-2 py-0.5 rounded-full">
-                        <Building2 className="w-3 h-3 shrink-0" />
-                        <span className="truncate max-w-37.5">{activeDoctor.hospital}</span>
+                      <span
+                        className="text-[11px] font-semibold inline-flex items-center gap-1.5 text-primary-foreground/95 bg-black/15 px-2.5 py-0.5 rounded-full border border-white/10 backdrop-blur-xs max-w-full"
+                        title={activeDoctor.hospital}
+                      >
+                        <Building2 className="w-3 h-3 shrink-0 opacity-80" />
+                        <span className="leading-snug wrap-break-word">{activeDoctor.hospital}</span>
                       </span>
                     </div>
                   </div>

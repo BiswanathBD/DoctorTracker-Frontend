@@ -1,58 +1,115 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+
+export type LogoSize = 'sm' | 'md' | 'lg';
 
 interface LogoProps {
   className?: string;
+  showIcon?: boolean;
   showText?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  hideTextOnMobile?: boolean;
+  size?: LogoSize;
+  name?: string;
+  tag?: string;
+  href?: string;
 }
 
-export const Logo: React.FC<LogoProps> = ({
-  className = '',
-  showText = true,
-  size = 'md',
-}) => {
-  const sizeMap = {
-    sm: { icon: 32, text: 'text-lg', sub: 'text-[9px]' },
-    md: { icon: 40, text: 'text-xl', sub: 'text-[10px]' },
-    lg: { icon: 52, text: 'text-2xl', sub: 'text-xs' },
-  };
+const sizeMap: Record<LogoSize, { icon: number; title: string; tag: string }> = {
+  sm: { icon: 34, title: 'text-base sm:text-lg', tag: 'text-[9px]' },
+  md: { icon: 42, title: 'text-lg sm:text-xl', tag: 'text-[10px]' },
+  lg: { icon: 52, title: 'text-xl sm:text-2xl', tag: 'text-xs' },
+};
 
-  const { icon, text, sub } = sizeMap[size];
+// standalone clean logo icon
+export const LogoIcon: React.FC<{ size?: LogoSize | number; className?: string }> = ({
+  size = 'md',
+  className = '',
+}) => {
+  const dimension = typeof size === 'number' ? size : sizeMap[size].icon;
 
   return (
-    <Link href="/" className={`inline-flex items-center gap-3 group select-none ${className}`}>
-      {/* logo icon */}
-      <div
-        style={{ width: icon, height: icon }}
-        className="relative shrink-0 rounded-2xl bg-linear-to-br from-primary to-secondary p-2 shadow-md shadow-primary/20 group-hover:scale-105 transition-transform duration-200 text-primary-foreground"
-      >
-        <svg viewBox="0 0 40 40" fill="none" className="w-full h-full">
-          <rect x="16" y="8" width="8" height="24" rx="3" fill="currentColor" opacity="0.95" />
-          <rect x="8" y="16" width="24" height="8" rx="3" fill="currentColor" opacity="0.95" />
-          <path
-            d="M6 20h8l2.5-6 5 12 3.5-8 2.5 3h6.5"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <circle cx="32" cy="8" r="3" className="fill-accent" />
-          <circle cx="32" cy="8" r="5" stroke="currentColor" strokeWidth="1" opacity="0.8" />
-        </svg>
-      </div>
+    <Image
+      src="/logo.svg"
+      alt="Doctor Tracking"
+      width={dimension}
+      height={dimension}
+      unoptimized
+      priority
+      className={`shrink-0 transition-transform duration-300 group-hover:scale-105 ${className}`}
+    />
+  );
+};
 
-      {/* logo text */}
-      {showText && (
-        <div className="flex flex-col leading-none">
-          <span className={`font-bold text-foreground  ${text}`}>
-            Doctor<span className="text-primary">Tracker</span>
+// standalone clean logo text (h1 title & subtitle tag)
+export const LogoText: React.FC<{
+  name?: string;
+  tag?: string;
+  size?: LogoSize;
+  hideOnMobile?: boolean;
+  className?: string;
+}> = ({
+  name = 'Doctor Tracking',
+  tag = 'Doctor and Patient Directory',
+  size = 'md',
+  hideOnMobile = false,
+  className = '',
+}) => {
+  const { title, tag: tagStyle } = sizeMap[size];
+  const [firstWord, ...rest] = name.trim().split(' ');
+  const restWord = rest.join(' ');
+
+  const mobileDisplayClass = hideOnMobile ? 'hidden sm:flex' : 'flex';
+
+  return (
+    <div className={`${mobileDisplayClass} flex-col leading-none ${className}`}>
+      <h1 className={`font-extrabold text-foreground tracking-tight leading-none ${title}`}>
+        {firstWord || 'Doctor'}
+        {restWord && (
+          <span className="ml-1 bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
+            {restWord}
           </span>
-          <span className={`font-semibold uppercase text-muted-foreground tracking-wider mt-1 ${sub}`}>
-            Medical System
-          </span>
-        </div>
+        )}
+      </h1>
+      {tag && (
+        <p className={`font-semibold uppercase tracking-[0.14em] text-muted-foreground mt-1 ${tagStyle}`}>
+          {tag}
+        </p>
       )}
+    </div>
+  );
+};
+
+// main unified clean logo
+export const Logo: React.FC<LogoProps> = ({
+  className = '',
+  showIcon = true,
+  showText = true,
+  hideTextOnMobile = true,
+  size = 'md',
+  name = 'Doctor Tracking',
+  tag = 'Doctor and Patient Directory',
+  href = '/',
+}) => {
+  const content = (
+    <div className={`inline-flex items-center gap-3 group select-none ${className}`}>
+      {showIcon && <LogoIcon size={size} />}
+      {showText && (
+        <LogoText
+          name={name}
+          tag={tag}
+          size={size}
+          hideOnMobile={hideTextOnMobile}
+        />
+      )}
+    </div>
+  );
+
+  return href ? (
+    <Link href={href} className="inline-flex">
+      {content}
     </Link>
+  ) : (
+    content
   );
 };

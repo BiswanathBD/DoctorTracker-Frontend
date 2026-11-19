@@ -69,7 +69,7 @@ export default function LoginPage() {
           {/* Header & Branding */}
           <DialogHeader className="relative z-10 flex flex-col items-start text-left space-y-2">
             <div className="flex items-center pb-4 border-b border-border w-full">
-              <Logo size="md" />
+              <Logo size="md" hideTextOnMobile={false} />
             </div>
 
             <div className="space-y-0.5">

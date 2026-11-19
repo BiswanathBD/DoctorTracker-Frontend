@@ -22,8 +22,8 @@ export const PatientCardSkeleton: React.FC<{ animated?: boolean }> = ({ animated
 
       {/* top section: avatar, name, condition, demographics, top actions */}
       <div className="space-y-3 relative z-10">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center justify-between gap-2.5">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
             {/* patient avatar skeleton */}
             <div className="w-12 h-12 rounded-2xl bg-secondary/12 border border-secondary/25 flex items-center justify-center text-secondary/60 shrink-0 shadow-2xs">
               <Users className={cn('w-6 h-6', animated && 'animate-pulse text-secondary/70')} />
@@ -31,13 +31,7 @@ export const PatientCardSkeleton: React.FC<{ animated?: boolean }> = ({ animated
 
             <div className="space-y-1.5 flex-1 min-w-0">
               <Skeleton animated={animated} className="h-4 w-36 rounded-md bg-foreground/15" />
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <div className="h-5 w-24 bg-warning/10 border border-warning/20 rounded-full flex items-center gap-1 px-2 text-warning/60">
-                  <HeartPulse className="w-2.5 h-2.5" />
-                  <Skeleton animated={animated} className="h-2 w-12 rounded-full bg-warning/30" />
-                </div>
-                <Skeleton animated={animated} className="h-4 w-14 rounded-md bg-muted-foreground/15" />
-              </div>
+              <Skeleton animated={animated} className="h-3 w-20 rounded-md bg-muted-foreground/15" />
             </div>
           </div>
 
@@ -48,23 +42,38 @@ export const PatientCardSkeleton: React.FC<{ animated?: boolean }> = ({ animated
           </div>
         </div>
 
+        {/* badges placeholder */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <div className="h-5 w-28 bg-warning/10 border border-warning/20 rounded-full flex items-center gap-1 px-2 text-warning/60">
+            <HeartPulse className="w-2.5 h-2.5 shrink-0" />
+            <Skeleton animated={animated} className="h-2 w-14 rounded-full bg-warning/30" />
+          </div>
+          <Skeleton animated={animated} className="h-5 w-16 rounded-full bg-primary/10 border border-primary/20" />
+        </div>
+
         {/* attending specialist banner */}
-        <div className="p-3 rounded-2xl bg-muted/30 border border-border/50 space-y-1.5">
+        <div className="p-3 rounded-2xl bg-muted/30 border border-border/50 space-y-2">
           <div className="flex items-center justify-between text-[11px]">
             <span className="text-secondary/70 font-semibold flex items-center gap-1">
               <Stethoscope className="w-3 h-3 text-secondary/70" />
               Attending Doctor
             </span>
-            <Skeleton animated={animated} className="h-2.5 w-18 rounded bg-muted-foreground/15" />
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-secondary/12 border border-secondary/20 shrink-0 flex items-center justify-center text-secondary/80 text-[10px] font-bold">
-              Dr
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-secondary/12 border border-secondary/20 shrink-0 flex items-center justify-center text-secondary/80 text-[10px] font-bold">
+                Dr
+              </div>
+              <div className="space-y-1 flex-1 min-w-0">
+                <Skeleton animated={animated} className="h-3 w-28 rounded bg-secondary/25" />
+                <Skeleton animated={animated} className="h-2 w-20 rounded bg-muted-foreground/15" />
+              </div>
             </div>
-            <div className="space-y-1 flex-1 min-w-0">
-              <Skeleton animated={animated} className="h-3 w-28 rounded bg-secondary/25" />
-              <Skeleton animated={animated} className="h-2 w-20 rounded bg-muted-foreground/15" />
+
+            {/* hospital skeleton line */}
+            <div className="pt-1 border-t border-border/40 flex items-center gap-1.5">
+              <Skeleton animated={animated} className="h-2.5 w-32 rounded bg-muted-foreground/15" />
             </div>
           </div>
         </div>

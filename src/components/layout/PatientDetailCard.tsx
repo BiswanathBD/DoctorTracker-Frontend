@@ -271,12 +271,14 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
                         ? attendingDoctor.name
                         : `Dr. ${attendingDoctor.name}`}
                     </p>
-                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                      <span className="text-primary font-semibold truncate">
+                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground flex-wrap">
+                      <span className="text-primary font-semibold shrink-0">
                         {attendingDoctor.specialization}
                       </span>
                       {attendingDoctor.hospital && (
-                        <span className="truncate opacity-75">({attendingDoctor.hospital})</span>
+                        <span className="opacity-75 break-words" title={attendingDoctor.hospital}>
+                          ({attendingDoctor.hospital})
+                        </span>
                       )}
                     </div>
                   </div>

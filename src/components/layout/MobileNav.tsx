@@ -100,7 +100,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, admin }) 
           {/* Mobile brand header with close button */}
           <div className="relative z-10 h-12 px-2 flex items-center justify-between border-b border-primary-foreground/15 mb-2">
             <div className="brightness-200">
-              <Logo size="sm" />
+              <Logo size="sm" hideTextOnMobile={false} />
             </div>
             <button
               type="button"
