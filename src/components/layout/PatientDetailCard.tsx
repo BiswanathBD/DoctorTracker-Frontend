@@ -1,18 +1,17 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { PatientService, type Patient } from '@/server/patient.service';
 import { Button, SideSheet, toast, PageHeader } from '@/components/ui';
+import { PatientDetailSkeleton } from '@/components/skeletons/PatientDetailSkeleton';
 import {
-  HeartPulse,
   Stethoscope,
   Phone,
   Mail,
   Calendar,
   Edit2,
   Trash2,
-  Building2,
   Camera,
   Users,
   Clock,
@@ -21,18 +20,20 @@ import {
   UserCheck,
 } from 'lucide-react';
 
-interface PatientDetailCardProps {
-  patient: Patient | null;
+export interface PatientDetailCardProps {
+  patientId?: string | null;
+  patient?: Patient | null;
   isOpen: boolean;
   onClose: () => void;
-  onEdit: (patient: Patient) => void;
+  onEdit?: (patient: Patient) => void;
   onRelease?: (patient: Patient) => void;
-  onDelete: (patient: Patient) => void;
+  onDelete?: (patient: Patient) => void;
   onAvatarUpdated?: (patient: Patient) => void;
 }
 
 export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
-  patient,
+  patientId,
+  patient: initialPatient,
   isOpen,
   onClose,
   onEdit,
@@ -42,16 +43,57 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [fetchedPatient, setFetchedPatient] = useState<Patient | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  if (!patient) return null;
+  const targetId = patientId || initialPatient?._id;
+
+  // Whenever drawer opens or targetId changes, fetch fresh data by ID
+  useEffect(() => {
+    if (!isOpen || !targetId) return;
+
+    let isMounted = true;
+    const loadTimer = setTimeout(() => {
+      if (isMounted) setIsLoading(true);
+    }, 0);
+
+    PatientService.getPatientById(targetId)
+      .then((data) => {
+        if (isMounted) {
+          setFetchedPatient(data);
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          console.error('Failed to fetch patient details:', err);
+          toast.error('Load Failed', 'Could not fetch patient details.');
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+      clearTimeout(loadTimer);
+    };
+  }, [isOpen, targetId]);
+
+  const activePatient =
+    isOpen && targetId && fetchedPatient?._id === targetId ? fetchedPatient : initialPatient;
+
+  if (!isOpen && !activePatient && !targetId) return null;
 
   const attendingDoctor =
-    patient.doctorId && typeof patient.doctorId === 'object'
-      ? patient.doctorId
+    activePatient?.doctorId && typeof activePatient.doctorId === 'object'
+      ? activePatient.doctorId
       : null;
 
   // upload patient avatar
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!activePatient) return;
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -62,8 +104,9 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
 
     try {
       setIsUploading(true);
-      const updated = await PatientService.updateAvatar(patient._id, file);
-      toast.success('Avatar Updated', `Avatar updated for ${patient.name}.`);
+      const updated = await PatientService.updateAvatar(activePatient._id, file);
+      toast.success('Avatar Updated', `Avatar updated for ${activePatient.name}.`);
+      setFetchedPatient(updated);
       onAvatarUpdated?.(updated);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'failed to upload avatar';
@@ -75,8 +118,8 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
   };
 
   // format admission date
-  const formattedAdmissionDate = patient.admissionDate
-    ? new Date(patient.admissionDate).toLocaleDateString('en-US', {
+  const formattedAdmissionDate = activePatient?.admissionDate
+    ? new Date(activePatient.admissionDate).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -84,8 +127,8 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
     : 'N/A';
 
   // format registered date
-  const formattedRegisteredDate = patient.createdAt
-    ? new Date(patient.createdAt).toLocaleDateString('en-US', {
+  const formattedRegisteredDate = activePatient?.createdAt
+    ? new Date(activePatient.createdAt).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -98,311 +141,275 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
       <PageHeader
         size="sm"
         title="Patient Dossier"
-        subtitle="Clinical and specialist care record"
+        subtitle={
+          isLoading
+            ? 'Loading clinical record...'
+            : activePatient?.condition || 'Clinical and specialist care record'
+        }
         icon={<Users className="w-4 h-4 text-secondary" />}
         onClose={onClose}
         className="shrink-0 px-6 py-4 border-b border-border/80 bg-card/90 relative z-10"
       />
 
-      {/* scrollable body matching Profile Drawer 1:1 */}
-      <div className="flex-1 overflow-y-auto no-scrollbar scrollbar-none p-6 space-y-5">
-        {/* full colored gradient top card */}
-        <div className="relative rounded-3xl bg-linear-to-br from-secondary to-secondary-hover p-5 space-y-4 shadow-xl overflow-hidden text-white">
-          {/* background glows */}
-          <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
-          <div className="pointer-events-none absolute -left-8 -bottom-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+      {/* When loading or data not ready, show skeleton */}
+      {isLoading || !activePatient ? (
+        <PatientDetailSkeleton animated={true} />
+      ) : (
+        <div className="flex flex-col flex-1 min-h-0">
+          {/* scrollable body matching Profile Drawer 1:1 */}
+          <div className="flex-1 overflow-y-auto no-scrollbar scrollbar-none p-6 space-y-5">
+            {/* full colored gradient top card */}
+            <div className="relative rounded-3xl bg-linear-to-br from-secondary to-secondary-hover p-5 space-y-4 shadow-xl overflow-hidden text-white">
+              {/* background glows */}
+              <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+              <div className="pointer-events-none absolute -left-8 -bottom-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
 
-          <div className="flex items-start gap-4 relative z-10">
-            {/* avatar with update trigger */}
-            <div className="relative group shrink-0">
-              {patient.avatar?.url ? (
-                <div className="relative w-18 h-18 rounded-2xl overflow-hidden border-2 border-white/40 shadow-lg bg-white/10">
-                  <Image
-                    src={patient.avatar.url}
-                    alt={patient.name}
-                    fill
-                    sizes="72px"
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-              ) : (
-                <div className="w-18 h-18 rounded-2xl bg-white/20 text-white flex items-center justify-center border-2 border-white/40 shadow-lg backdrop-blur-sm">
-                  <Users className="w-8 h-8 text-white" />
-                </div>
-              )}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarUpload}
-                className="hidden"
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
-                className="absolute inset-0 rounded-2xl bg-black/60 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer disabled:opacity-50"
-                title="Change patient photo"
-              >
-                <Camera className="w-4 h-4 mb-0.5" />
-                <span className="text-[9px] font-bold">
-                  {isUploading ? 'Uploading...' : 'Update'}
-                </span>
-              </button>
-            </div>
-
-            {/* details & badge */}
-            <div className="min-w-0 flex-1 space-y-1.5">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="inline-flex items-center text-[10px] font-bold bg-white/20 text-white border border-white/30 backdrop-blur-md px-2.5 py-0.5 rounded-full">
-                  {patient.gender}
-                </span>
-                <span className="inline-flex items-center text-[10px] font-bold bg-white/20 text-white border border-white/30 backdrop-blur-md px-2.5 py-0.5 rounded-full">
-                  {patient.age} Years Old
-                </span>
-                {patient.isReleased ? (
-                  <span className="inline-flex items-center text-[10px] font-bold bg-amber-400/90 text-amber-950 border border-amber-300 px-2.5 py-0.5 rounded-full shadow-xs">
-                    Discharged / Released
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center text-[10px] font-bold bg-emerald-400/90 text-emerald-950 border border-emerald-300 px-2.5 py-0.5 rounded-full shadow-xs">
-                    Under Active Care
-                  </span>
-                )}
-              </div>
-
-              <h3 className="font-semibold text-white text-xl tracking-tight truncate drop-shadow-xs">
-                {patient.name}
-              </h3>
-
-              <div className="flex items-center gap-1.5 text-xs text-white/90">
-                <HeartPulse className="w-3.5 h-3.5 text-white/90 shrink-0" />
-                <span className="truncate font-medium">{patient.condition}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* real metrics grid */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/70 space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-              <Calendar className="w-3 h-3 text-secondary" />
-              Admission Date
-            </span>
-            <p className="text-xs font-bold text-foreground truncate">{formattedAdmissionDate}</p>
-          </div>
-
-          <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/70 space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-              <Users className="w-3 h-3 text-primary" />
-              Demographics
-            </span>
-            <p className="text-xs font-bold text-foreground truncate">
-              {patient.age} yrs • {patient.gender}
-            </p>
-          </div>
-
-          <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/70 space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-              <Phone className="w-3 h-3 text-secondary" />
-              Contact Phone
-            </span>
-            <a
-              href={`tel:${patient.phone}`}
-              className="text-xs font-mono font-bold text-foreground truncate block hover:text-secondary transition-colors"
-            >
-              {patient.phone}
-            </a>
-          </div>
-
-          <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/70 space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-              <Clock className="w-3 h-3 text-muted-foreground" />
-              Registered On
-            </span>
-            <p className="text-xs font-bold text-foreground truncate">{formattedRegisteredDate}</p>
-          </div>
-        </div>
-
-        {/* medical notes / remarks */}
-        {patient.note && (
-          <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/70 space-y-1.5">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
-              <FileText className="w-3.5 h-3.5 text-secondary" />
-              <span>Medical Notes / Remarks</span>
-            </div>
-            <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
-              {patient.note}
-            </p>
-          </div>
-        )}
-
-        {/* attending specialist section */}
-        <div className="space-y-2.5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
-              <Stethoscope className="w-3.5 h-3.5 text-secondary" />
-              <span>Attending Specialist</span>
-            </div>
-            {attendingDoctor && (
-              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-secondary/10 text-secondary border border-secondary/20">
-                Specialist Assigned
-              </span>
-            )}
-          </div>
-
-          {attendingDoctor ? (
-            <div className="p-4 rounded-2xl bg-linear-to-br from-secondary/5 via-card to-primary/5 border border-secondary/20 space-y-3">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  {attendingDoctor.avatar?.url ? (
-                    <div className="relative w-11 h-11 rounded-xl overflow-hidden border border-secondary/25 shrink-0 shadow-xs">
+              <div className="flex items-start gap-4 relative z-10">
+                {/* avatar with update trigger */}
+                <div className="relative group shrink-0">
+                  {activePatient.avatar?.url ? (
+                    <div className="relative w-18 h-18 rounded-2xl overflow-hidden border-2 border-white/40 shadow-lg bg-white/10">
                       <Image
-                        src={attendingDoctor.avatar.url}
-                        alt={attendingDoctor.name}
+                        src={activePatient.avatar.url}
+                        alt={activePatient.name}
                         fill
-                        sizes="44px"
-                        className="object-cover"
+                        sizes="72px"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
                   ) : (
-                    <div className="w-11 h-11 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shrink-0 border border-secondary/20">
-                      <Stethoscope className="w-5 h-5 text-secondary" />
+                    <div className="w-18 h-18 rounded-2xl bg-white/20 text-white flex items-center justify-center border-2 border-white/40 shadow-lg backdrop-blur-sm">
+                      <Users className="w-8 h-8 text-white" />
                     </div>
                   )}
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">
-                      {attendingDoctor.name}
-                    </p>
-                    <p className="text-xs text-secondary font-medium truncate">
-                      {attendingDoctor.specialization}
-                    </p>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1 truncate mt-0.5">
-                      <Building2 className="w-3 h-3 shrink-0" />
-                      {attendingDoctor.hospital}
-                    </p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="absolute inset-0 rounded-2xl bg-black/60 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer disabled:opacity-50"
+                    title="Change patient photo"
+                  >
+                    <Camera className="w-4 h-4 mb-0.5" />
+                    <span className="text-[9px] font-bold">
+                      {isUploading ? 'Uploading...' : 'Update'}
+                    </span>
+                  </button>
+                </div>
+
+                {/* patient identity info */}
+                <div className="space-y-1.5 flex-1 min-w-0">
+                  <span className="text-base font-extrabold tracking-tight truncate block">
+                    {activePatient.name}
+                  </span>
+
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/20 border border-white/20 backdrop-blur-xs">
+                      {activePatient.age} Yrs
+                    </span>
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/20 border border-white/20 backdrop-blur-xs">
+                      {activePatient.gender}
+                    </span>
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/20 border border-white/20 backdrop-blur-xs">
+                      {activePatient.condition}
+                    </span>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-2.5 border-t border-secondary/10 flex items-center justify-between text-[11px] text-muted-foreground">
+              {/* status banner */}
+              <div className="p-3 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-xs flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 font-medium">
+                  <Clock className="w-3.5 h-3.5 opacity-80" />
+                  <span>Clinical Care Status</span>
+                </div>
+                <span className="font-bold flex items-center gap-1.5">
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      activePatient.isReleased ? 'bg-muted-foreground' : 'bg-emerald-300 animate-pulse'
+                    }`}
+                  />
+                  {activePatient.isReleased ? 'Discharged / Released' : 'Admitted & Under Care'}
+                </span>
+              </div>
+            </div>
+
+            {/* attending specialist section */}
+            <div className="p-4 rounded-2xl bg-card border border-border/80 shadow-xs space-y-2.5">
+              <span className="text-xs font-bold text-foreground">Attending Specialist</span>
+              {attendingDoctor ? (
+                <div className="p-3 rounded-2xl bg-primary/5 border border-primary/20 flex items-center gap-3">
+                  <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-primary/10 border border-primary/25 shrink-0 flex items-center justify-center text-primary">
+                    {attendingDoctor.avatar?.url ? (
+                      <Image
+                        src={attendingDoctor.avatar.url}
+                        alt={attendingDoctor.name}
+                        fill
+                        sizes="40px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <Stethoscope className="w-5 h-5" />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold text-foreground truncate">
+                      {attendingDoctor.name.startsWith('Dr.')
+                        ? attendingDoctor.name
+                        : `Dr. ${attendingDoctor.name}`}
+                    </p>
+                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                      <span className="text-primary font-semibold truncate">
+                        {attendingDoctor.specialization}
+                      </span>
+                      {attendingDoctor.hospital && (
+                        <span className="truncate opacity-75">({attendingDoctor.hospital})</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-5 rounded-2xl bg-muted/20 border border-dashed border-border text-center space-y-2">
+                  <p className="text-xs text-muted-foreground">No attending specialist assigned yet</p>
+                  {onEdit && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onEdit(activePatient)}
+                      leftIcon={<Sparkles className="w-3.5 h-3.5 text-secondary" />}
+                    >
+                      Assign Specialist
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* patient contact channels */}
+            <div className="space-y-2.5">
+              <span className="text-xs font-bold text-foreground">Direct Contact Channels</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <a
-                  href={`tel:${attendingDoctor.phone}`}
-                  className="flex items-center gap-1 hover:text-secondary transition-colors font-mono"
+                  href={`tel:${activePatient.phone}`}
+                  className="p-3 rounded-2xl bg-card border border-border/70 hover:border-secondary/50 hover:bg-secondary/5 flex items-center gap-3 transition-colors group cursor-pointer"
                 >
-                  <Phone className="w-3 h-3 text-secondary" />
-                  {attendingDoctor.phone}
+                  <div className="w-8 h-8 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shrink-0 group-hover:bg-secondary group-hover:text-white transition-colors">
+                    <Phone className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase">Phone</p>
+                    <p className="text-xs font-semibold text-foreground truncate">{activePatient.phone}</p>
+                  </div>
                 </a>
-                {attendingDoctor.email && (
+
+                {activePatient.email ? (
                   <a
-                    href={`mailto:${attendingDoctor.email}`}
-                    className="flex items-center gap-1 hover:text-secondary transition-colors truncate max-w-42.5"
+                    href={`mailto:${activePatient.email}`}
+                    className="p-3 rounded-2xl bg-card border border-border/70 hover:border-primary/50 hover:bg-primary/5 flex items-center gap-3 transition-colors group cursor-pointer"
                   >
-                    <Mail className="w-3 h-3 text-primary" />
-                    {attendingDoctor.email}
+                    <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-white transition-colors">
+                      <Mail className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase">Email</p>
+                      <p className="text-xs font-semibold text-foreground truncate">{activePatient.email}</p>
+                    </div>
                   </a>
+                ) : (
+                  <div className="p-3 rounded-2xl bg-muted/20 border border-border/40 flex items-center gap-3 opacity-60">
+                    <div className="w-8 h-8 rounded-xl bg-muted text-muted-foreground flex items-center justify-center shrink-0">
+                      <Mail className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase">Email</p>
+                      <p className="text-xs text-muted-foreground italic truncate">Not provided</p>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
-          ) : (
-            <div className="p-5 rounded-2xl bg-muted/20 border border-dashed border-border text-center space-y-2">
-              <p className="text-xs text-muted-foreground">No attending specialist assigned yet</p>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => onEdit(patient)}
-                leftIcon={<Sparkles className="w-3.5 h-3.5 text-secondary" />}
-              >
-                Assign Specialist
-              </Button>
+
+            {/* admission and discharge dates */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/80 space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-secondary" />
+                  Admission Date
+                </span>
+                <p className="text-xs font-bold text-foreground">{formattedAdmissionDate}</p>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/80 space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-primary" />
+                  Registered In System
+                </span>
+                <p className="text-xs font-bold text-foreground">{formattedRegisteredDate}</p>
+              </div>
             </div>
-          )}
-        </div>
 
-        {/* patient contact channels */}
-        <div className="space-y-2.5">
-          <span className="text-xs font-bold text-foreground">Direct Contact Channels</span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            <a
-              href={`tel:${patient.phone}`}
-              className="p-3 rounded-2xl bg-card border border-border/70 hover:border-secondary/50 hover:bg-secondary/5 flex items-center gap-3 transition-colors group cursor-pointer"
-            >
-              <div className="w-8 h-8 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                <Phone className="w-4 h-4" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase">Phone</p>
-                <p className="text-xs font-mono font-semibold text-foreground truncate">
-                  {patient.phone}
+            {/* clinical notes */}
+            {activePatient.note && (
+              <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/80 space-y-1.5">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                  <FileText className="w-3.5 h-3.5 text-secondary" />
+                  <span>Clinical Observations & Notes</span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                  {activePatient.note}
                 </p>
-              </div>
-            </a>
-
-            {patient.email ? (
-              <a
-                href={`mailto:${patient.email}`}
-                className="p-3 rounded-2xl bg-card border border-border/70 hover:border-secondary/50 hover:bg-secondary/5 flex items-center gap-3 transition-colors group cursor-pointer"
-              >
-                <div className="w-8 h-8 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                  <Mail className="w-4 h-4" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase">Email</p>
-                  <p className="text-xs font-semibold text-foreground truncate">{patient.email}</p>
-                </div>
-              </a>
-            ) : (
-              <div className="p-3 rounded-2xl bg-muted/20 border border-border/40 flex items-center gap-3 opacity-60">
-                <div className="w-8 h-8 rounded-xl bg-muted text-muted-foreground flex items-center justify-center shrink-0">
-                  <Mail className="w-4 h-4" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase">Email</p>
-                  <p className="text-xs text-muted-foreground italic truncate">Not provided</p>
-                </div>
               </div>
             )}
           </div>
-        </div>
-      </div>
 
-      {/* fixed action footer matching Profile Drawer 1:1 */}
-      <div className="shrink-0 p-4 sm:p-5 px-5 sm:px-6 border-t border-border/80 flex items-center justify-end gap-2 sm:gap-2.5 bg-card/90">
-        {!patient.isReleased && onRelease && (
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => onRelease(patient)}
-            leftIcon={<UserCheck className="w-3.5 h-3.5" />}
-            className="whitespace-nowrap"
-          >
-            Release
-          </Button>
-        )}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => onEdit(patient)}
-          leftIcon={<Edit2 className="w-3.5 h-3.5" />}
-          className="whitespace-nowrap"
-        >
-          Edit
-        </Button>
-        <Button
-          type="button"
-          variant="destructive"
-          size="sm"
-          onClick={() => onDelete(patient)}
-          leftIcon={<Trash2 className="w-3.5 h-3.5" />}
-          className="whitespace-nowrap"
-        >
-          Delete
-        </Button>
-      </div>
+          {/* fixed action footer matching Profile Drawer 1:1 */}
+          <div className="shrink-0 p-4 sm:p-5 px-5 sm:px-6 border-t border-border/80 flex items-center justify-end gap-2 sm:gap-2.5 bg-card/90">
+            {!activePatient.isReleased && onRelease && (
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => onRelease(activePatient)}
+                leftIcon={<UserCheck className="w-3.5 h-3.5" />}
+                className="whitespace-nowrap"
+              >
+                Release
+              </Button>
+            )}
+            {onEdit && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => onEdit(activePatient)}
+                leftIcon={<Edit2 className="w-3.5 h-3.5" />}
+                className="whitespace-nowrap"
+              >
+                Edit
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={() => onDelete(activePatient)}
+                leftIcon={<Trash2 className="w-3.5 h-3.5" />}
+                className="whitespace-nowrap"
+              >
+                Delete
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
     </SideSheet>
   );
 };

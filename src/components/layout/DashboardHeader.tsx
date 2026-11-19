@@ -3,16 +3,20 @@
 import React, { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
-import { Menu, Search, Moon, Sun, ShieldCheck, ChevronDown, Command, ChevronLeft } from 'lucide-react';
+import { Menu, Moon, Sun, ShieldCheck, ChevronDown, ChevronLeft } from 'lucide-react';
 import { type AdminUser } from '@/server/auth.service';
+import { type DoctorSearchItem, type PatientSearchItem } from '@/server/search.service';
 import { Logo } from '@/components/common/Logo';
 import { Motion } from '@/components/common/MotionWrapper';
+import { NavbarGlobalSearch } from './NavbarGlobalSearch';
 
 interface DashboardHeaderProps {
   onMenuToggle: () => void;
   onProfileToggle: () => void;
   isProfileOpen: boolean;
   admin: AdminUser | null;
+  onSelectDoctor?: (doctor: DoctorSearchItem) => void;
+  onSelectPatient?: (patient: PatientSearchItem) => void;
 }
 
 const emptySubscribe = () => () => {};
@@ -22,10 +26,11 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   onProfileToggle,
   isProfileOpen,
   admin,
+  onSelectDoctor,
+  onSelectPatient,
 }) => {
   const { setTheme, resolvedTheme } = useTheme();
   const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
-  const [searchQuery, setSearchQuery] = useState('');
   const brandRef = useRef<HTMLDivElement>(null);
   const [slantOffset, setSlantOffset] = useState<number>(240);
 
@@ -61,24 +66,27 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       duration={0.35}
       className="w-full"
     >
-      <header className="w-full rounded-3xl bg-card shadow-xl shadow-black/5 dark:shadow-primary/5 p-2.5 sm:p-3 md:py-2.5 md:px-3 flex flex-col md:flex-row md:items-center justify-between gap-2.5 md:gap-0 transition-all overflow-hidden relative">
-        {/* stylish angled gradient background covering right portion with \ slant cut (desktop only) */}
-        <div
-          style={{
-            left: `${slantOffset}px`,
-            clipPath: 'polygon(36px 0%, 100% 0%, 100% 100%, 0% 100%)',
-          }}
-          className="hidden md:block absolute inset-y-0 right-0 bg-linear-to-r from-primary via-primary-hover to-secondary pointer-events-none transition-all duration-200"
-        />
+      <header className="w-full rounded-3xl bg-card shadow-xl shadow-black/5 dark:shadow-primary/5 p-2.5 sm:p-3 md:py-2.5 md:px-3 flex flex-col md:flex-row md:items-center justify-between gap-2.5 md:gap-0 transition-all relative">
+        {/* background wrapper with rounded-3xl & overflow-hidden so angled gradient conforms to header radius */}
+        <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none z-0">
+          {/* stylish angled gradient background covering right portion with \ slant cut (desktop only) */}
+          <div
+            style={{
+              left: `${slantOffset}px`,
+              clipPath: 'polygon(36px 0%, 100% 0%, 100% 100%, 0% 100%)',
+            }}
+            className="hidden md:block absolute inset-y-0 right-0 bg-linear-to-r from-primary via-primary-hover to-secondary pointer-events-none transition-all duration-200"
+          />
 
-        {/* subtle highlight sheen on the angled edge (desktop only) */}
-        <div
-          style={{
-            left: `${slantOffset}px`,
-            clipPath: 'polygon(36px 0%, 38px 0%, 2px 100%, 0% 100%)',
-          }}
-          className="hidden md:block absolute inset-y-0 w-10 bg-primary-foreground/20 pointer-events-none transition-all duration-200"
-        />
+          {/* subtle highlight sheen on the angled edge (desktop only) */}
+          <div
+            style={{
+              left: `${slantOffset}px`,
+              clipPath: 'polygon(36px 0%, 38px 0%, 2px 100%, 0% 100%)',
+            }}
+            className="hidden md:block absolute inset-y-0 w-10 bg-primary-foreground/20 pointer-events-none transition-all duration-200"
+          />
+        </div>
 
         {/* top row on < md / left section on md+ */}
         <div
@@ -182,36 +190,22 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
         {/* mobile row 2: search bar */}
         <div className="relative z-10 w-full md:hidden">
-          <div className="relative w-full group">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors z-1" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search specialists, patients, hospitals..."
-              className="w-full pl-9.5 pr-4 py-2 text-xs rounded-2xl border border-border/80 bg-muted/40 hover:bg-muted/60 focus:bg-card focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none text-foreground placeholder:text-muted-foreground transition-all shadow-2xs font-medium"
-            />
-          </div>
+          <NavbarGlobalSearch
+            variant="mobile"
+            onSelectDoctor={onSelectDoctor || (() => {})}
+            onSelectPatient={onSelectPatient || (() => {})}
+          />
         </div>
 
         {/* md+ one line all: search, theme toggle, and profile over angled gradient */}
         <div className="relative z-10 hidden md:flex items-center justify-end gap-2 sm:gap-3 grow min-w-0 pl-10 lg:pl-12">
           {/* command-style search input styled for gradient background */}
           <div className="flex-1 max-w-xs lg:max-w-md mx-2 sm:mx-4">
-            <div className="relative w-full group">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-foreground group-focus-within:text-primary-foreground transition-colors z-1" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search specialists, patients, hospitals..."
-                className="w-full pl-9.5 pr-12 lg:pr-14 py-2 text-xs rounded-2xl border border-primary-foreground/25 bg-primary-foreground/15 backdrop-blur-md text-primary-foreground placeholder:text-primary-foreground/75 focus:border-primary-foreground/60 focus:bg-primary-foreground/25 focus:ring-4 focus:ring-primary-foreground/15 outline-none transition-all shadow-xs"
-              />
-              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 hidden lg:flex items-center gap-0.5 px-1.5 py-0.5 rounded-lg border border-primary-foreground/20 bg-primary-foreground/15 text-[10px] text-primary-foreground/80 select-none pointer-events-none shadow-xs font-medium">
-                <Command className="w-2.5 h-2.5" />
-                <span>K</span>
-              </div>
-            </div>
+            <NavbarGlobalSearch
+              variant="desktop"
+              onSelectDoctor={onSelectDoctor || (() => {})}
+              onSelectPatient={onSelectPatient || (() => {})}
+            />
           </div>
 
           {/* theme toggle pill over gradient */}

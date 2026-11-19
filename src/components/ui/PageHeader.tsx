@@ -54,7 +54,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
       iconBox:
         'w-12 h-12 text-secondary flex items-center justify-center shrink-0 [&_svg]:w-8 [&_svg]:h-8',
       divider: 'h-14 w-px bg-primary/20 shrink-0',
-      title: 'text-lg sm:text-xl font-extrabold text-foreground tracking-tight leading-tight',
+      title: 'text-lg sm:text-xl font-bold text-foreground leading-tight',
       subtitle: 'text-xs sm:text-sm text-muted-foreground leading-snug',
       backButton:
         'p-1.5 rounded-xl bg-card border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition-all shrink-0 cursor-pointer',
@@ -70,7 +70,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
       iconBox:
         'w-16 h-16 text-secondary flex items-center justify-center shrink-0 [&_svg]:w-10 [&_svg]:h-10 mr-4',
       divider: 'h-16 w-px bg-primary/20 shrink-0',
-      title: 'text-xl sm:text-2xl font-extrabold text-foreground tracking-tight leading-tight',
+      title: 'text-xl sm:text-2xl font-bold text-foreground leading-tight',
       subtitle: 'text-xs sm:text-sm text-muted-foreground leading-relaxed',
       backButton:
         'p-2.5 rounded-2xl bg-card border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition-all shrink-0 cursor-pointer',
@@ -86,7 +86,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
       iconBox:
         'w-20 h-20 text-secondary flex items-center justify-center shrink-0 [&_svg]:w-12 [&_svg]:h-12',
       divider: 'h-20 w-px bg-primary/20 shrink-0',
-      title: 'text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight leading-tight',
+      title: 'text-2xl sm:text-3xl font-bold text-foreground leading-tight',
       subtitle: 'text-sm sm:text-base text-muted-foreground leading-relaxed',
       backButton:
         'p-3 rounded-2xl bg-card border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition-all shrink-0 cursor-pointer',
