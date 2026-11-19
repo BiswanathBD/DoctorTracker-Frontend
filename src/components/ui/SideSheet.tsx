@@ -41,14 +41,14 @@ export const SideSheet: React.FC<SideSheetProps> = ({
     >
       <DrawerContent
         direction="right"
-        className={`w-full ${widthClass} h-full p-4 flex flex-col justify-center pointer-events-auto outline-none`}
+        className={`w-full ${widthClass} h-full p-2 sm:p-4 flex flex-col justify-center pointer-events-auto outline-none`}
       >
         <DrawerHeader className="sr-only">
           <DrawerTitle>Profile Details Dossier</DrawerTitle>
           <DrawerDescription>Detailed specialist or patient clinical record view</DrawerDescription>
         </DrawerHeader>
         <div
-          className={`w-full h-full max-h-[96vh] rounded-3xl bg-card border border-border/80 shadow-2xl shadow-black/20 dark:shadow-primary/10 flex flex-col overflow-hidden outline-none ${className}`}
+          className={`w-full h-full max-h-[calc(100dvh-1rem)] sm:max-h-[96dvh] rounded-3xl bg-card border border-border/80 shadow-2xl shadow-black/20 dark:shadow-primary/10 flex flex-col overflow-hidden outline-none ${className}`}
         >
           {children}
         </div>

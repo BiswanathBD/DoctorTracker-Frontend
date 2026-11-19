@@ -20,7 +20,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      'fixed inset-0 z-[110] bg-black/50 backdrop-blur-xs dialog-overlay will-change-[opacity]',
+      'fixed inset-0 z-110 bg-black/50 backdrop-blur-xs dialog-overlay',
       className
     )}
     {...props}
@@ -36,11 +36,11 @@ const DialogContent = React.forwardRef<
 >(({ className, children, hideCloseButton = false, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-5 overflow-y-auto pointer-events-none">
+    <div className="fixed inset-0 z-110 flex items-center justify-center p-3 sm:p-5 overflow-y-auto pointer-events-none">
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          'pointer-events-auto relative flex flex-col w-full max-w-lg max-h-[calc(100vh-2.5rem)] sm:max-h-[calc(100vh-3.5rem)] rounded-3xl bg-card text-card-foreground border border-border/80 p-0 shadow-2xl outline-none overflow-hidden no-scrollbar dialog-content will-change-[scale,opacity]',
+          'pointer-events-auto relative flex flex-col w-full max-w-lg max-h-[calc(100vh-2.5rem)] sm:max-h-[calc(100vh-3.5rem)] rounded-3xl bg-card text-card-foreground border border-border/80 p-0 shadow-2xl outline-none overflow-hidden no-scrollbar dialog-content',
           className
         )}
         {...props}

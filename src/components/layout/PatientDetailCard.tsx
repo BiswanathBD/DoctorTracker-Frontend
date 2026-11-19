@@ -511,7 +511,7 @@ export const PatientDetailCard: React.FC<PatientDetailCardProps> = ({
                           <a
                             href={`mailto:${attendingDoctor.email}`}
                             onClick={(e) => e.stopPropagation()}
-                            className="flex items-center gap-1.5 hover:underline hover:text-white truncate max-w-[200px] sm:max-w-[260px]"
+                            className="flex items-center gap-1.5 hover:underline hover:text-white truncate max-w-50 sm:max-w-65"
                             title={`Email ${doctorDisplayName}`}
                           >
                             <div className="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center shrink-0">

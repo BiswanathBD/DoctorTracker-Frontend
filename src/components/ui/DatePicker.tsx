@@ -53,7 +53,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0 ml-1.5 opacity-60" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-1.5 z-100 shadow-2xl rounded-2xl bg-card border border-border" align="start">
+      <PopoverContent className="w-auto p-1.5 z-[120] shadow-2xl rounded-2xl bg-card border border-border" align="start">
         <Calendar
           mode="single"
           selected={date}
