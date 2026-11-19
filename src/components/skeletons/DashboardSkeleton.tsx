@@ -1,27 +1,23 @@
 'use client';
 
 import React from 'react';
-import { Card, Skeleton, Container } from '@/components/ui';
-import { CircleStatCardSkeleton } from './CircleStatCardSkeleton';
-import { DailyActivityChartSkeleton } from './DailyActivityChartSkeleton';
-import { DoctorWorkloadSkeleton } from './DoctorWorkloadSkeleton';
-import { SpecialtyDonutSkeleton } from './SpecialtyDonutSkeleton';
+import { usePathname } from 'next/navigation';
+import { Container, Skeleton } from '@/components/ui';
+import { DashboardPageSkeleton } from './DashboardPageSkeleton';
+import { DoctorsPageSkeleton } from './DoctorsPageSkeleton';
+import { PatientsPageSkeleton } from './PatientsPageSkeleton';
+import { ProfilePageSkeleton } from './ProfilePageSkeleton';
 import {
   Stethoscope,
   Users,
-  Activity,
-  Layers,
-  Calendar,
-  Menu,
-  Search,
-  Command,
   Sun,
   ShieldCheck,
   ChevronDown,
   LayoutDashboard,
   Compass,
   ChevronRight,
-  UserRoundShield,
+  Search,
+  Command,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -30,6 +26,8 @@ export interface DashboardSkeletonProps {
   withLayout?: boolean;
   showHeader?: boolean;
   animated?: boolean;
+  pathname?: string;
+  children?: React.ReactNode;
 }
 
 export const DashboardSkeleton: React.FC<DashboardSkeletonProps> = ({
@@ -37,211 +35,83 @@ export const DashboardSkeleton: React.FC<DashboardSkeletonProps> = ({
   withLayout = true,
   showHeader = true,
   animated = true,
+  pathname: propPathname,
+  children,
 }) => {
-  // Inner main content skeleton
-  const mainContent = (
-    <div
-      className={cn(
-        'w-full space-y-8 pb-12 transition-opacity duration-300',
-        !animated && 'opacity-70',
-        !withLayout && className
-      )}
-    >
-      {/* 1. Page Header Skeleton */}
-      {showHeader && (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 rounded-3xl bg-card/40 backdrop-blur-md border border-border/50">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/15 flex items-center justify-center shrink-0">
-              <UserRoundShield
-                size={36}
-                className={cn('text-primary/50', animated && 'animate-pulse')}
-                strokeWidth={1.2}
-              />
-            </div>
-            <div className="space-y-2">
-              <Skeleton animated={animated} className="h-6 w-48 sm:w-64 rounded-lg" />
-              <Skeleton animated={animated} className="h-3.5 w-64 sm:w-96 rounded" />
-            </div>
-          </div>
+  const routerPathname = usePathname();
+  const currentPath = propPathname || routerPathname || '/dashboard';
 
-          <div className="flex items-center gap-2.5 shrink-0">
-            <Skeleton animated={animated} className="h-10 w-28 rounded-xl" />
-            <Skeleton animated={animated} className="h-10 w-32 rounded-xl" />
-          </div>
-        </div>
-      )}
+  const isDoctors = currentPath.startsWith('/doctors');
+  const isPatients = currentPath.startsWith('/patients');
+  const isProfile = currentPath.startsWith('/profile');
+  const isDashboard = !isDoctors && !isPatients && !isProfile;
 
-      {/* 2. Top Metric Cards (4 Circular Stat Skeletons with subdued opacities) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
-        <CircleStatCardSkeleton
-          animated={animated}
-          activeColor="#198dc7"
-          icon={<Stethoscope className="w-3.5 h-3.5 text-primary/70" />}
-        />
-        <CircleStatCardSkeleton
-          animated={animated}
-          activeColor="#1ac3b5"
-          icon={<Users className="w-3.5 h-3.5 text-secondary/70" />}
-        />
-        <CircleStatCardSkeleton
-          animated={animated}
-          activeColor="#10b981"
-          icon={<Activity className="w-3.5 h-3.5 text-emerald-500/70" />}
-        />
-        <CircleStatCardSkeleton
-          animated={animated}
-          activeColor="#6366f1"
-          icon={<Activity className="w-3.5 h-3.5 text-indigo-500/70" />}
-        />
-      </div>
-
-      {/* 3. Daily Operations & Activity Timeline Skeleton Card */}
-      <Card
-        className={cn(
-          'p-6 space-y-5 border-border/50 bg-card/50 backdrop-blur-md',
-          animated && 'shimmer-active'
-        )}
-      >
-        {/* Chart Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-border/40">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary/70 flex items-center justify-center font-bold">
-              <Calendar className="w-4 h-4 text-primary/70" />
-            </div>
-            <div className="space-y-1">
-              <Skeleton animated={animated} className="h-4 w-52 sm:w-64 rounded" />
-              <Skeleton animated={animated} className="h-3 w-64 sm:w-80 rounded" />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 self-end sm:self-auto">
-            {/* Days switcher pill placeholder */}
-            <div className="flex items-center gap-1 p-1 bg-muted/25 rounded-xl border border-border/30">
-              <Skeleton animated={animated} className="h-6 w-9 rounded-lg" />
-              <Skeleton animated={animated} className="h-6 w-9 rounded-lg" />
-              <Skeleton animated={animated} className="h-6 w-9 rounded-lg" />
-            </div>
-
-            {/* Filter pills placeholder */}
-            <div className="hidden md:flex items-center gap-1 p-1 bg-muted/25 rounded-xl border border-border/30">
-              <Skeleton animated={animated} className="h-6 w-20 rounded-lg" />
-              <Skeleton animated={animated} className="h-6 w-16 rounded-lg" />
-              <Skeleton animated={animated} className="h-6 w-16 rounded-lg" />
-            </div>
-          </div>
-        </div>
-
-        {/* Chart Line Skeleton */}
-        <div className="pt-2">
-          <DailyActivityChartSkeleton animated={animated} />
-        </div>
-      </Card>
-
-      {/* 4. Bottom Analytics Grid: Doctor Workload & Specialty Distribution */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-        {/* Left: Doctor Workload List Skeleton */}
-        <DoctorWorkloadSkeleton animated={animated} />
-
-        {/* Right: Specialty Distribution Donut Skeleton */}
-        <Card
-          className={cn(
-            'p-6 border-border/50 bg-card/50 backdrop-blur-md flex flex-col justify-between h-full',
-            animated && 'shimmer-active'
-          )}
-        >
-          <div className="flex items-center justify-between pb-4 border-b border-border/40 mb-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary/70 flex items-center justify-center">
-                <Layers className="w-4 h-4 text-primary/70" />
-              </div>
-              <div className="space-y-1">
-                <Skeleton animated={animated} className="h-4 w-44 rounded" />
-                <Skeleton animated={animated} className="h-3 w-56 rounded" />
-              </div>
-            </div>
-
-            <Skeleton animated={animated} className="h-5 w-20 rounded-md" />
-          </div>
-
-          <div className="flex-1 w-full flex items-center">
-            <SpecialtyDonutSkeleton animated={animated} />
-          </div>
-        </Card>
-      </div>
-    </div>
+  // Decide inner content based on route
+  const resolvedContent = children ? (
+    children
+  ) : isDoctors ? (
+    <DoctorsPageSkeleton animated={animated} className={className} />
+  ) : isPatients ? (
+    <PatientsPageSkeleton animated={animated} className={className} />
+  ) : isProfile ? (
+    <ProfilePageSkeleton animated={animated} className={className} />
+  ) : (
+    <DashboardPageSkeleton
+      animated={animated}
+      showHeader={showHeader}
+      className={className}
+    />
   );
 
-  // If layout wrapper is not requested, return main content directly
+  // If layout wrapper is disabled, return inner page skeleton directly
   if (!withLayout) {
-    return mainContent;
+    return resolvedContent;
   }
 
-  // Full screen layout with Ambient Glows, Navbar and Sidebar
   return (
-    <div
-      className={cn(
-        'min-h-screen bg-background text-foreground flex flex-col relative overflow-x-clip transition-opacity duration-300',
-        !animated && 'opacity-75',
-        className
-      )}
-    >
-      {/* Background ambient lighting glows with reduced opacity */}
-      <div
-        className={cn(
-          'fixed inset-0 pointer-events-none z-0 overflow-hidden transition-opacity',
-          animated ? 'opacity-50' : 'opacity-25'
-        )}
-      >
+    <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-x-clip">
+      {/* Background ambient lighting */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="absolute -top-32 -left-32 w-150 h-150 rounded-full bg-primary/8 blur-[140px]" />
         <div className="absolute top-10 -right-32 w-150 h-150 rounded-full bg-secondary/8 blur-[150px]" />
         <div className="absolute top-1/2 left-1/3 -translate-y-1/2 w-175 h-175 rounded-full bg-primary/4 blur-[180px]" />
-        <div className="absolute -bottom-40 left-1/4 w-162.5 h-162.5 rounded-full bg-secondary/5 blur-[160px]" />
+        <div className="absolute -bottom-40 left-1/4 w-162.5 h-162.5 rounded-full bg-secondary/6 blur-[160px]" />
       </div>
 
-      {/* 1. Top Navbar Skeleton with softened colors and borders */}
+      {/* 1. Header Skeleton */}
       <header className="sticky top-0 z-40 w-full pt-3 pb-2">
         <Container size="2xl">
-          <div className="relative overflow-hidden rounded-2xl md:rounded-3xl border border-border/50 bg-card/45 backdrop-blur-md shadow-xs p-2 sm:p-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
-            {/* Desktop diagonal linear gradient slant banner with reduced opacity */}
-            <div
-              style={{
-                left: '260px',
-                clipPath: 'polygon(38px 0%, 100% 0%, 100% 100%, 0% 100%)',
-              }}
-              className="hidden md:block absolute inset-y-0 right-0 bg-linear-to-r from-primary/40 via-primary-hover/35 to-secondary/40 pointer-events-none opacity-40"
-            />
+          <div
+            className={cn(
+              'w-full rounded-3xl bg-card/60 backdrop-blur-xl border border-primary/15 shadow-xl shadow-black/5 p-2.5 sm:p-3 md:py-2.5 md:px-3 flex items-center justify-between gap-3 relative overflow-hidden transition-all duration-300',
+              animated && 'shimmer-active',
+              !animated && 'opacity-70'
+            )}
+          >
+            {/* Soft decorative ambient glow */}
+            <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/15 blur-2xl" />
 
-            {/* Left section: Hamburger button & Brand Logo Skeleton */}
-            <div className="relative z-10 flex items-center justify-between w-full md:w-auto shrink-0">
-              <div className="flex items-center gap-2 sm:gap-3 py-0.5 pr-2 md:pr-4">
-                <div className="p-2 rounded-2xl text-muted-foreground/60 lg:hidden">
-                  <Menu className="w-5 h-5" />
+            {/* Left Brand Identity */}
+            <div className="flex items-center gap-3 py-0.5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-linear-to-br from-primary/30 to-secondary/30 flex items-center justify-center shadow-xs">
+                  <div className="w-4 h-4 rounded-full bg-primary/50" />
                 </div>
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className={cn(
-                      'w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center',
-                      animated && 'animate-pulse'
-                    )}
-                  >
-                    <div className="w-4 h-4 rounded-full bg-primary/30" />
-                  </div>
-                  <div className="space-y-1 hidden sm:block">
-                    <Skeleton animated={animated} className="h-4 w-24 rounded bg-muted-foreground/15" />
-                    <Skeleton animated={animated} className="h-2.5 w-16 rounded bg-muted-foreground/10" />
-                  </div>
+                <div className="space-y-1">
+                  <Skeleton animated={animated} className="h-4 w-24 rounded bg-muted-foreground/20" />
+                  <Skeleton animated={animated} className="h-2.5 w-16 rounded bg-muted-foreground/15" />
                 </div>
               </div>
+            </div>
 
-              {/* Mobile controls on right (< md) */}
-              <div className="flex items-center gap-1.5 md:hidden">
-                <div className="p-2 rounded-xl border border-primary/15 bg-linear-to-br from-primary/8 to-secondary/8 text-primary/60">
-                  <Sun className="w-4.5 h-4.5 text-warning/60" strokeWidth={1.5} />
-                </div>
-                <div className="flex items-center gap-2 p-1.5 rounded-2xl border border-primary/15 bg-linear-to-br from-primary/8 to-secondary/8">
-                  <div className="w-7 h-7 rounded-xl bg-primary/10 text-primary/60 flex items-center justify-center">
-                    <ShieldCheck className="w-4 h-4" />
-                  </div>
+            {/* Mobile controls on right (< md) */}
+            <div className="flex items-center gap-1.5 md:hidden">
+              <div className="p-2 rounded-xl border border-primary/15 bg-linear-to-br from-primary/8 to-secondary/8 text-primary/60">
+                <Sun className="w-4.5 h-4.5 text-warning/60" strokeWidth={1.5} />
+              </div>
+              <div className="flex items-center gap-2 p-1.5 rounded-2xl border border-primary/15 bg-linear-to-br from-primary/8 to-secondary/8">
+                <div className="w-7 h-7 rounded-xl bg-primary/10 text-primary/60 flex items-center justify-center">
+                  <ShieldCheck className="w-4 h-4" />
                 </div>
               </div>
             </div>
@@ -267,7 +137,14 @@ export const DashboardSkeleton: React.FC<DashboardSkeletonProps> = ({
               </div>
 
               {/* Profile pill skeleton */}
-              <div className="flex items-center gap-2.5 p-1.5 pr-3 rounded-2xl border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground shadow-2xs">
+              <div
+                className={cn(
+                  'flex items-center gap-2.5 p-1.5 pr-3 rounded-2xl border border-primary-foreground/20 shadow-2xs transition-colors',
+                  isProfile
+                    ? 'bg-primary-foreground/25 text-primary-foreground'
+                    : 'bg-primary-foreground/10 text-primary-foreground'
+                )}
+              >
                 <div className="relative w-8 h-8 rounded-xl bg-primary-foreground/20 flex items-center justify-center shrink-0">
                   <ShieldCheck className="w-4 h-4 text-primary-foreground/70" />
                   <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-card bg-success/80" />
@@ -286,10 +163,10 @@ export const DashboardSkeleton: React.FC<DashboardSkeletonProps> = ({
       {/* 2. Main Layout (Sidebar + Content inside Container) */}
       <div className="relative flex-1 w-full flex flex-col py-3">
         <Container size="2xl" className="flex-1 flex gap-6 items-start">
-          {/* Desktop Sidebar Skeleton with softer gradient & opacity */}
+          {/* Desktop Sidebar Skeleton with route-aware active item */}
           <aside
             className={cn(
-              'hidden lg:flex sticky top-22 z-20 w-64 xl:w-72 h-[calc(100vh-7rem)] text-primary-foreground p-4 flex-col justify-between overflow-hidden rounded-3xl shrink-0 relative transition-all duration-300',
+              'hidden lg:flex sticky top-0 z-20 w-64 xl:w-72 h-[calc(100vh-7rem)] text-primary-foreground p-4 flex-col justify-between overflow-hidden rounded-3xl shrink-0 transition-all duration-300',
               'bg-linear-to-b from-primary/45 via-primary-hover/40 to-secondary/45 backdrop-blur-xl border border-primary-foreground/15 shadow-xl shadow-primary/10',
               animated && 'shimmer-active',
               !animated && 'opacity-65'
@@ -317,52 +194,125 @@ export const DashboardSkeleton: React.FC<DashboardSkeletonProps> = ({
 
               {/* Navigation Links */}
               <nav className="space-y-2">
-                {/* 1. Item Active */}
-                <div className="relative flex items-center justify-between p-3 rounded-2xl bg-primary-foreground/15 text-primary-foreground border border-primary-foreground/20 shadow-sm">
+                {/* 1. Dashboard Nav Item */}
+                <div
+                  className={cn(
+                    'relative flex items-center justify-between p-3 rounded-2xl transition-all',
+                    isDashboard
+                      ? 'bg-primary-foreground/15 text-primary-foreground border border-primary-foreground/20 shadow-sm'
+                      : 'bg-primary-foreground/5 text-primary-foreground/75 border border-transparent'
+                  )}
+                >
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-xl bg-primary-foreground/15 text-primary-foreground">
+                    <div
+                      className={cn(
+                        'p-2 rounded-xl',
+                        isDashboard ? 'bg-primary-foreground/15 text-primary-foreground' : 'bg-primary-foreground/8'
+                      )}
+                    >
                       <LayoutDashboard className="w-4 h-4" />
                     </div>
                     <div className="space-y-1.5">
-                      <Skeleton animated={animated} className="h-3.5 w-20 rounded bg-primary-foreground/35" />
-                      <Skeleton animated={animated} className="h-2.5 w-32 rounded bg-primary-foreground/20" />
+                      <Skeleton
+                        animated={animated}
+                        className={cn('h-3.5 w-20 rounded', isDashboard ? 'bg-primary-foreground/35' : 'bg-primary-foreground/20')}
+                      />
+                      <Skeleton
+                        animated={animated}
+                        className={cn('h-2.5 w-32 rounded', isDashboard ? 'bg-primary-foreground/20' : 'bg-primary-foreground/15')}
+                      />
                     </div>
                   </div>
-                  <div className="w-1.5 h-6 rounded-full bg-accent/80" />
+                  {isDashboard ? (
+                    <div className="w-1.5 h-6 rounded-full bg-accent/80" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-primary-foreground/30" />
+                  )}
                 </div>
 
-                {/* 2. Item Inactive */}
-                <div className="flex items-center justify-between p-3 rounded-2xl bg-primary-foreground/5 text-primary-foreground/75 border border-transparent">
+                {/* 2. Doctors Nav Item */}
+                <div
+                  className={cn(
+                    'relative flex items-center justify-between p-3 rounded-2xl transition-all',
+                    isDoctors
+                      ? 'bg-primary-foreground/15 text-primary-foreground border border-primary-foreground/20 shadow-sm'
+                      : 'bg-primary-foreground/5 text-primary-foreground/75 border border-transparent'
+                  )}
+                >
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-xl bg-primary-foreground/8">
+                    <div
+                      className={cn(
+                        'p-2 rounded-xl',
+                        isDoctors ? 'bg-primary-foreground/15 text-primary-foreground' : 'bg-primary-foreground/8'
+                      )}
+                    >
                       <Stethoscope className="w-4 h-4" />
                     </div>
                     <div className="space-y-1.5">
-                      <Skeleton animated={animated} className="h-3.5 w-16 rounded bg-primary-foreground/20" />
-                      <Skeleton animated={animated} className="h-2.5 w-28 rounded bg-primary-foreground/15" />
+                      <Skeleton
+                        animated={animated}
+                        className={cn('h-3.5 w-16 rounded', isDoctors ? 'bg-primary-foreground/35' : 'bg-primary-foreground/20')}
+                      />
+                      <Skeleton
+                        animated={animated}
+                        className={cn('h-2.5 w-28 rounded', isDoctors ? 'bg-primary-foreground/20' : 'bg-primary-foreground/15')}
+                      />
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-primary-foreground/30" />
+                  {isDoctors ? (
+                    <div className="w-1.5 h-6 rounded-full bg-accent/80" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-primary-foreground/30" />
+                  )}
                 </div>
 
-                {/* 3. Item Inactive */}
-                <div className="flex items-center justify-between p-3 rounded-2xl bg-primary-foreground/5 text-primary-foreground/75 border border-transparent">
+                {/* 3. Patients Nav Item */}
+                <div
+                  className={cn(
+                    'relative flex items-center justify-between p-3 rounded-2xl transition-all',
+                    isPatients
+                      ? 'bg-primary-foreground/15 text-primary-foreground border border-primary-foreground/20 shadow-sm'
+                      : 'bg-primary-foreground/5 text-primary-foreground/75 border border-transparent'
+                  )}
+                >
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-xl bg-primary-foreground/8">
+                    <div
+                      className={cn(
+                        'p-2 rounded-xl',
+                        isPatients ? 'bg-primary-foreground/15 text-primary-foreground' : 'bg-primary-foreground/8'
+                      )}
+                    >
                       <Users className="w-4 h-4" />
                     </div>
                     <div className="space-y-1.5">
-                      <Skeleton animated={animated} className="h-3.5 w-16 rounded bg-primary-foreground/20" />
-                      <Skeleton animated={animated} className="h-2.5 w-24 rounded bg-primary-foreground/15" />
+                      <Skeleton
+                        animated={animated}
+                        className={cn('h-3.5 w-16 rounded', isPatients ? 'bg-primary-foreground/35' : 'bg-primary-foreground/20')}
+                      />
+                      <Skeleton
+                        animated={animated}
+                        className={cn('h-2.5 w-24 rounded', isPatients ? 'bg-primary-foreground/20' : 'bg-primary-foreground/15')}
+                      />
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-primary-foreground/30" />
+                  {isPatients ? (
+                    <div className="w-1.5 h-6 rounded-full bg-accent/80" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-primary-foreground/30" />
+                  )}
                 </div>
               </nav>
             </div>
 
             {/* Bottom Profile Footer Skeleton */}
-            <div className="relative z-10 p-3 rounded-2xl bg-primary-foreground/10 backdrop-blur-md border border-primary-foreground/15 shadow-sm space-y-2.5">
+            <div
+              className={cn(
+                'relative z-10 p-3 rounded-2xl backdrop-blur-md border shadow-sm space-y-2.5 transition-all',
+                isProfile
+                  ? 'bg-primary-foreground/20 border-primary-foreground/30'
+                  : 'bg-primary-foreground/10 border-primary-foreground/15'
+              )}
+            >
               <div className="flex items-center justify-between gap-2.5 p-1 rounded-xl">
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
                   <div className="relative shrink-0">
@@ -384,9 +334,9 @@ export const DashboardSkeleton: React.FC<DashboardSkeletonProps> = ({
             </div>
           </aside>
 
-          {/* Main Dashboard Content */}
+          {/* Main Content Area */}
           <main className="flex-1 min-w-0 space-y-8">
-            {mainContent}
+            {resolvedContent}
           </main>
         </Container>
       </div>

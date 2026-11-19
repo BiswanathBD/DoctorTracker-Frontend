@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Logo } from '@/components/common/Logo';
 import { Button, Input, toast } from '@/components/ui';
@@ -17,7 +16,6 @@ import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeleton';
 import { Lock, Mail, Eye, EyeOff, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 
 export default function LoginPage() {
-  const router = useRouter();
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,9 +41,6 @@ export default function LoginPage() {
       setLoading(true);
       const { admin } = await login(email, password);
       toast.success(`Welcome back, ${admin.name}!`, 'Redirecting to your dashboard...');
-
-      router.push('/dashboard');
-      router.refresh();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Invalid email or password.';
       toast.error('Authentication Failed', message);

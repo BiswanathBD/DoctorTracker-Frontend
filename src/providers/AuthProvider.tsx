@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AuthService, type AdminUser } from '@/server/auth.service';
 import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeleton';
@@ -41,9 +41,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
+  const hasVerified = useRef(false);
+
   // initial auth verification on every page reload/mount
   useEffect(() => {
     let isMounted = true;
+
+    // if already verified and authenticated, skip re-verification on protected route changes
+    if (hasVerified.current && user && !isPublicRoute) {
+      setLoading(false);
+      return;
+    }
 
     const verifyAuth = async () => {
       try {
@@ -52,6 +60,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (isMounted) {
           setUser(profile);
           setLoading(false);
+          hasVerified.current = true;
         }
 
         // if authenticated and currently on login page, redirect to dashboard
@@ -62,6 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (isMounted) {
           setUser(null);
           setLoading(false);
+          hasVerified.current = true;
         }
 
         // if unauthenticated and on protected route, clean redirect directly to login
@@ -76,7 +86,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => {
       isMounted = false;
     };
-  }, [isPublicRoute, router]);
+  }, [isPublicRoute, router, user]);
 
   // login handler
   const login = useCallback(
@@ -91,6 +101,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // logout handler
   const logout = useCallback(async () => {
+    hasVerified.current = false;
     setUser(null);
     await AuthService.logout();
   }, []);
@@ -107,11 +118,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     [user, loading, login, logout, refreshProfile]
   );
 
-  // while verifying authentication on protected routes, render dashboard skeleton
+  // while verifying authentication on protected routes, render route-specific dashboard skeleton
   if (loading && !isPublicRoute) {
     return (
       <AuthContext.Provider value={value}>
-        <DashboardSkeleton withLayout={true} />
+        <DashboardSkeleton withLayout={true} pathname={pathname} />
       </AuthContext.Provider>
     );
   }

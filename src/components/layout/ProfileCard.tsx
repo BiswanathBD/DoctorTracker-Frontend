@@ -63,12 +63,12 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
       {/* scrollable body */}
       <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-5">
         {/* stylish hero identity card (following main profile card) */}
-        <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-primary via-primary-hover to-secondary text-primary-foreground p-5 shadow-xl border border-primary-foreground/20 space-y-4">
+        <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-primary via-primary-hover to-secondary text-primary-foreground p-3 shadow-xl border border-primary-foreground/20 space-y-4">
 
           {/* absolute admin privilege pill on top right */}
-          <div className="absolute top-4 right-4 z-20">
+          <div className="absolute top-2 right-2 z-20">
             <Badge variant="primary" className="bg-primary-foreground/20! text-primary-foreground border-primary-foreground/30 text-xs py-0.5 px-2.5 font-medium shadow-2xs backdrop-blur-xs">
-              <ShieldCheck className="w-3 h-3 mr-1" />
+              <ShieldCheck className="w-3 h-3" />
               <span className="capitalize">{admin?.role || 'admin'}</span> Privileges
             </Badge>
           </div>
@@ -85,7 +85,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
           <div className="relative z-10 flex items-center gap-4 pr-32">
             <div className="relative shrink-0">
               {admin?.avatar?.url ? (
-                <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-primary-foreground/40 shadow-lg shadow-black/10">
+                <div className="relative w-14 h-14 rounded-2xl overflow-hidden border-2 border-primary-foreground/40 shadow-lg shadow-black/10">
                   <Image
                     src={admin.avatar.url}
                     alt={admin.name || 'Admin'}
@@ -102,13 +102,13 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ isOpen, onClose, admin
             </div>
 
             <div className="min-w-0 flex-1 space-y-1">
-              <h3 className="font-semibold text-primary-foreground text-base tracking-tight truncate">
+              <h3 className="font-semibold text-primary-foreground text-xl tracking-tight">
                 {admin?.name || 'Super Admin'}
               </h3>
 
-              <p className="text-xs text-primary-foreground/85 flex items-center gap-1.5 truncate font-medium">
+              <p className="text-xs text-primary-foreground/85 flex items-center gap-1.5 font-medium">
                 <Mail className="w-3.5 h-3.5 text-primary-foreground/90 shrink-0" />
-                <span className="truncate">{admin?.email || 'admin@doctortracker.com'}</span>
+                <span>{admin?.email || 'admin@doctortracker.com'}</span>
               </p>
             </div>
           </div>
