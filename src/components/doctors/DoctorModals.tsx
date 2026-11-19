@@ -129,6 +129,7 @@ export const DoctorModals: React.FC<DoctorModalsProps> = ({
       <DoctorDetailCard
         key={activeDoctorId || 'doctor-drawer-none'}
         doctorId={activeDoctorId}
+        doctor={activeDoctorId === selectedDoctor?._id ? selectedDoctor : null}
         isOpen={isDoctorCardOpen}
         loadingPatients={loadingDoctorDetails}
         onClose={() => {
@@ -137,8 +138,6 @@ export const DoctorModals: React.FC<DoctorModalsProps> = ({
         }}
         onAvatarUpdated={onAvatarUpdated}
         onEdit={(doc) => {
-          onCloseDetailCard();
-          setViewingDoctorId(null);
           onEditDoctor(doc);
         }}
         onDelete={(doc) => {
@@ -212,7 +211,11 @@ export const DoctorModals: React.FC<DoctorModalsProps> = ({
         isOpen={isDeleteModalOpen}
         onClose={onCloseDeleteModal}
         doctor={doctorToDelete}
-        onConfirm={onConfirmDeleteDoctor}
+        onConfirm={async () => {
+          await onConfirmDeleteDoctor();
+          onCloseDetailCard();
+          setViewingDoctorId(null);
+        }}
       />
 
       {/* modal: confirm remove patient from doctor */}

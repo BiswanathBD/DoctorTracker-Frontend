@@ -12,9 +12,9 @@ export default async function AppDashboardLayout({
   const token = cookieStore.get('token')?.value;
 
   // server auth guard
-  if (!token) {
-    redirect('/login');
-  }
+  // if (!token) {
+  //   redirect('/login');
+  // }
 
   return <DashboardLayout>{children}</DashboardLayout>;
 }

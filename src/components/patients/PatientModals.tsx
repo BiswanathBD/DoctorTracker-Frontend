@@ -92,16 +92,12 @@ export const PatientModals: React.FC<PatientModalsProps> = ({
         }}
         onAvatarUpdated={onAvatarUpdated}
         onEdit={(p) => {
-          onCloseDetailCard();
-          setViewingPatientId(null);
           onEditPatient(p);
         }}
         onRelease={(p) => {
           onReleasePatient?.(p);
         }}
         onDelete={(p) => {
-          onCloseDetailCard();
-          setViewingPatientId(null);
           onDeletePatient(p);
         }}
         onViewDoctor={(docId) => {
@@ -143,7 +139,11 @@ export const PatientModals: React.FC<PatientModalsProps> = ({
           isOpen={isReleaseModalOpen}
           onClose={onCloseReleaseModal}
           patient={patientToRelease}
-          onConfirmRelease={onConfirmReleasePatient}
+          onConfirmRelease={async (id, date, remark) => {
+            await onConfirmReleasePatient(id, date, remark);
+            onCloseDetailCard();
+            setViewingPatientId(null);
+          }}
           loading={releaseSubmitting}
         />
       )}
@@ -153,7 +153,11 @@ export const PatientModals: React.FC<PatientModalsProps> = ({
         isOpen={isDeleteModalOpen}
         onClose={onCloseDeleteModal}
         patient={patientToDelete}
-        onConfirm={onConfirmDeletePatient}
+        onConfirm={async () => {
+          await onConfirmDeletePatient();
+          onCloseDetailCard();
+          setViewingPatientId(null);
+        }}
       />
     </>
   );

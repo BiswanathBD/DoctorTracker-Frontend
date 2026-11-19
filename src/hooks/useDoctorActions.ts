@@ -342,20 +342,50 @@ export function useDoctorActions({
   const handleConfirmRemovePatient = async () => {
     if (!selectedDoctor || !patientToRemove) return;
 
+    const removedId = patientToRemove.id;
+    const removedName = patientToRemove.name;
+
     try {
       setPatientRemoveSubmitting(true);
-      await DoctorService.removePatientFromDoctor(selectedDoctor._id, patientToRemove.id);
+
+      // instant optimistic update on selected doctor drawer
+      setSelectedDoctor((prev) => {
+        if (!prev) return prev;
+        const currentList = prev.assignedPatients || prev.patients || [];
+        const updatedList = currentList.filter((p) => {
+          const id = typeof p === 'string' ? p : p._id;
+          return id !== removedId;
+        });
+        return {
+          ...prev,
+          patientCount: Math.max(0, (prev.patientCount ?? currentList.length) - 1),
+          patients: updatedList,
+          assignedPatients: updatedList,
+        };
+      });
+
+      // instant optimistic update on background list count
+      setDoctors((prev) =>
+        prev.map((doc) =>
+          doc._id === selectedDoctor._id
+            ? { ...doc, patientCount: Math.max(0, (doc.patientCount || 1) - 1) }
+            : doc
+        )
+      );
+
+      setIsPatientDeleteModalOpen(false);
+      setPatientToRemove(null);
+
+      await DoctorService.removePatientFromDoctor(selectedDoctor._id, removedId);
       const doctorTitle = selectedDoctor.name.startsWith('Dr.')
         ? selectedDoctor.name
         : `Dr. ${selectedDoctor.name}`;
       toast.success(
         'Patient Unassigned',
-        `${patientToRemove.name} was successfully unassigned from ${doctorTitle}.`
+        `${removedName} was successfully unassigned from ${doctorTitle}.`
       );
-      setIsPatientDeleteModalOpen(false);
-      setPatientToRemove(null);
 
-      // recall doctor details api immediately to get updated patient roster
+      // recall doctor details api to synchronize
       const refreshedDoc = await DoctorService.getDoctorById(selectedDoctor._id);
       setSelectedDoctor(refreshedDoc);
       setDoctors((prev) =>

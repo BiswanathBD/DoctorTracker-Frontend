@@ -117,7 +117,10 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
   const [internalViewingPatientId, setInternalViewingPatientId] = useState<string | null>(null);
 
   const targetId = doctorId || initialDoctor?._id;
-  const isLoading = Boolean(!isOpen || !targetId || !doctor || loadedId !== targetId);
+  const currentDoctor = initialDoctor && initialDoctor._id === targetId ? initialDoctor : doctor;
+  const activeDoctor =
+    currentDoctor && (loadedId === targetId || initialDoctor?._id === targetId) ? currentDoctor : null;
+  const isLoading = Boolean(!isOpen || !targetId || !activeDoctor);
 
   // fetch fresh doctor details from api every time drawer opens or targetId changes
   useEffect(() => {
@@ -144,8 +147,6 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
       isMounted = false;
     };
   }, [isOpen, targetId]);
-
-  const activeDoctor = doctor && loadedId === targetId ? doctor : null;
 
   if (!isOpen && !activeDoctor && !targetId) return null;
 
@@ -353,10 +354,31 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
   const handleConfirmInternalReleasePatient = async (patientId: string, releaseDate: string, remark: string) => {
     try {
       setInternalReleaseSubmitting(true);
-      await PatientService.releasePatient(patientId, releaseDate, remark);
-      toast.success('Patient Released', 'Patient successfully released.');
+
+      // instant optimistic update on release in doctor roster
+      setDoctor((prev) => {
+        if (!prev) return prev;
+        const currentList = prev.assignedPatients || prev.patients || [];
+        const nextList = currentList.map((p) => {
+          const id = typeof p === 'string' ? p : p._id;
+          if (id === patientId && typeof p === 'object') {
+            return { ...p, isReleased: true };
+          }
+          return p;
+        });
+        return {
+          ...prev,
+          patients: nextList,
+          assignedPatients: nextList,
+        };
+      });
+
       setIsInternalReleaseOpen(false);
       setInternalPatientToRelease(null);
+
+      await PatientService.releasePatient(patientId, releaseDate, remark);
+      toast.success('Patient Released', 'Patient successfully released.');
+
       if (activeDoctor) {
         const refreshed = await DoctorService.getDoctorById(activeDoctor._id);
         setDoctor(refreshed);
@@ -381,12 +403,34 @@ export const DoctorDetailCard: React.FC<DoctorDetailCardProps> = ({
 
   const handleConfirmInternalRemovePatient = async () => {
     if (!activeDoctor || !internalPatientToRemove) return;
+    const removedId = internalPatientToRemove.id;
+    const removedName = internalPatientToRemove.name;
+
     try {
       setInternalRemoveSubmitting(true);
-      await DoctorService.removePatientFromDoctor(activeDoctor._id, internalPatientToRemove.id);
-      toast.success('Patient Removed', `${internalPatientToRemove.name} unassigned from doctor.`);
+
+      // instant optimistic update on drawer roster
+      setDoctor((prev) => {
+        if (!prev) return prev;
+        const currentList = prev.assignedPatients || prev.patients || [];
+        const nextList = currentList.filter((p) => {
+          const id = typeof p === 'string' ? p : p._id;
+          return id !== removedId;
+        });
+        return {
+          ...prev,
+          patientCount: Math.max(0, (prev.patientCount ?? currentList.length) - 1),
+          patients: nextList,
+          assignedPatients: nextList,
+        };
+      });
+
       setIsInternalRemoveOpen(false);
       setInternalPatientToRemove(null);
+
+      await DoctorService.removePatientFromDoctor(activeDoctor._id, removedId);
+      toast.success('Patient Removed', `${removedName} unassigned from doctor.`);
+
       const refreshed = await DoctorService.getDoctorById(activeDoctor._id);
       setDoctor(refreshed);
       if (refreshed) onAvatarUpdated?.(refreshed);
