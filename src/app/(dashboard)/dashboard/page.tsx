@@ -256,7 +256,7 @@ export default function DashboardPage() {
     return items;
   })();
 
-  // 100% backend-calculated real clinical metrics
+  // backend-calculated real clinical metrics
   const totalSpecialties = stats?.specializationStats?.length ?? 0;
   const topSpecialty = stats?.specializationStats?.[0];
   const doctorSparkline = dailyTimelineData.slice(-7).map((d) => d.doctors);

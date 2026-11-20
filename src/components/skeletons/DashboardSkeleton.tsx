@@ -197,7 +197,7 @@ export const DashboardSkeleton: React.FC<DashboardSkeletonProps> = ({
           {/* Desktop Sidebar Skeleton with route-aware active item */}
           <aside
             className={cn(
-              'hidden lg:flex sticky top-0 z-20 w-64 xl:w-72 h-[calc(100vh-7rem)] text-primary-foreground p-4 flex-col justify-between overflow-hidden rounded-3xl shrink-0 transition-all duration-300',
+              'hidden lg:flex sticky top-24 z-20 w-64 xl:w-72 h-[calc(100vh-7rem)] text-primary-foreground p-4 flex-col justify-between overflow-hidden rounded-3xl shrink-0 transition-all duration-300',
               'bg-linear-to-b from-primary/45 via-primary-hover/40 to-secondary/45 backdrop-blur-xl border border-primary-foreground/15 shadow-xl shadow-primary/10',
               animated && 'shimmer-active',
               !animated && 'opacity-65'

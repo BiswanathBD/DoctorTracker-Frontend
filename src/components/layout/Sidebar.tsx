@@ -55,7 +55,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ admin, className = '' }) => {
       initial={{ opacity: 0, x: -24 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      className={`hidden lg:flex sticky top-22 z-20 w-64 xl:w-72 h-[calc(100vh-7rem)] bg-linear-to-b from-primary via-primary-hover to-secondary text-primary-foreground shadow-2xl shadow-primary/30 border border-primary-foreground/20 p-4 flex-col justify-between overflow-hidden rounded-3xl shrink-0 ${className}`}
+      className={`hidden lg:flex sticky top-24 z-20 w-64 xl:w-72 h-[calc(100vh-7rem)] bg-linear-to-b from-primary via-primary-hover to-secondary text-primary-foreground shadow-2xl shadow-primary/30 border border-primary-foreground/20 p-4 flex-col justify-between overflow-hidden rounded-3xl shrink-0 ${className}`}
     >
       {/* Ambient background glows */}
       <div className="absolute -top-12 -right-12 w-36 h-36 rounded-full bg-primary-foreground/20 blur-xl pointer-events-none" />
