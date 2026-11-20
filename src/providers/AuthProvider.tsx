@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AuthService, type AdminUser } from '@/server/auth.service';
 import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeleton';
@@ -27,9 +27,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const isPublicRoute = pathname === '/login';
-
-  // refresh profile
+  // refresh profile on demand
   const refreshProfile = useCallback(async (): Promise<AdminUser | null> => {
     try {
       const profile = await AuthService.getProfile();
@@ -41,57 +39,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
-  const hasVerified = useRef(false);
-
-  // verify auth on mount
+  // fetch current user once on initial mount (route protection is handled by proxy.ts)
   useEffect(() => {
     let isMounted = true;
 
-    if (hasVerified.current && user && !isPublicRoute) {
-      setLoading(false);
-      return;
-    }
-
-    const verifyAuth = async () => {
-      try {
-        const profile = await AuthService.getProfile();
-
-        if (isMounted) {
-          setUser(profile);
-          setLoading(false);
-          hasVerified.current = true;
-        }
-
-        if (isPublicRoute) {
-          router.replace('/dashboard');
-        }
-      } catch {
-        if (isMounted) {
-          setUser(null);
-          setLoading(false);
-          hasVerified.current = true;
-        }
-
-        if (!isPublicRoute) {
-          router.replace('/login');
-        }
-      }
-    };
-
-    verifyAuth();
+    AuthService.getProfile()
+      .then((profile) => {
+        if (isMounted) setUser(profile);
+      })
+      .catch(() => {
+        if (isMounted) setUser(null);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
 
     return () => {
       isMounted = false;
     };
-  }, [isPublicRoute, router, user]);
+  }, []);
 
   // login
   const login = useCallback(
     async (email: string, password: string) => {
       const res = await AuthService.login(email, password);
       setUser(res.admin);
+      setLoading(false);
 
-      // check return destination
       if (typeof window !== 'undefined') {
         const searchParams = new URLSearchParams(window.location.search);
         const from = searchParams.get('from');
@@ -109,16 +83,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // logout
   const logout = useCallback(async () => {
-    hasVerified.current = false;
     setUser(null);
-    await AuthService.logout();
-  }, []);
+    setLoading(false);
+    try {
+      await AuthService.logout();
+    } finally {
+      router.replace('/login');
+    }
+  }, [router]);
 
   const value = useMemo<AuthContextType>(
     () => ({
       user,
       loading,
-      isAuthenticated: !!user,
+      isAuthenticated: Boolean(user),
       login,
       logout,
       refreshProfile,
@@ -126,8 +104,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     [user, loading, login, logout, refreshProfile]
   );
 
-  // prevent unauthorized children flash
-  if (!isPublicRoute && (!user || loading)) {
+  if (loading && pathname !== '/login') {
     return (
       <AuthContext.Provider value={value}>
         <DashboardSkeleton withLayout={true} pathname={pathname} animated={false} />
