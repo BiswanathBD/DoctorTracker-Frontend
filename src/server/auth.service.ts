@@ -25,7 +25,7 @@ export const AuthService = {
     return { admin, token };
   },
 
-  // admin logout: server clears HTTP-only cookie and frontend resets memory state
+  // admin logout: server clears HTTP-only cookie and frontend redirects to /login
   async logout(): Promise<void> {
     try {
       await apiClient<ApiResponse<null>>('/auth/logout', {
@@ -33,6 +33,10 @@ export const AuthService = {
       });
     } catch (err) {
       console.warn('Logout API notification error:', err);
+    } finally {
+      if (typeof window !== 'undefined') {
+        window.location.replace('/login');
+      }
     }
   },
 

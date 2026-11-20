@@ -97,9 +97,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await AuthService.logout();
     } finally {
-      router.replace('/login');
+      if (typeof window !== 'undefined') {
+        window.location.replace('/login');
+      }
     }
-  }, [router]);
+  }, []);
 
   const value = useMemo<AuthContextType>(
     () => ({
