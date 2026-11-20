@@ -1,6 +1,4 @@
 // production-ready centralized API client with automatic HTTP-only cookie inclusion
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-
 export interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined | null>;
 }
@@ -23,9 +21,14 @@ export const apiClient = async <T = unknown>(
 ): Promise<T> => {
   const { params, headers, ...restOptions } = options;
 
-  // construct URL with query params
+  // construct same-origin URL in browser to guarantee first-party cookies across iPhone & all devices
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const url = new URL(`${API_BASE_URL}${cleanEndpoint}`);
+  const base =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/api`
+      : (process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api');
+
+  const url = new URL(`${base.replace(/\/+$/, '')}${cleanEndpoint}`);
 
   if (params) {
     Object.entries(params).forEach(([key, value]) => {

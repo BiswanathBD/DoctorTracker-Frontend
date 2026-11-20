@@ -35,11 +35,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return profile;
     } catch {
       setUser(null);
+      if (pathname !== '/login') {
+        router.replace('/login');
+      }
       return null;
     }
-  }, []);
+  }, [pathname, router]);
 
-  // fetch current user once on initial mount (route protection is handled by proxy.ts)
+  // fetch current user once on initial mount
   useEffect(() => {
     let isMounted = true;
 
@@ -48,7 +51,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (isMounted) setUser(profile);
       })
       .catch(() => {
-        if (isMounted) setUser(null);
+        if (isMounted) {
+          setUser(null);
+          // if unauthenticated and on a protected page, redirect cleanly to /login
+          if (pathname !== '/login') {
+            router.replace('/login');
+          }
+        }
       })
       .finally(() => {
         if (isMounted) setLoading(false);
@@ -57,7 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [pathname, router]);
 
   // login
   const login = useCallback(
@@ -104,7 +113,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     [user, loading, login, logout, refreshProfile]
   );
 
-  if (loading && pathname !== '/login') {
+  // prevent unauthorized dashboard or protected content flash while verifying or if not logged in
+  if ((loading || !user) && pathname !== '/login') {
     return (
       <AuthContext.Provider value={value}>
         <DashboardSkeleton withLayout={true} pathname={pathname} animated={false} />

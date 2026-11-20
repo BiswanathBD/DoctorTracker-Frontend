@@ -3,30 +3,7 @@ import type { AdminUser, LoginResponse } from '@/types/auth.types';
 
 export type { AdminUser, LoginResponse };
 
-// in-memory reactive auth state
-let currentUser: AdminUser | null = null;
-let listeners: Array<() => void> = [];
 let pendingProfilePromise: Promise<AdminUser> | null = null;
-
-const notifyAuthListeners = () => {
-  listeners.forEach((listener) => {
-    try {
-      listener();
-    } catch (e) {
-      console.error('auth listener error:', e);
-    }
-  });
-};
-
-export const subscribeAuth = (callback: () => void) => {
-  listeners.push(callback);
-  return () => {
-    listeners = listeners.filter((l) => l !== callback);
-  };
-};
-
-export const getAuthSnapshot = (): AdminUser | null => currentUser;
-export const getAuthServerSnapshot = (): AdminUser | null => null;
 
 interface ApiResponse<T> {
   statusCode: number;
@@ -45,9 +22,6 @@ export const AuthService = {
     });
 
     const { admin, token } = res.data;
-    currentUser = admin;
-    notifyAuthListeners();
-
     return { admin, token };
   },
 
@@ -59,13 +33,6 @@ export const AuthService = {
       });
     } catch (err) {
       console.warn('Logout API notification error:', err);
-    } finally {
-      currentUser = null;
-      notifyAuthListeners();
-
-      if (typeof window !== 'undefined') {
-        window.location.replace('/login');
-      }
     }
   },
 
@@ -80,14 +47,7 @@ export const AuthService = {
         const res = await apiClient<ApiResponse<AdminUser>>('/auth/me', {
           method: 'GET',
         });
-
-        currentUser = res.data;
-        notifyAuthListeners();
         return res.data;
-      } catch (err) {
-        currentUser = null;
-        notifyAuthListeners();
-        throw err;
       } finally {
         pendingProfilePromise = null;
       }
@@ -106,8 +66,6 @@ export const AuthService = {
       body: formData,
     });
 
-    currentUser = res.data;
-    notifyAuthListeners();
     return res.data;
   },
 
@@ -117,18 +75,6 @@ export const AuthService = {
       method: 'DELETE',
     });
 
-    currentUser = res.data;
-    notifyAuthListeners();
     return res.data;
-  },
-
-  // in-memory user getter
-  getUser(): AdminUser | null {
-    return currentUser;
-  },
-
-  // check authentication status
-  isAuthenticated(): boolean {
-    return !!currentUser;
   },
 };

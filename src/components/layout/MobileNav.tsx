@@ -242,7 +242,11 @@ export const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose, admin }) 
               <div className="pt-2 border-t border-primary-foreground/10 flex items-center justify-end">
                 <button
                   type="button"
-                  onClick={() => AuthService.logout()}
+                  onClick={async () => {
+                    onClose();
+                    await AuthService.logout();
+                    window.location.replace('/login');
+                  }}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-all font-semibold text-xs shadow-md shadow-destructive/25 cursor-pointer active:scale-95"
                 >
                   <LogOut className="w-3.5 h-3.5" />

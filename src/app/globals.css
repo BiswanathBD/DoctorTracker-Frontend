@@ -198,8 +198,7 @@ body {
   backdrop-filter: blur(24px);
 }
 
-/* explicit webkit blur on modal and drawer overlays */
-.dialog-overlay,
+/* explicit webkit blur on drawer overlay */
 [data-vaul-overlay] {
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
@@ -248,62 +247,7 @@ body {
   );
 }
 
-/* smooth modal dialog & overlay keyframe animations */
-@keyframes dialogOverlayFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
 
-@keyframes dialogOverlayFadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes dialogContentZoomIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes dialogContentZoomOut {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-}
-
-.dialog-overlay[data-state="open"] {
-  animation: dialogOverlayFadeIn 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.dialog-overlay[data-state="closed"] {
-  animation: dialogOverlayFadeOut 180ms ease-in forwards;
-}
-
-.dialog-content[data-state="open"] {
-  animation: dialogContentZoomIn 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.dialog-content[data-state="closed"] {
-  animation: dialogContentZoomOut 180ms ease-in forwards;
-}
 
 /* recharts & svg canvas focus outline suppression */
 .recharts-wrapper,
